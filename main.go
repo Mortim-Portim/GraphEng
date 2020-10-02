@@ -1,4 +1,4 @@
-package main 
+package main
 
 import (
 	//"os"
@@ -14,8 +14,8 @@ import (
 	//"github.com/hajimehoshi/ebiten/inpututil"
 	//"golang.org/x/image/font"
 	//"github.com/nfnt/resize"
-	"image/color"
 	"fmt"
+	"image/color"
 	"log"
 	//"math"
 )
@@ -29,11 +29,12 @@ const TestText = "Licht ist eine Form der elektromagnetischen Strahlung. Im enge
 
 type TestGame struct {
 	Tbv *GE.TabView
-	
+
 	wrld *GE.WorldPainter
-	
+
 	idxMat, layerMat *GE.Matrix
 }
+
 func (g *TestGame) Update(screen *ebiten.Image) error {
 	g.Tbv.Update(0)
 	g.Tbv.Draw(screen, 0)
@@ -45,64 +46,60 @@ func (g *TestGame) Layout(outsideWidth, outsideHeight int) (int, int) {
 }
 func main() {
 	GE.Init("./res/VT323.ttf")
-	
-	mat := &GE.Matrix{X:3,Y:3,Z:3};mat.InitIdx()
+
+	mat := &GE.Matrix{X: 3, Y: 3, Z: 3}
+	mat.InitIdx()
 	fmt.Println(mat.Print())
-	
-	newMat := mat.SubMatrix(0,0,0,1,1,1)
+
+	newMat := mat.SubMatrix(0, 0, 0, 1, 1, 1)
 	fmt.Println(newMat.Print())
-	
-		
-	formatedTestText := GE.FormatTextToWidth(TestText,21,true)
-	
-	
+
+	formatedTestText := GE.FormatTextToWidth(TestText, 21, true)
+
 	edT := GE.GetEditText("Fett", 10, 100, 90, 20, GE.StandardFont, &color.RGBA{255, 120, 20, 255}, GE.EditText_Selected_Col)
-	
-	btn := GE.GetTextButton("Edit", "Edasdit", GE.StandardFont, 10, 100, 90, &color.RGBA{255,0,0,255}, &color.RGBA{0,0,255,255}, func(b *GE.Button) {
-			if !b.LPressed {
-				edT.IsSelected = !edT.IsSelected
-			}
-		}, nil)
-	
-	TextView := GE.GetTextView(formatedTestText, 0, 300, 120, 30, GE.StandardFont, &color.RGBA{255,255,255,255}, &color.RGBA{255,0,0,255})
-	
+
+	btn := GE.GetTextButton("Edit", "Edasdit", GE.StandardFont, 10, 100, 90, &color.RGBA{255, 0, 0, 255}, &color.RGBA{0, 0, 255, 255}, func(b *GE.Button) {
+		if !b.LPressed {
+			edT.IsSelected = !edT.IsSelected
+		}
+	}, nil)
+
+	TextView := GE.GetTextView(formatedTestText, 0, 300, 120, 30, GE.StandardFont, &color.RGBA{255, 255, 255, 255}, &color.RGBA{255, 0, 0, 255})
+
 	up2data := make([]GE.UpdateAble, 3)
 	up2data[0] = edT
 	up2data[1] = TextView
 	up2data[2] = TextView
-	params2 := &GE.TabViewParams{Pths:[]string{"./res/tab1.png","./res/tab2.png","./res/tab3.png"}, Scrs:up2data, Y:200, W:screenWidth, H:screenHeight}
+	params2 := &GE.TabViewParams{Pths: []string{"./res/tab1.png", "./res/tab2.png", "./res/tab3.png"}, Scrs: up2data, Y: 200, W: screenWidth, H: screenHeight}
 	tbv2 := GE.GetTabView(params2)
-	
-	
-	
-	
+
 	updatable := make([]GE.UpdateAble, 4)
 	updatable[0] = edT
 	updatable[1] = btn
 	updatable[2] = TextView
 	updatable[3] = tbv2
-	params := &GE.TabViewParams{Nms:[]string{"Fett","Sack","Fettsack","LOL"}, Scrs:updatable, W:screenWidth, H:screenHeight}
+	params := &GE.TabViewParams{Nms: []string{"Fett", "Sack", "Fettsack", "LOL"}, Scrs: updatable, W: screenWidth, H: screenHeight}
 	tbv := GE.GetTabView(params)
-	
-	
-	wrld := &GE.WorldPainter{}
-	wrld.AddTile(GE.LoadEbitenImg("./res/16.png"))
-	wmatI := &GE.Matrix{X:10,Y:9,Z:3};wmatI.Init(0)
-	wmatL := &GE.Matrix{X:10,Y:9,Z:3};wmatL.Init(0)
-	wmatL.Set(0,0,0, -4)
-	wmatL.Set(0,1,0, -3)
-	wmatL.Set(0,2,0, -2)
-	wmatL.Set(0,3,0, -1)
-	wmatL.Set(0,4,0, 0)
-	wmatL.Set(0,5,0, 1)
-	wmatL.Set(0,6,0, 2)
-	wmatL.Set(0,7,0, 3)
-	wmatL.Set(0,8,0, 4)
+
+	wmatI := &GE.Matrix{X: 10, Y: 9, Z: 3}
+	wmatI.Init(0)
+	wmatL := &GE.Matrix{X: 10, Y: 9, Z: 3}
+	wmatL.Init(0)
+	wmatL.Set(0, 0, 0, -4)
+	wmatL.Set(0, 1, 0, -3)
+	wmatL.Set(0, 2, 0, -2)
+	wmatL.Set(0, 3, 0, -1)
+	wmatL.Set(0, 4, 0, 0)
+	wmatL.Set(0, 5, 0, 1)
+	wmatL.Set(0, 6, 0, 2)
+	wmatL.Set(0, 7, 0, 3)
+	wmatL.Set(0, 8, 0, 4)
 	fmt.Println(mat.Print())
-	
-	wrld.Init(0, 400, 500, 500, wmatI.X, wmatI.Y)
+
+	wrld := GE.GetWorldPainter(0, 400, 500, 500, wmatI.X, wmatI.Y)
+	wrld.AddTile(GE.LoadEbitenImg("./res/16.png"))
 	wrld.GetFrame(2, 90)
-	
+
 	g := &TestGame{tbv, wrld, wmatI, wmatL}
 
 	ebiten.SetWindowSize(screenWidth, screenHeight)

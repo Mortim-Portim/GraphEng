@@ -15,6 +15,7 @@ import (
 	//"github.com/nfnt/resize"
 	"image/color"
 	"marvin/GraphEng/GC"
+	"strings"
 	"fmt"
 	"math"
 )
@@ -184,9 +185,17 @@ func contains(s []int, e int) bool {
     return false
 }
 
+const allLetters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+var faceHeight = make(map[font.Face]int)
 func MeasureString(str string, faceTTF font.Face) (x, y int) {
+	h, ok := faceHeight[faceTTF]
+	if !ok {
+		rectAll := text.BoundString(faceTTF, allLetters)
+		h = rectAll.Max.Y-rectAll.Min.Y
+		faceHeight[faceTTF] = h
+	}
 	rect := text.BoundString(faceTTF, str)
-	x, y = rect.Max.X-rect.Min.X, rect.Max.Y-rect.Min.Y
+	x, y = rect.Max.X-rect.Min.X, h*(strings.Count(str, "\n")+1)
 	fmt.Println(rect.String(), ":     ", x, ":", y)
 	return 
 }
@@ -197,7 +206,7 @@ func genVertices(X,Y,R float64, num int) *Points {
 	r       := R
 
 	vs := make([]*GC.Vector,0)
-	for i := 0; i < num; i++ {
+	for i := 0; i <= num; i++ {
 		rate := float64(i) / float64(num)
 		vs = append(vs, &GC.Vector{
 			X:float64(r*math.Cos(2*math.Pi*rate)) + centerX,

@@ -2,6 +2,7 @@ package GE
 
 import (
 	"fmt"
+	"strings"
 	"strconv"
 	"image/color"
 	"github.com/hajimehoshi/ebiten"
@@ -39,9 +40,10 @@ func (t *EditText) Update(frame int) {
 	}
 	if t.IsSelected {
 		newText := string(ebiten.InputChars())
-		if len(newText) > 0 {
+		if len(newText) > 0 && strings.ContainsAny(newText, allLetters+" ") {
 			t.imageNeedsUpdate = true
 			t.text += newText
+			fmt.Println(newText)
 		}
 		if repeatingKeyPressed(ebiten.KeyBackspace) {
 			if len(t.text) >= 1 {

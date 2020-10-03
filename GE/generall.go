@@ -16,7 +16,7 @@ import (
 	"image/color"
 	"marvin/GraphEng/GC"
 	"strings"
-	"fmt"
+	//"fmt"
 	"math"
 )
 const StandardFontSize = 64
@@ -64,7 +64,7 @@ func MakePopUp(str string, size float64, ttf *truetype.Font, textCol, backCol co
 	
 	popUpBack, _ := ebiten.NewImage(w, h, ebiten.FilterDefault)
 	popUpBack.Fill(backCol)
-	xP, yP := h/16, h/4*3
+	xP, yP := h/6, h/4*3
 	text.Draw(popUpBack, str, mplusNormalFont, int(xP), int(yP), textCol)
 	return popUpBack
 }
@@ -194,9 +194,9 @@ func MeasureString(str string, faceTTF font.Face) (x, y int) {
 		h = rectAll.Max.Y-rectAll.Min.Y
 		faceHeight[faceTTF] = h
 	}
-	rect := text.BoundString(faceTTF, str)
-	x, y = rect.Max.X-rect.Min.X+h/4, h*(strings.Count(str, "\n")+1)+h/6
-	fmt.Println(rect.String(), ":     ", x, ":", y)
+	rect := text.BoundString(faceTTF, str+"#")
+	x, y = rect.Max.X-rect.Min.X, h*(strings.Count(str, "\n")+1)+h/6
+	//fmt.Println(rect.String(), ":     ", x, ":", y)
 	return 
 }
 

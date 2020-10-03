@@ -10,7 +10,6 @@ import (
 )
 
 //BUTTONS -------------------------------------------------------------------------------------------------------------------------------
-
 func GetButton(img *ImageObj, dark *ebiten.Image, onPressLeft func(b *Button), onPressRight func(b *Button)) *Button {
 	b := &Button{}
 	b.Img = img; b.dark = dark; b.light = img.Img; b.onPressLeft = onPressLeft; b.onPressRight = onPressRight; b.Active = true
@@ -27,7 +26,6 @@ func GetImageButton(path [2]string, X,Y, W,H float64, onPressLeft func(b *Button
 	return GetButton(img, dark, onPressLeft, onPressRight)
 }
 //EDITTEXT ------------------------------------------------------------------------------------------------------------------------------
-
 func GetEditText(placeHolderText string, X, Y, H float64, maxRunes int, ttf *truetype.Font, cols ...color.Color) (et *EditText) {
 	imgo := ImageObj{H:H, X:X, Y:Y}
 	et = &EditText{imgo, "", placeHolderText, 0, maxRunes, ttf, cols, 0, false, true, true}
@@ -97,13 +95,13 @@ func GetImageScrollbar(X, Y, W, H float64, bar, pointer *ebiten.Image, min, max,
 func GetStandardScrollbar(X, Y, W, H float64, min, max, current int, ttf *truetype.Font) (b *ScrollBar) {
 	
 	bar, _ := ebiten.NewImage(int(W), int(H), ebiten.FilterDefault)
-	bar.Fill(&color.RGBA{0,0,255,255})
+	bar.Fill(&color.RGBA{0,0,0,0})
 	line := GetLineOfPoints(0,H/2, W,H/2, H/6)
 	line.Fill(bar, &color.RGBA{0,200,50,255})
 	
 	pointer, _ := ebiten.NewImage(int(H*2), int(H*2), ebiten.FilterDefault)
-	pointer.Fill(&color.RGBA{0,255,0,100})
-	pnts := genVertices(H,H,H, 11)
+	pointer.Fill(&color.RGBA{0,0,0,0})
+	pnts := genVertices(H,H,H, 100)
 	pnts.Fill(pointer, &color.RGBA{200,0,50,255})
 	
 	return GetImageScrollbar(X,Y,W,H,bar,pointer,min,max,current,ttf)

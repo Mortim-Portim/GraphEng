@@ -37,13 +37,13 @@ func (t *EditText) Update(frame int) {
 	}
 	if repeatingKeyPressed(ebiten.KeyEnter) || repeatingKeyPressed(ebiten.KeyKPEnter) {
 		t.IsSelected = false
+		t.imageNeedsUpdate = true
 	}
 	if t.IsSelected {
 		newText := string(ebiten.InputChars())
 		if len(newText) > 0 && strings.ContainsAny(newText, allLetters+" ") {
 			t.imageNeedsUpdate = true
 			t.text += newText
-			fmt.Println(newText)
 		}
 		if repeatingKeyPressed(ebiten.KeyBackspace) {
 			if len(t.text) >= 1 {
@@ -64,10 +64,6 @@ func (t *EditText) Update(frame int) {
 		t.UpdateImg()
 		t.imageNeedsUpdate = false
 	}
-	if (!t.IsSelected && t.Underscore) {
-		t.Underscore = false
-		t.UpdateImg()
-	}
 }
 func (t *EditText) Draw(screen *ebiten.Image, frame int) {
 	if t.ImageObj.Img != nil {
@@ -81,6 +77,7 @@ func (t *EditText) UpdateImg() {
 	}
 	text := t.text
 	col := t.colors[0]
+	//fmt.Println(len(t.text), ":", t.IsSelected)
 	if len(t.text) <= 0 && !t.IsSelected {
 		text = t.placeHolderText
 		col = t.colors[1]

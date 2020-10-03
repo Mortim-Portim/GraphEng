@@ -60,7 +60,7 @@ func main() {
 		}
 	}, nil)
 
-	TextView := GE.GetTextView(formatedTestText, 0, 300, 120, 30, GE.StandardFont, &color.RGBA{255, 255, 255, 255}, &color.RGBA{255, 0, 0, 255})
+	TextView := GE.GetTextView(formatedTestText, 0, 300, 40, 3, GE.StandardFont, &color.RGBA{255, 255, 255, 255}, &color.RGBA{255, 0, 0, 255})
 
 	ScrollBar := GE.GetStandardScrollbar(700, 500, 600, 60, -128, 128, 0, GE.StandardFont)
 

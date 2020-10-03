@@ -3,16 +3,15 @@ package GE
 import (
 	"github.com/hajimehoshi/ebiten"
 	"strings"
-	"image"
+	//"image"
 )
 type TextView struct {
-	ImageObj
+	X,Y,W,H float64
 	text string
-	lineHeight, realHeight float64
-	scrollIdx float64
-	lines, displayLines int
+	lineHeight float64
+	lines, displayLines, scrollIdx int
 	
-	textImg *ebiten.Image
+	lineImages []*ImageObj
 }
 func (v *TextView) Reset() {
 	v.scrollIdx = 0
@@ -30,21 +29,21 @@ func (v *TextView) Update(frame int) {
 	x, y := ebiten.CursorPosition()
 	if int(v.X) <= x && x < int(v.X+v.W) && int(v.Y) <= y && y < int(v.Y+v.H) {
 		_, dy := ebiten.Wheel()
-		v.scrollIdx -= dy
+		v.scrollIdx -= int(dy)
 		if v.scrollIdx < 0 {
 			v.scrollIdx = 0
 		}
-		if v.scrollIdx >= float64(v.lines-v.displayLines) {
-			v.scrollIdx = float64(v.lines-v.displayLines)
+		if v.scrollIdx >= v.lines-v.displayLines {
+			v.scrollIdx = v.lines-v.displayLines
 		}
 	}
 }
 func (v *TextView) Draw(screen *ebiten.Image, frame int) {
-	w,_ := v.textImg.Size()
-	yPnt := v.scrollIdx*v.lineHeight+v.lineHeight/4
-	img := v.textImg.SubImage(image.Rectangle{image.Point{0, int(yPnt)}, image.Point{w, int(yPnt+v.H)}})
-	v.Img = ImgToEbitenImg(&img)
-	v.ImageObj.DrawImageObj(screen)
+	for i := 0; i < v.displayLines; i++ {
+		idx := i+v.scrollIdx
+		v.lineImages[idx].Y = v.Y+float64(i)*v.lineHeight
+		v.lineImages[idx].DrawImageObj(screen)
+	}
 }
 
 

@@ -35,19 +35,12 @@ func GetEditText(placeHolderText string, X, Y, H float64, maxRunes int, ttf *tru
 }
 //TEXTVIEW ------------------------------------------------------------------------------------------------------------------------------
 
-func GetTextView(text string, X, Y, H, lineHeight float64, ttf *truetype.Font, txtCol, backCol color.Color) *TextView {
-	v := &TextView{text:text}; v.X = X; v.Y = Y; v.lineHeight = lineHeight
-	v.lines = HasLines(text); v.realHeight = lineHeight*float64(v.lines)
-	v.textImg = GetTextLinesImage(text, X, Y, v.realHeight, ttf, txtCol, backCol)
-	w,h := v.textImg.Size()
-	v.W = float64(w)
-	v.H = H
-	if float64(h) < v.H {
-		v.H = float64(h)
-	}
-	v.displayLines = int(v.H/v.lineHeight)
-	//fmt.Println("Width:",w,", Height:",h,", realHeight:",v.realHeight,", lines",v.lines,", displayLines:",v.displayLines)
-	return v
+func GetTextView(text string, X, Y, lineHeight float64, displayLines int, ttf *truetype.Font, txtCol, backCol color.Color) (v *TextView) {
+	v = &TextView{X:X,Y:Y, text:text, lineHeight:lineHeight, displayLines:displayLines}
+	v.lines = HasLines(text)
+	v.H = float64(v.lines)*lineHeight
+	v.lineImages, v.W = GetTextLinesImages(text, X, Y, lineHeight, ttf, txtCol, backCol)
+	return
 }
 //TABVIEW -------------------------------------------------------------------------------------------------------------------------------
 type TabViewParams struct {

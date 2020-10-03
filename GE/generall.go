@@ -93,27 +93,20 @@ func GetTextImage(textStr string, X, Y, H float64, ttf *truetype.Font, txtCol, b
 	return imgo
 }
 
-func GetTextLinesImage(textStr string, X, Y, H float64, ttf *truetype.Font, txtCol, backCol color.Color) (*ebiten.Image) {
-	lines := HasLines(textStr)
-	mplusNormalFont := truetype.NewFace(ttf, &truetype.Options{
-		Size:    StandardFontSize,
-		DPI:     96,
-		Hinting: font.HintingFull,
-	})
-	w, h := MeasureString(textStr, mplusNormalFont)
-	
-	Back, _ := ebiten.NewImage(w, h, ebiten.FilterDefault)
-	xP, yP := 0, float64(h)/float64(lines)
-	text.Draw(Back, textStr, mplusNormalFont, int(xP), int(yP), txtCol)
-	
-	W := float64(w)*H/float64(h)
-	smallImg, _ := ebiten.NewImage(int(W), int(H), ebiten.FilterDefault)
-	smallImg.Fill(backCol)
-	op := &ebiten.DrawImageOptions{}
-	op.Filter = ebiten.FilterNearest
-	op.GeoM.Scale(H/float64(h), H/float64(h))
-	smallImg.DrawImage(Back, op)
-	return smallImg
+func GetTextLinesImages(textStr string, X, Y, lineHeight float64, ttf *truetype.Font, txtCol, backCol color.Color) (lineImgs []*ImageObj, maxWidth float64) {
+	lines := strings.Split(textStr, "\n")
+	lineImgs = make([]*ImageObj, len(lines))
+	maxWidth = 0
+	for i,str := range(lines) {
+		for str[0] == " "[0] {
+			str = str[1:]
+		}
+		lineImgs[i] = GetTextImage(str, X, Y+float64(i)*lineHeight, lineHeight, ttf, txtCol, backCol)
+		if lineImgs[i].W > maxWidth {
+			maxWidth = lineImgs[i].W
+		}
+	}
+	return 
 }
 
 // repeatingKeyPressed return true when key is pressed considering the repeat state.

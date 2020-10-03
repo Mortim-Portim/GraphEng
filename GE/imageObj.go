@@ -31,7 +31,15 @@ type ImageObj struct {
 }
 //Sets the middle of the Image to x,y
 func (obj *ImageObj) SetMiddle(x,y float64) {
-	obj.X = x+obj.W/2; obj.Y = y+obj.H/2
+	obj.X = x-obj.W/2; obj.Y = y-obj.H/2
+}
+//Sets the middle of the Image to x
+func (obj *ImageObj) SetMiddleX(x float64) {
+	obj.X = x-obj.W/2
+}
+//Sets the middle of the Image to y
+func (obj *ImageObj) SetMiddleY(y float64) {
+	obj.Y = y-obj.H/2
 }
 //Puts the Image in between x1,y1 and x2,y2
 func (obj *ImageObj) PutInBounds(x1,y1, x2,y2 float64) {

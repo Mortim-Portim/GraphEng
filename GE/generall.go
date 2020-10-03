@@ -9,13 +9,14 @@ import (
 	"github.com/hajimehoshi/ebiten/text"
 	//"github.com/hajimehoshi/ebiten/ebitenutil"
 	"github.com/hajimehoshi/ebiten/examples/resources/fonts"
-	"github.com/golang/freetype/truetype"
+	"github.com/golang/freetype/truetype" 
 	"github.com/hajimehoshi/ebiten/inpututil"
 	"golang.org/x/image/font"
 	//"github.com/nfnt/resize"
 	"image/color"
-	//"fmt"
-	//"math"
+	"marvin/GraphEng/GC"
+	"fmt"
+	"math"
 )
 const StandardFontSize = 64
 
@@ -58,12 +59,11 @@ func MakePopUp(str string, size float64, ttf *truetype.Font, textCol, backCol co
 		DPI:     96,
 		Hinting: font.HintingFull,
 	})
-	pnt := text.MeasureString(str, mplusNormalFont)
+	w, h := MeasureString(str, mplusNormalFont)
 	
-	w, h := int(float64(pnt.X)), int(float64(pnt.Y))
 	popUpBack, _ := ebiten.NewImage(w, h, ebiten.FilterDefault)
 	popUpBack.Fill(backCol)
-	xP, yP := 0, pnt.Y/4*3
+	xP, yP := 0, h
 	text.Draw(popUpBack, str, mplusNormalFont, int(xP), int(yP), textCol)
 	return popUpBack
 }
@@ -71,19 +71,23 @@ func MakePopUp(str string, size float64, ttf *truetype.Font, textCol, backCol co
 //Returns an ImageObj with text on it
 func GetTextImage(textStr string, X, Y, H float64, ttf *truetype.Font, txtCol, backCol color.Color) (*ImageObj) {
 	imgo := &ImageObj{H:H, X:X, Y:Y}
-	
-	textImg := MakePopUp(textStr, StandardFontSize, ttf, txtCol, &color.RGBA{0,0,0,0})
-	w,h := textImg.Size(); W := float64(w)*H/float64(h)
-	imgo.W = W
-	
-	Back, _ := ebiten.NewImage(int(W), int(H), ebiten.FilterDefault)
-	Back.Fill(backCol); imgo.Img = Back
-	
-	op := &ebiten.DrawImageOptions{}
-	op.Filter = ebiten.FilterNearest
-	op.GeoM.Scale(H/float64(h), H/float64(h))
-	//op.GeoM.Translate(H*0.25,0)
-	imgo.Img.DrawImage(textImg, op)
+	if len(textStr) > 0 {
+		textImg := MakePopUp(textStr, StandardFontSize, ttf, txtCol, &color.RGBA{0,0,0,0})
+		w,h := textImg.Size(); W := float64(w)*H/float64(h)
+		imgo.W = W
+		
+		Back, _ := ebiten.NewImage(int(W), int(H), ebiten.FilterDefault)
+		Back.Fill(backCol); imgo.Img = Back
+		
+		op := &ebiten.DrawImageOptions{}
+		op.Filter = ebiten.FilterNearest
+		op.GeoM.Scale(H/float64(h), H/float64(h))
+		//op.GeoM.Translate(H*0.25,0)
+		imgo.Img.DrawImage(textImg, op)
+	}else{
+		Back, _ := ebiten.NewImage(1, 1, ebiten.FilterDefault)
+		Back.Fill(backCol); imgo.Img = Back
+	}
 	
 	return imgo
 }
@@ -95,9 +99,8 @@ func GetTextLinesImage(textStr string, X, Y, H float64, ttf *truetype.Font, txtC
 		DPI:     96,
 		Hinting: font.HintingFull,
 	})
-	pnt := text.MeasureString(textStr, mplusNormalFont)
+	w, h := MeasureString(textStr, mplusNormalFont)
 	
-	w, h := pnt.X, pnt.Y
 	Back, _ := ebiten.NewImage(w, h, ebiten.FilterDefault)
 	xP, yP := 0, float64(h)/float64(lines)
 	text.Draw(Back, textStr, mplusNormalFont, int(xP), int(yP), txtCol)
@@ -179,4 +182,33 @@ func contains(s []int, e int) bool {
         }
     }
     return false
+}
+
+func MeasureString(str string, faceTTF font.Face) (x, y int) {
+	rect := text.BoundString(faceTTF, str)
+	x, y = rect.Max.X-rect.Min.X, rect.Max.Y-rect.Min.Y
+	fmt.Println(rect.String(), ":     ", x, ":", y)
+	return 
+}
+
+func genVertices(X,Y,R float64, num int) *Points {
+	centerX := X
+	centerY := Y
+	r       := R
+
+	vs := make([]*GC.Vector,0)
+	for i := 0; i < num; i++ {
+		rate := float64(i) / float64(num)
+		vs = append(vs, &GC.Vector{
+			X:float64(r*math.Cos(2*math.Pi*rate)) + centerX,
+			Y:float64(r*math.Sin(2*math.Pi*rate)) + centerY,
+			Z:0})
+	}
+
+	vs = append(vs, &GC.Vector{
+		X:centerX,
+		Y:centerY,
+		Z:0})
+	ps := Points(vs)
+	return &ps
 }

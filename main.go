@@ -14,7 +14,7 @@ import (
 	//"github.com/hajimehoshi/ebiten/inpututil"
 	//"golang.org/x/image/font"
 	//"github.com/nfnt/resize"
-	"fmt"
+	//"fmt"
 	"image/color"
 	"log"
 	//"math"
@@ -49,10 +49,6 @@ func main() {
 
 	mat := &GE.Matrix{X: 3, Y: 3, Z: 3}
 	mat.InitIdx()
-	fmt.Println(mat.Print())
-
-	newMat := mat.SubMatrix(0, 0, 0, 1, 1, 1)
-	fmt.Println(newMat.Print())
 
 	formatedTestText := GE.FormatTextToWidth(TestText, 21, true)
 
@@ -66,10 +62,12 @@ func main() {
 
 	TextView := GE.GetTextView(formatedTestText, 0, 300, 120, 30, GE.StandardFont, &color.RGBA{255, 255, 255, 255}, &color.RGBA{255, 0, 0, 255})
 
+	ScrollBar := GE.GetStandardScrollbar(700, 500, 600, 60, -128, 128, 0, GE.StandardFont)
+
 	up2data := make([]GE.UpdateAble, 3)
 	up2data[0] = edT
 	up2data[1] = TextView
-	up2data[2] = TextView
+	up2data[2] = ScrollBar
 	params2 := &GE.TabViewParams{Pths: []string{"./res/tab1.png", "./res/tab2.png", "./res/tab3.png"}, Scrs: up2data, Y: 200, W: screenWidth, H: screenHeight}
 	tbv2 := GE.GetTabView(params2)
 
@@ -81,9 +79,9 @@ func main() {
 	params := &GE.TabViewParams{Nms: []string{"Fett", "Sack", "Fettsack", "LOL"}, Scrs: updatable, W: screenWidth, H: screenHeight}
 	tbv := GE.GetTabView(params)
 
-	wmatI := &GE.Matrix{X: 10, Y: 9, Z: 3}
+	wmatI := &GE.Matrix{X: 10, Y: 9, Z: 1}
 	wmatI.Init(0)
-	wmatL := &GE.Matrix{X: 10, Y: 9, Z: 3}
+	wmatL := &GE.Matrix{X: 10, Y: 9, Z: 1}
 	wmatL.Init(0)
 	wmatL.Set(0, 0, 0, -4)
 	wmatL.Set(0, 1, 0, -3)
@@ -94,7 +92,7 @@ func main() {
 	wmatL.Set(0, 6, 0, 2)
 	wmatL.Set(0, 7, 0, 3)
 	wmatL.Set(0, 8, 0, 4)
-	fmt.Println(mat.Print())
+	//fmt.Println(mat.Print())
 
 	wrld := GE.GetWorldPainter(0, 400, 500, 500, wmatI.X, wmatI.Y)
 	wrld.AddTile(GE.LoadEbitenImg("./res/16.png"))

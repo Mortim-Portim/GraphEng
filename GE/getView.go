@@ -49,8 +49,7 @@ func GetTextView(text string, X, Y, H, lineHeight float64, ttf *truetype.Font, t
 	//fmt.Println("Width:",w,", Height:",h,", realHeight:",v.realHeight,", lines",v.lines,", displayLines:",v.displayLines)
 	return v
 }
-//TABVIEW
-
+//TABVIEW -------------------------------------------------------------------------------------------------------------------------------
 type TabViewParams struct {
 	Back, Text color.Color
 	TTF *truetype.Font
@@ -79,11 +78,40 @@ func (p *TabViewParams) fillDefault() {
 		p.TTF = StandardFont
 	}
 }
-
 func GetTabView(p *TabViewParams) (*TabView) {
 	p.fillDefault()
 	if p.Pths != nil {
 		return getTabViewWithImages(p.Pths, p.Scrs, p.X, p.Y, p.W, p.H, p.TabH, p.Dis, p.Curr)
 	}
 	return getTabView(p.Nms, p.Scrs, p.X, p.Y, p.W, p.H, p.TabH, p.TTF, p.Text, p.Back, p.Dis, p.Curr)
+}
+//SCROLLBAR ------------------------------------------------------------------------------------------------------------------------------
+func GetImageScrollbar(X, Y, W, H float64, bar, pointer *ebiten.Image, min, max, current int, ttf *truetype.Font) (b *ScrollBar) {
+	b = &ScrollBar{min: min, max: max, current: current, ttf:ttf}
+	b.Img = bar
+	b.X = X
+	b.Y = Y
+	b.W = W
+	b.H = H
+	b.pointer = &ImageObj{Y:Y-H/2, W: H*2, H: H*2}
+	b.value = &ImageObj{Y:Y-H/2, W: H*2, H: H*2}
+	b.pointer.Img = pointer
+	b.length = max-min
+	b.stepsize = W / float64(b.length)
+	b.UpdatePos()
+	return
+}
+func GetStandardScrollbar(X, Y, W, H float64, min, max, current int, ttf *truetype.Font) (b *ScrollBar) {
+	
+	bar, _ := ebiten.NewImage(int(W), int(H), ebiten.FilterDefault)
+	bar.Fill(&color.RGBA{0,0,255,255})
+	line := GetLineOfPoints(0,H/2, W,H/2, H/6)
+	line.Fill(bar, &color.RGBA{0,200,50,255})
+	
+	pointer, _ := ebiten.NewImage(int(H*2), int(H*2), ebiten.FilterDefault)
+	pointer.Fill(&color.RGBA{0,255,0,100})
+	pnts := genVertices(H,H,H, 11)
+	pnts.Fill(pointer, &color.RGBA{200,0,50,255})
+	
+	return GetImageScrollbar(X,Y,W,H,bar,pointer,min,max,current,ttf)
 }

@@ -12,6 +12,7 @@ import (
 	//"github.com/hajimehoshi/ebiten/examples/resources/fonts"
 	//"github.com/golang/freetype/truetype"
 	//"golang.org/x/image/font"
+	"bytes"
 	"github.com/nfnt/resize"
 	"image/color"
 	"fmt"
@@ -181,6 +182,14 @@ func LoadEbitenImg(path string) (*ebiten.Image) {
 		panic(fmt.Sprintf("Cannot Load Image: %v",err))
 	}
 	return ImgToEbitenImg(img)
+}
+func LoadEbitenImgFromBytes(im []byte) (*ebiten.Image) {
+	img, _, err := image.Decode(bytes.NewReader(im))
+	if err != nil {
+		panic(err)
+	}
+	runnerImage, _ := ebiten.NewImageFromImage(img, ebiten.FilterDefault)
+	return runnerImage
 }
 //Loads all Icons from a path with a list of sizes and a fileformat ("./64.png")
 func InitIcons(path string, sizes []int, fileformat string) (error, []image.Image) {

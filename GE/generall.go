@@ -36,21 +36,25 @@ var StandardFont *truetype.Font
 //Initializes the Graphics Engine and the Standard Font (use "" to load standard font)
 func Init(FontPath string) {
 	if len(FontPath) > 0 {
-		font, err := ioutil.ReadFile(FontPath)
-	   	if err != nil {
-	   		panic(err)
-	   	}
-		tt, err := truetype.Parse(font)
-		CheckErr(err)
-		StandardFont = tt
+		StandardFont = ParseFont(FontPath)
 	}else{
-		//fonts.ArcadeN_ttf
-		tt, err := truetype.Parse(fonts.MPlus1pRegular_ttf)
-		CheckErr(err)
-		StandardFont = tt
+		StandardFont = ParseFontFromBytes(fonts.MPlus1pRegular_ttf)
 	}
 	
 	InitParams()
+}
+
+func ParseFontFromBytes(fnt []byte) (*truetype.Font) {
+	tt, err := truetype.Parse(fnt)
+	CheckErr(err)
+	return tt
+}
+func ParseFont(path string) (*truetype.Font) {
+	font, err1 := ioutil.ReadFile(path)
+	CheckErr(err1)
+	tt, err2 := truetype.Parse(font)
+	CheckErr(err2)
+	return tt
 }
 
 //Returns an Image with text

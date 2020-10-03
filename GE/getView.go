@@ -20,8 +20,8 @@ func GetTextButton(str, downStr string, ttf *truetype.Font, X, Y, H float64, tex
 	dark := GetTextImage(downStr, X, Y, H, ttf, textCol, ReduceColor(backCol, ReduceColOnButtonDown))
 	return GetButton(img, dark.Img, onPressLeft, onPressRight)
 }
-func GetImageButton(path [2]string, X,Y, W,H float64, onPressLeft func(b *Button), onPressRight func(b *Button)) *Button {
-	img := LoadImgObj(path[0], W, H, X, Y, 0)
+func GetImageButton(eimg *ebiten.Image, X,Y, W,H float64, onPressLeft func(b *Button), onPressRight func(b *Button)) *Button {
+	img := &ImageObj{eimg, nil, W, H, X, Y, 0}
 	dark := ReduceColorImage(img.Img, ReduceColOnButtonDown)
 	return GetButton(img, dark, onPressLeft, onPressRight)
 }
@@ -50,7 +50,8 @@ type TabViewParams struct {
 	Curr int
 	Scrs []UpdateAble
 	
-	Nms, Pths []string
+	Nms []string
+	Imgs []*ebiten.Image
 }
 func (p *TabViewParams) fillDefault() {
 	if p.Back == nil {
@@ -71,8 +72,8 @@ func (p *TabViewParams) fillDefault() {
 }
 func GetTabView(p *TabViewParams) (*TabView) {
 	p.fillDefault()
-	if p.Pths != nil {
-		return getTabViewWithImages(p.Pths, p.Scrs, p.X, p.Y, p.W, p.H, p.TabH, p.Dis, p.Curr)
+	if p.Imgs != nil {
+		return getTabViewWithImages(p.Imgs, p.Scrs, p.X, p.Y, p.W, p.H, p.TabH, p.Dis, p.Curr)
 	}
 	return getTabView(p.Nms, p.Scrs, p.X, p.Y, p.W, p.H, p.TabH, p.TTF, p.Text, p.Back, p.Dis, p.Curr)
 }

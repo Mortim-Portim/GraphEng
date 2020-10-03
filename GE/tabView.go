@@ -54,11 +54,11 @@ func getTabView(Names []string, screens []UpdateAble, X, Y, W, H, TabH float64, 
 	}
 	return v
 }
-func getTabViewWithImages(paths []string, screens []UpdateAble, X, Y, W, H, TabH float64, dis float64, curr int) (v *TabView) {
+func getTabViewWithImages(imgs []*ebiten.Image, screens []UpdateAble, X, Y, W, H, TabH float64, dis float64, curr int) (v *TabView) {
 	v = &TabView{X, Y, W, H, TabH, nil, screens, curr}
-	v.TabBtns = make([]*Button, len(paths))
-	for i,path := range(paths) {
-		v.TabBtns[i] = GetImageButton([2]string{path,path}, X, Y, 0, 0, v.OnClick, v.OnClick)
+	v.TabBtns = make([]*Button, len(imgs))
+	for i,img := range(imgs) {
+		v.TabBtns[i] = GetImageButton(img, X, Y, 0, 0, v.OnClick, v.OnClick)
 		v.TabBtns[i].Img.ScaleToOriginalSize()
 		v.TabBtns[i].Img.ScaleToY(TabH)
 		v.TabBtns[i].Data = i

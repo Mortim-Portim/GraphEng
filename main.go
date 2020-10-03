@@ -7,6 +7,7 @@ import (
 	//"io/ioutil"
 	"github.com/hajimehoshi/ebiten"
 	"marvin/GraphEng/GE"
+	"marvin/GraphEng/res"
 	//"github.com/hajimehoshi/ebiten/text"
 	//"github.com/hajimehoshi/ebiten/ebitenutil"
 	//"github.com/hajimehoshi/ebiten/examples/resources/fonts"
@@ -49,7 +50,8 @@ func (g *TestGame) Layout(outsideWidth, outsideHeight int) (int, int) {
 	return screenWidth, screenHeight
 }
 func main() {
-	GE.Init("./res/VT323.ttf")
+	GE.Init("")
+	GE.StandardFont = GE.ParseFontFromBytes(res.MONO_TTF)
 
 	mat := &GE.Matrix{X: 3, Y: 3, Z: 3}
 	mat.InitIdx()
@@ -68,13 +70,13 @@ func main() {
 
 	ScrollBar := GE.GetStandardScrollbar(700, 500, 600, 60, -128, 128, 0, GE.StandardFont)
 	
-	animation := GE.GetAnimation(1000, 300, 160, 240, 28, 3, GE.LoadEbitenImg("./res/spell.png"))
+	animation := GE.GetAnimation(1000, 300, 160, 240, 28, 3, GE.LoadEbitenImgFromBytes(res.SPELL_ANIM))
 
 	up2data := make([]GE.UpdateAble, 3)
 	up2data[0] = animation
 	up2data[1] = TextView
 	up2data[2] = ScrollBar
-	params2 := &GE.TabViewParams{Pths: []string{"./res/tab1.png", "./res/tab2.png", "./res/tab3.png"}, Scrs: up2data, Y: 200, W: screenWidth, H: screenHeight}
+	params2 := &GE.TabViewParams{Imgs: []*ebiten.Image{GE.LoadEbitenImgFromBytes(res.TAB1), GE.LoadEbitenImgFromBytes(res.TAB2), GE.LoadEbitenImgFromBytes(res.TAB3)}, Scrs: up2data, Y: 200, W: screenWidth, H: screenHeight}
 	tbv2 := GE.GetTabView(params2)
 
 	updatable := make([]GE.UpdateAble, 4)
@@ -101,7 +103,7 @@ func main() {
 	//fmt.Println(mat.Print())
 
 	wrld := GE.GetWorldPainter(0, 400, 500, 500, wmatI.X, wmatI.Y)
-	wrld.AddTile(GE.LoadEbitenImg("./res/16.png"))
+	wrld.AddTile(GE.LoadEbitenImgFromBytes(res.TILE16))
 	wrld.GetFrame(2, 90)
 
 	g := &TestGame{tbv, wrld, wmatI, wmatL}

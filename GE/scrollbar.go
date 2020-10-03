@@ -26,13 +26,11 @@ type ScrollBar struct {
 	stepsize, relAbsPos float64
 	ttf *truetype.Font
 }
-
-func (b *ScrollBar) Init(screen *ebiten.Image, data interface{}) {
-	
-}
+func (b *ScrollBar) Current() int {return b.current}
+func (b *ScrollBar) Init(screen *ebiten.Image, data interface{}) {}
 func (b *ScrollBar)	Start(screen *ebiten.Image, data interface{}) {}
 func (b *ScrollBar)	Stop(screen *ebiten.Image, data interface{}) {}
-func (b *ScrollBar)	Update(frame int) {
+func (b *ScrollBar)	Update() {
 	x, y := ebiten.CursorPosition()
 	if int(b.X) <= x && x < int(b.X+b.W) && int(b.Y) <= y && y < int(b.Y+b.H) {
 		if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
@@ -40,7 +38,7 @@ func (b *ScrollBar)	Update(frame int) {
 		}
 	}
 }
-func (b *ScrollBar)	Draw(screen *ebiten.Image, frame int) {
+func (b *ScrollBar)	Draw(screen *ebiten.Image) {
 	b.DrawImageObj(screen)
 	b.pointer.DrawImageObj(screen)
 	b.value.DrawImageObj(screen)

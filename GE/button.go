@@ -29,7 +29,7 @@ func (b *Button) Start(screen *ebiten.Image, data interface{}) {
 func (b *Button) Stop(screen *ebiten.Image, data interface{}) {
 	b.Reset()
 }
-func (b *Button) Update(frame int) {
+func (b *Button) Update() {
 	if b.Active {
 		b.LPressed = false
 		b.RPressed = false
@@ -57,7 +57,7 @@ func (b *Button) Update(frame int) {
 		b.LastR = b.RPressed
 	}
 }
-func (b *Button) Draw(screen *ebiten.Image, frame int) {
+func (b *Button) Draw(screen *ebiten.Image) {
 	if b.Active {
 		oldX := b.Img.X; oldY := b.Img.Y
 		if b.LPressed || b.RPressed {

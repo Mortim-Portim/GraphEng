@@ -106,3 +106,9 @@ func GetStandardScrollbar(X, Y, W, H float64, min, max, current int, ttf *truety
 	
 	return GetImageScrollbar(X,Y,W,H,bar,pointer,min,max,current,ttf)
 }
+//ANIMATION ------------------------------------------------------------------------------------------------------------------------------
+func GetAnimation(X, Y, W, H float64, spriteWidth, updatePeriod int, sprites *ebiten.Image) (anim *Animation) {
+	w,h := sprites.Size()
+	anim = &Animation{ImageObj{X:X,Y:Y,W:W,H:H}, int(float64(w)/float64(spriteWidth)),0,spriteWidth,h,updatePeriod,0,sprites}
+	return
+}

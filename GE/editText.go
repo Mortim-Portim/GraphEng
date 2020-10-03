@@ -28,7 +28,7 @@ func (t *EditText) Print() string {
 func (t *EditText) Init(screen *ebiten.Image, data interface{}) {}
 func (t *EditText) Start(screen *ebiten.Image, data interface{}) {}
 func (t *EditText) Stop(screen *ebiten.Image, data interface{}) {}
-func (t *EditText) Update(frame int) {
+func (t *EditText) Update() {
 	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
 		xi,yi := ebiten.CursorPosition(); x := float64(xi); y := float64(yi)
 		if x > t.X && x < t.X+t.W && y > t.Y && y < t.Y+t.H {
@@ -65,7 +65,7 @@ func (t *EditText) Update(frame int) {
 		t.imageNeedsUpdate = false
 	}
 }
-func (t *EditText) Draw(screen *ebiten.Image, frame int) {
+func (t *EditText) Draw(screen *ebiten.Image) {
 	if t.ImageObj.Img != nil {
 		t.ImageObj.DrawImageObj(screen)
 	}

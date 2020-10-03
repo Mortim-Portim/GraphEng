@@ -25,7 +25,7 @@ func (v *TextView) Start(screen *ebiten.Image, data interface{}) {
 func (v *TextView) Stop(screen *ebiten.Image, data interface{}) {
 	v.Reset()
 }
-func (v *TextView) Update(frame int) {
+func (v *TextView) Update() {
 	x, y := ebiten.CursorPosition()
 	if int(v.X) <= x && x < int(v.X+v.W) && int(v.Y) <= y && y < int(v.Y+v.H) {
 		_, dy := ebiten.Wheel()
@@ -38,7 +38,7 @@ func (v *TextView) Update(frame int) {
 		}
 	}
 }
-func (v *TextView) Draw(screen *ebiten.Image, frame int) {
+func (v *TextView) Draw(screen *ebiten.Image) {
 	for i := 0; i < v.displayLines; i++ {
 		idx := i+v.scrollIdx
 		v.lineImages[idx].Y = v.Y+float64(i)*v.lineHeight

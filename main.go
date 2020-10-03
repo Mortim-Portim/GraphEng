@@ -23,6 +23,7 @@ import (
 const (
 	screenWidth  = 1600
 	screenHeight = 900
+	FPS = 30
 )
 
 const TestText = "Licht ist eine Form der elektromagnetischen Strahlung. Im engeren Sinne sind vom gesamten elektromagnetischen Spektrum nur die Anteile gemeint, die für das menschliche Auge sichtbar sind. Im weiteren Sinne werden auch elektromagnetische Wellen kürzerer Wellenlänge (Ultraviolett) und größerer Wellenlänge (Infrarot) dazu gezählt.\nDie physikalischen Eigenschaften des Lichts werden durch verschiedene Modelle beschrieben: In der Strahlenoptik wird die geradlinige Ausbreitung des Lichts durch „Lichtstrahlen“ veranschaulicht; in der Wellenoptik wird die Wellennatur des Lichts betont, wodurch auch Beugungs- und Interferenzerscheinungen erklärt werden können. In der Quantenphysik schließlich wird das Licht als ein Strom von Quantenobjekten, den Photonen (veranschaulichend auch „Lichtteilchen“ genannt), beschrieben. Eine vollständige Beschreibung des Lichts bietet die Quantenelektrodynamik. Im Vakuum breitet sich Licht mit der konstanten Lichtgeschwindigkeit von 299.792.458 m/s aus. Trifft Licht auf Materie, so kann es gestreut, reflektiert, gebrochen und verlangsamt oder absorbiert werden.\nLicht ist der für das menschliche Auge adäquate Sinnesreiz. Dabei wird die Intensität des Lichts als Helligkeit wahrgenommen, die spektrale Zusammensetzung als Farbe."
@@ -36,8 +37,11 @@ type TestGame struct {
 }
 
 func (g *TestGame) Update(screen *ebiten.Image) error {
-	g.Tbv.Update(0)
-	g.Tbv.Draw(screen, 0)
+	g.Tbv.Update()
+	
+	g.Tbv.Screens[3].(*GE.TabView).Screens[0].(*GE.Animation).UpdatePeriod = g.Tbv.Screens[3].(*GE.TabView).Screens[2].(*GE.ScrollBar).Current()
+	
+	g.Tbv.Draw(screen)
 	g.wrld.Paint(screen, g.idxMat, g.layerMat, 0)
 	return nil
 }
@@ -63,9 +67,11 @@ func main() {
 	TextView := GE.GetTextView(formatedTestText, 0, 300, 40, 3, GE.StandardFont, &color.RGBA{255, 255, 255, 255}, &color.RGBA{255, 0, 0, 255})
 
 	ScrollBar := GE.GetStandardScrollbar(700, 500, 600, 60, -128, 128, 0, GE.StandardFont)
+	
+	animation := GE.GetAnimation(1000, 300, 160, 240, 28, 3, GE.LoadEbitenImg("./res/spell.png"))
 
 	up2data := make([]GE.UpdateAble, 3)
-	up2data[0] = edT
+	up2data[0] = animation
 	up2data[1] = TextView
 	up2data[2] = ScrollBar
 	params2 := &GE.TabViewParams{Pths: []string{"./res/tab1.png", "./res/tab2.png", "./res/tab3.png"}, Scrs: up2data, Y: 200, W: screenWidth, H: screenHeight}
@@ -102,6 +108,10 @@ func main() {
 
 	ebiten.SetWindowSize(screenWidth, screenHeight)
 	ebiten.SetWindowTitle("GameEngine Test")
+	//ebiten.SetFullscreen(true)
+	//ebiten.SetCursorMode(ebiten.CursorModeCaptured)
+	ebiten.SetVsyncEnabled(true)
+	ebiten.SetMaxTPS(FPS)
 	if err := ebiten.RunGame(g); err != nil {
 		log.Fatal(err)
 	}

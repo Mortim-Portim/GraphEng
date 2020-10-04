@@ -7,14 +7,12 @@ import (
 Matrix
 	Standard Index = -1
 	Layer 0: Ground
-	Layer 1: Colliding objs
-	Layer 2: Non colliding objs
 **/
 type WorldStructure struct {
 	tiles  			[]*Tile
 	structureObjs	[]*StructureObj
 	
-	IdxMat, LayerMat *Matrix
+	IdxMat, LayerMat, CollisionMat *Matrix
 	
 	frame  *ImageObj
 	drawer *ImageObj

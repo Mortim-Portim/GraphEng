@@ -26,6 +26,13 @@ func (m *Matrix) Get(x, y, z int) int {
 func (m *Matrix) Set(x, y, z, v int) {
 	m.list[x+m.X*y+m.X*m.Y*z] = v
 }
+func (m *Matrix) Fill(x1,y1,x2,y2,z, v int) {
+	for x := x1; x <= x2; x++ {
+		for y := y1; y <= y2; y++ {
+			m.Set(x,y,z,v)
+		}
+	}
+}
 
 func (m *Matrix) SubMatrix(x1,y1,z1,x2,y2,z2 int) *Matrix {
 	newMat := &Matrix{x2-x1+1, y2-y1+1, z2-z1+1, nil}

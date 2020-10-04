@@ -7,6 +7,11 @@ import (
 type StructureObj struct {
 	Animation
 	frame int
+	XTile,YTile,TileW,TileH int
+}
+
+func (o *StructureObj) DrawCollisionMatrix(mat *Matrix) {
+	mat.Fill(o.XTile, o.YTile, o.TileW, o.TileH, 0, 1)
 }
 
 func (o *StructureObj) Draw(screen *ebiten.Image, x, y, w, h float64, myLayer, drawLayer int) {

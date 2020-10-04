@@ -80,13 +80,18 @@ func main() {
 
 	ScrollBar := GE.GetStandardScrollbar(700, 500, 600, 60, 0, 120, 3, GE.StandardFont)
 	
-	animation := GE.GetAnimation(1000, 300, 160, 240, 28, 3, GE.LoadEbitenImgFromBytes(res.SPELL_ANIM))
+	spellEimg,_ := GE.LoadEbitenImgFromBytes(res.SPELL_ANIM)
+	animation := GE.GetAnimation(1000, 300, 160, 240, 28, 3, spellEimg)
 
 	up2data := make([]GE.UpdateAble, 3)
 	up2data[0] = animation
 	up2data[1] = TextView
 	up2data[2] = ScrollBar
-	params2 := &GE.TabViewParams{Imgs: []*ebiten.Image{GE.LoadEbitenImgFromBytes(res.TAB1), GE.LoadEbitenImgFromBytes(res.TAB2), GE.LoadEbitenImgFromBytes(res.TAB3)}, Scrs: up2data, Y: 200, W: screenWidth, H: screenHeight}
+	
+	eTab1,_ := GE.LoadEbitenImgFromBytes(res.TAB1)
+	eTab2,_ := GE.LoadEbitenImgFromBytes(res.TAB2)
+	eTab3,_ := GE.LoadEbitenImgFromBytes(res.TAB3)
+	params2 := &GE.TabViewParams{Imgs: []*ebiten.Image{eTab1, eTab2, eTab3}, Scrs: up2data, Y: 200, W: screenWidth, H: screenHeight}
 	tbv2 := GE.GetTabView(params2)
 
 	updatable := make([]GE.UpdateAble, 4)
@@ -126,7 +131,8 @@ func main() {
 
 	wrld := GE.GetWorldStructure(0, 400, 500, 500, wmatI.X, wmatI.Y)
 	wrld.IdxMat = wmatI; wrld.LayerMat = wmatL
-	wrld.AddTile(&GE.Tile{GE.LoadEbitenImgFromBytes(res.TILE16)})
+	eTile16,_ := GE.LoadEbitenImgFromBytes(res.TILE16)
+	wrld.AddTile(&GE.Tile{eTile16})
 	wrld.AddStructureObj(&GE.StructureObj{Animation:*animation})
 	wrld.GetFrame(2, 90)
 

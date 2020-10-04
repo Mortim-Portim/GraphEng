@@ -23,7 +23,8 @@ import (
 func LoadImgObj(path string, width, height, x, y, angle float64) *ImageObj {
 	_, img := LoadImg(path)
 	//scaledImg := resize.Resize(uint(width), uint(height), *img, resize.NearestNeighbor)
-	return &ImageObj{ImgToEbitenImg(img), img, width, height, x, y, angle}
+	eimg,_ := ImgToEbitenImg(img)
+	return &ImageObj{eimg, img, width, height, x, y, angle}
 }
 //Stores the original, ebiten image and dimensions
 type ImageObj struct {
@@ -59,7 +60,7 @@ func (obj *ImageObj) Copy() *ImageObj {
 func (obj *ImageObj) ScaleOriginal(width, height float64) {
 	scaledImg := resize.Resize(uint(width), uint(height), *obj.OriginalImg, resize.NearestNeighbor)
 	obj.OriginalImg = &scaledImg
-	obj.Img = ImgToEbitenImg(&scaledImg)
+	obj.Img,_ = ImgToEbitenImg(&scaledImg)
 }
 func (obj *ImageObj) ScaleToOriginalSize() {
 	w,h := obj.Img.Size()
@@ -171,28 +172,24 @@ func LoadImg(path string) (error, *image.Image) {
 	return nil, &img
 }
 //Converts an image.Image to an ebiten.Image
-func ImgToEbitenImg(img *image.Image) (*ebiten.Image) {	
-	gophersImage, err3 := ebiten.NewImageFromImage(*img, ebiten.FilterDefault)
-	if err3 != nil {
-		panic(fmt.Sprintf("Cannot Create Ebiten Image: %v",err3))
-	}
-	return gophersImage
+func ImgToEbitenImg(img *image.Image) (*ebiten.Image, error) {	
+	gophersImage, err := ebiten.NewImageFromImage(*img, ebiten.FilterDefault)
+	return gophersImage, err
 }
 //Loads an ebiten.Image
-func LoadEbitenImg(path string) (*ebiten.Image) {	
+func LoadEbitenImg(path string) (*ebiten.Image, error) {	
 	err, img := LoadImg(path)
 	if err != nil {
-		panic(fmt.Sprintf("Cannot Load Image: %v",err))
+		return nil, err
 	}
 	return ImgToEbitenImg(img)
 }
-func LoadEbitenImgFromBytes(im []byte) (*ebiten.Image) {
+func LoadEbitenImgFromBytes(im []byte) (*ebiten.Image, error) {
 	img, _, err := image.Decode(bytes.NewReader(im))
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	runnerImage, _ := ebiten.NewImageFromImage(img, ebiten.FilterDefault)
-	return runnerImage
+	return ebiten.NewImageFromImage(img, ebiten.FilterDefault)
 }
 //Loads all Icons from a path with a list of sizes and a fileformat ("./64.png")
 func InitIcons(path string, sizes []int, fileformat string) (error, []image.Image) {

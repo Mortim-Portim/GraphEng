@@ -50,7 +50,7 @@ func (g *TestGame) Update(screen *ebiten.Image) error {
 	}else{
 		g.Tbv.Update(g.frame)
 		
-		g.Tbv.Screens[3].(*GE.TabView).Screens[0].(*GE.Animation).UpdatePeriod = g.Tbv.Screens[3].(*GE.TabView).Screens[2].(*GE.ScrollBar).Current()
+		g.Tbv.Screens.Member[3].(*GE.TabView).Screens.Member[0].(*GE.Animation).UpdatePeriod = g.Tbv.Screens.Member[3].(*GE.TabView).Screens.Member[2].(*GE.ScrollBar).Current()
 		
 		g.Tbv.Draw(screen)
 		

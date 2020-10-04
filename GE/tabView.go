@@ -9,58 +9,38 @@ import (
 type TabView struct {
 	X, Y, W, H, TabH float64
 	
-	TabBtns []*Button
-	TabUpdateFuncs []UpdateFunc
-	TabDrawFuncs []DrawFunc
+	TabBtns *Group
 	
-	Screens []UpdateAble
-	ScreenUpdateFuncs []UpdateFunc
-	ScreenDrawFuncs []DrawFunc
+	Screens *Group
 	CurrentTab int
 }
 func (t *TabView) Init(screen *ebiten.Image, data interface{}) (UpdateFunc, DrawFunc) {
-	t.TabUpdateFuncs = make([]UpdateFunc, 0)
-	t.ScreenUpdateFuncs = make([]UpdateFunc, 0)
-	t.TabDrawFuncs = make([]DrawFunc, 0)
-	t.ScreenDrawFuncs = make([]DrawFunc, 0)
-	for _,btn := range(t.TabBtns) {
-		f_u, f_d := btn.Init(screen, data)
-		if f_u != nil {
-			t.TabUpdateFuncs = append(t.TabUpdateFuncs, f_u)
-		}
-		if f_d != nil {
-			t.TabDrawFuncs = append(t.TabDrawFuncs, f_d)
-		}
-	}
-	for _,scr := range(t.Screens) {
-		f_u, f_d := scr.Init(screen, data)
-		if f_u != nil {
-			t.ScreenUpdateFuncs = append(t.ScreenUpdateFuncs, f_u)
-		}
-		if f_d != nil {
-			t.ScreenDrawFuncs = append(t.ScreenDrawFuncs, f_d)
-		}
-	}
-	
+	t.TabBtns.Init(screen, data)
+	t.Screens.Init(screen, data)
 	return t.Update, t.Draw
 }
-func (t *TabView) Start(screen *ebiten.Image, data interface{}) {}
-func (t *TabView) Stop(screen *ebiten.Image, data interface{}) {}
+func (t *TabView) Start(screen *ebiten.Image, data interface{}) {
+	t.TabBtns.Init(screen, data)
+	t.Screens.Init(screen, data)
+}
+func (t *TabView) Stop(screen *ebiten.Image, data interface{}) {
+	t.TabBtns.Init(screen, data)
+	t.Screens.Init(screen, data)
+}
 func (t *TabView) Update(frame int) {
-	t.ScreenUpdateFuncs[t.CurrentTab](frame)
-	for i,btn := range(t.TabBtns) {
+	t.Screens.UpdateFuncs[t.CurrentTab](frame)
+	for i,mmb := range(t.TabBtns.Member) {
+		btn := mmb.(*Button)
 		btn.DrawDark = false
 		if i == t.CurrentTab {
 			btn.DrawDark = true
 		}
-		t.TabUpdateFuncs[i](frame)
+		t.TabBtns.UpdateFuncs[i](frame)
 	}
 }
 func (t *TabView) Draw(screen *ebiten.Image) {
-	t.ScreenDrawFuncs[t.CurrentTab](screen)
-	for _,fnc := range(t.TabDrawFuncs) {
-		fnc(screen)
-	}
+	t.Screens.DrawFuncs[t.CurrentTab](screen)
+	t.TabBtns.Draw(screen)
 }
 
 func (t *TabView) OnClick(b *Button) {
@@ -69,30 +49,36 @@ func (t *TabView) OnClick(b *Button) {
 	}
 }
 func getTabView(Names []string, screens []UpdateAble, X, Y, W, H, TabH float64, ttf *truetype.Font, txtCol, backCol color.Color, dis float64, curr int) (v *TabView) {
-	v = &TabView{X, Y, W, H, TabH, nil, nil, nil, screens, nil, nil, curr}
-	v.TabBtns = make([]*Button, len(Names))
+	v = &TabView{X, Y, W, H, TabH, nil, GetGroup(screens...), curr}
+	TabBtns := make([]UpdateAble, len(Names))
 	for i,name := range(Names) {
-		v.TabBtns[i] = GetTextButton(name, name, ttf, X, Y, TabH, txtCol, backCol)
-		v.TabBtns[i].RegisterOnEvent(v.OnClick)
-		v.TabBtns[i].Data = i
+		TabBtns[i] = GetTextButton(name, name, ttf, X, Y, TabH, txtCol, backCol)
+		TabBtns[i].(*Button).RegisterOnEvent(v.OnClick)
+		TabBtns[i].(*Button).Data = i
 	}
-	for i,tab := range(v.TabBtns[1:]) {
-		tab.Img.X = (v.TabBtns[i].Img.X+v.TabBtns[i].Img.W+W*dis)
+	v.TabBtns = GetGroup(TabBtns...)
+	for i,mmb := range(v.TabBtns.Member[1:]) {
+		tab := mmb.(*Button)
+		tabm1 := v.TabBtns.Member[i].(*Button)
+		tab.Img.X = (tabm1.Img.X+tabm1.Img.W+W*dis)
 	}
 	return v
 }
 func getTabViewWithImages(imgs []*ebiten.Image, screens []UpdateAble, X, Y, W, H, TabH float64, dis float64, curr int) (v *TabView) {
-	v = &TabView{X, Y, W, H, TabH, nil, nil, nil, screens, nil, nil, curr}
-	v.TabBtns = make([]*Button, len(imgs))
+	v = &TabView{X, Y, W, H, TabH,  nil, GetGroup(screens...), curr}
+	TabBtns := make([]UpdateAble, len(imgs))
 	for i,img := range(imgs) {
-		v.TabBtns[i] = GetImageButton(img, X, Y, 0, 0)
-		v.TabBtns[i].RegisterOnEvent(v.OnClick)
-		v.TabBtns[i].Img.ScaleToOriginalSize()
-		v.TabBtns[i].Img.ScaleToY(TabH)
-		v.TabBtns[i].Data = i
+		TabBtns[i] = GetImageButton(img, X, Y, 0, 0)
+		TabBtns[i].(*Button).RegisterOnEvent(v.OnClick)
+		TabBtns[i].(*Button).Img.ScaleToOriginalSize()
+		TabBtns[i].(*Button).Img.ScaleToY(TabH)
+		TabBtns[i].(*Button).Data = i
 	}
-	for i,tab := range(v.TabBtns[1:]) {
-		tab.Img.X = (v.TabBtns[i].Img.X+v.TabBtns[i].Img.W+W*dis)
+	v.TabBtns = GetGroup(TabBtns...)
+	for i,mmb := range(v.TabBtns.Member[1:]) {
+		tab := mmb.(*Button)
+		tabm1 := v.TabBtns.Member[i].(*Button)
+		tab.Img.X = (tabm1.Img.X+tabm1.Img.W+W*dis)
 	}
 	return v
 }

@@ -27,11 +27,13 @@ type ScrollBar struct {
 	ttf *truetype.Font
 	OnChange func(b *ScrollBar)
 }
-func (b *ScrollBar) RegisterOnChange(OnChange func(b *ScrollBar)) {
+func (b *ScrollBar) RegisterOnChange(OnChange func(*ScrollBar)) {
 	b.OnChange = OnChange
 }
 func (b *ScrollBar) Current() int {return b.current}
-func (b *ScrollBar) Init(screen *ebiten.Image, data interface{}) {}
+func (b *ScrollBar) Init(screen *ebiten.Image, data interface{}) (UpdateFunc, DrawFunc) {
+	return b.Update, b.Draw
+}
 func (b *ScrollBar)	Start(screen *ebiten.Image, data interface{}) {}
 func (b *ScrollBar)	Stop(screen *ebiten.Image, data interface{}) {}
 func (b *ScrollBar)	Update(frame int) {

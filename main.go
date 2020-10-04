@@ -7,6 +7,7 @@ import (
 	//"io/ioutil"
 	"github.com/hajimehoshi/ebiten"
 	"marvin/GraphEng/GE"
+	"marvin/GraphEng/GE/WObjs"
 	"marvin/GraphEng/res"
 	//"github.com/hajimehoshi/ebiten/text"
 	//"github.com/hajimehoshi/ebiten/ebitenutil"
@@ -31,6 +32,8 @@ const TestText = "Licht ist eine Form der elektromagnetischen Strahlung. Im enge
 
 type TestGame struct {
 	Tbv *GE.TabView
+	Tbv_U GE.UpdateFunc
+	Tbv_D GE.DrawFunc
 
 	wrld *GE.WorldPainter
 
@@ -38,14 +41,21 @@ type TestGame struct {
 	
 	frame int
 }
-
+func (g *TestGame) Init(screen *ebiten.Image) {
+	g.Tbv_U, g.Tbv_D = g.Tbv.Init(screen, nil)
+}
 func (g *TestGame) Update(screen *ebiten.Image) error {
-	g.Tbv.Update(g.frame)
-	
-	g.Tbv.Screens[3].(*GE.TabView).Screens[0].(*GE.Animation).UpdatePeriod = g.Tbv.Screens[3].(*GE.TabView).Screens[2].(*GE.ScrollBar).Current()
-	
-	g.Tbv.Draw(screen)
-	g.wrld.Paint(screen, g.idxMat, g.layerMat, 0)
+	if g.frame == 0 {
+		g.Init(screen)
+	}else{
+		g.Tbv.Update(g.frame)
+		
+		g.Tbv.Screens[3].(*GE.TabView).Screens[0].(*GE.Animation).UpdatePeriod = g.Tbv.Screens[3].(*GE.TabView).Screens[2].(*GE.ScrollBar).Current()
+		
+		g.Tbv.Draw(screen)
+		
+		g.wrld.Paint(screen, g.idxMat, g.layerMat, 0)
+	}
 	g.frame ++
 	return nil
 }
@@ -63,15 +73,16 @@ func main() {
 
 	edT := GE.GetEditText("Fett", 10, 100, 90, 20, GE.StandardFont, &color.RGBA{255, 120, 20, 255}, GE.EditText_Selected_Col)
 
-	btn := GE.GetTextButton("Edit", "Edasdit", GE.StandardFont, 10, 100, 90, &color.RGBA{255, 0, 0, 255}, &color.RGBA{0, 0, 255, 255}, func(b *GE.Button) {
+	btn := GE.GetTextButton("Edit", "Edasdit", GE.StandardFont, 10, 100, 90, &color.RGBA{255, 0, 0, 255}, &color.RGBA{0, 0, 255, 255})
+	btn.RegisterOnEvent(func(b *GE.Button) {
 		if !b.LPressed {
 			edT.IsSelected = !edT.IsSelected
 		}
-	}, nil)
+	})
 
 	TextView := GE.GetTextView(formatedTestText, 0, 300, 40, 3, GE.StandardFont, &color.RGBA{255, 255, 255, 255}, &color.RGBA{255, 0, 0, 255})
 
-	ScrollBar := GE.GetStandardScrollbar(700, 500, 600, 60, -128, 128, 0, GE.StandardFont)
+	ScrollBar := GE.GetStandardScrollbar(700, 500, 600, 60, -128, 128, 3, GE.StandardFont)
 	
 	animation := GE.GetAnimation(1000, 300, 160, 240, 28, 3, GE.LoadEbitenImgFromBytes(res.SPELL_ANIM))
 
@@ -106,10 +117,10 @@ func main() {
 	//fmt.Println(mat.Print())
 
 	wrld := GE.GetWorldPainter(0, 400, 500, 500, wmatI.X, wmatI.Y)
-	wrld.AddTile(GE.LoadEbitenImgFromBytes(res.TILE16))
+	wrld.AddTile(&WObjs.Tile{GE.LoadEbitenImgFromBytes(res.TILE16)})
 	wrld.GetFrame(2, 90)
 
-	g := &TestGame{tbv, wrld, wmatI, wmatL, 0}
+	g := &TestGame{tbv, nil, nil, wrld, wmatI, wmatL, 0}
 
 	ebiten.SetWindowSize(screenWidth, screenHeight)
 	ebiten.SetWindowTitle("GameEngine Test")

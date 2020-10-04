@@ -12,7 +12,9 @@ type Animation struct {
 	spriteSheet *ebiten.Image
 }
 
-func (a *Animation) Init(screen *ebiten.Image, data interface{}) {}
+func (a *Animation) Init(screen *ebiten.Image, data interface{}) (UpdateFunc, DrawFunc) {
+	return a.Update, a.Draw
+}
 func (a *Animation) Start(screen *ebiten.Image, data interface{}) {}
 func (a *Animation) Stop(screen *ebiten.Image, data interface{}) {}
 func (a *Animation) Update(frame int) {

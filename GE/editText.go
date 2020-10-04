@@ -22,14 +22,16 @@ type EditText struct {
 	IsSelected, imageNeedsUpdate,Underscore bool
 	OnChange func(t *EditText)
 }
-func (t *EditText) RegisterOnChange(OnChange func(t *EditText)) {
+func (t *EditText) RegisterOnChange(OnChange func(*EditText)) {
 	t.OnChange = OnChange
 }
 func (t *EditText) Print() string {
 	return fmt.Sprintf("Text: %s, Placeholder: %s, Counter: %v, MaxRunes: %v", t.text, t.placeHolderText, t.counter, t.MaxRunes)
 }
 
-func (t *EditText) Init(screen *ebiten.Image, data interface{}) {}
+func (t *EditText) Init(screen *ebiten.Image, data interface{}) (UpdateFunc, DrawFunc) {
+	return t.Update, t.Draw
+}
 func (t *EditText) Start(screen *ebiten.Image, data interface{}) {}
 func (t *EditText) Stop(screen *ebiten.Image, data interface{}) {}
 func (t *EditText) Update(frame int) {

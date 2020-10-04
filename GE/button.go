@@ -19,9 +19,19 @@ func (b *Button) Reset() {
 	b.LastR = false
 	b.Active = true
 }
-
-func (b *Button) Init(screen *ebiten.Image, data interface{}) {
+func (b *Button) RegisterOnEvent(OnEvent func(*Button)) {
+	b.RegisterOnLeftEvent(OnEvent)
+	b.RegisterOnRightEvent(OnEvent)
+}
+func (b *Button) RegisterOnLeftEvent(OnLeftEvent func(*Button)) {
+	b.onPressLeft = OnLeftEvent
+}
+func (b *Button) RegisterOnRightEvent(OnRightEvent func(*Button)) {
+	b.onPressRight = OnRightEvent
+}
+func (b *Button) Init(screen *ebiten.Image, data interface{}) (UpdateFunc, DrawFunc) {
 	b.Reset()
+	return b.Update, b.Draw
 }
 func (b *Button) Start(screen *ebiten.Image, data interface{}) {
 	b.Reset()

@@ -10,20 +10,20 @@ import (
 )
 
 //BUTTONS -------------------------------------------------------------------------------------------------------------------------------
-func GetButton(img *ImageObj, dark *ebiten.Image, onPressLeft func(b *Button), onPressRight func(b *Button)) *Button {
+func GetButton(img *ImageObj, dark *ebiten.Image) *Button {
 	b := &Button{}
-	b.Img = img; b.dark = dark; b.light = img.Img; b.onPressLeft = onPressLeft; b.onPressRight = onPressRight; b.Active = true
+	b.Img = img; b.dark = dark; b.light = img.Img; b.Active = true
 	return b
 }
-func GetTextButton(str, downStr string, ttf *truetype.Font, X, Y, H float64, textCol, backCol color.Color, onPressLeft func(b *Button), onPressRight func(b *Button)) *Button {
+func GetTextButton(str, downStr string, ttf *truetype.Font, X, Y, H float64, textCol, backCol color.Color) *Button {
 	img := GetTextImage(str, X, Y, H, ttf, textCol, backCol)
 	dark := GetTextImage(downStr, X, Y, H, ttf, textCol, ReduceColor(backCol, ReduceColOnButtonDown))
-	return GetButton(img, dark.Img, onPressLeft, onPressRight)
+	return GetButton(img, dark.Img)
 }
-func GetImageButton(eimg *ebiten.Image, X,Y, W,H float64, onPressLeft func(b *Button), onPressRight func(b *Button)) *Button {
+func GetImageButton(eimg *ebiten.Image, X,Y, W,H float64) *Button {
 	img := &ImageObj{eimg, nil, W, H, X, Y, 0}
 	dark := ReduceColorImage(img.Img, ReduceColOnButtonDown)
-	return GetButton(img, dark, onPressLeft, onPressRight)
+	return GetButton(img, dark)
 }
 //EDITTEXT ------------------------------------------------------------------------------------------------------------------------------
 func GetEditText(placeHolderText string, X, Y, H float64, maxRunes int, ttf *truetype.Font, cols ...color.Color) (et *EditText) {

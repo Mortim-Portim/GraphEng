@@ -16,8 +16,9 @@ type TextView struct {
 func (v *TextView) Reset() {
 	v.scrollIdx = 0
 }
-func (v *TextView) Init(screen *ebiten.Image, data interface{}) {
+func (v *TextView) Init(screen *ebiten.Image, data interface{}) (UpdateFunc, DrawFunc) {
 	v.Reset()
+	return v.Update, v.Draw
 }
 func (v *TextView) Start(screen *ebiten.Image, data interface{}) {
 	v.Reset()

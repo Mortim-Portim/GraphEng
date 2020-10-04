@@ -21,14 +21,13 @@ import (
 )
 const StandardFontSize = 64
 
-type UpdateFunc func(screen *ebiten.Image, frame int)
+type UpdateFunc func(frame int)
+type DrawFunc func(screen *ebiten.Image)
 
 type UpdateAble interface {
-	Init(screen *ebiten.Image, data interface{})		//Called once at the beginning
-	Start(screen *ebiten.Image, data interface{}) 		//Called whenever the View becomes visible
-	Stop(screen *ebiten.Image, data interface{})		//Called whenever the View becomes invisible
-	Update(frame int)									//Called every Frame if the View is visible
-	Draw(screen *ebiten.Image)							//Called every Frame if the View is visible
+	Init(screen *ebiten.Image, data interface{}) (UpdateFunc, DrawFunc)
+	Start(screen *ebiten.Image, data interface{})
+	Stop(screen *ebiten.Image, data interface{})
 }
 
 var StandardFont *truetype.Font
@@ -182,7 +181,7 @@ func contains(s []int, e int) bool {
     return false
 }
 
-const allLetters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+const allLetters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz/."
 var faceHeight = make(map[font.Face]int)
 func MeasureString(str string, faceTTF font.Face) (x, y int) {
 	h, ok := faceHeight[faceTTF]

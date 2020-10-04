@@ -2,10 +2,11 @@ package GE
 
 import (
 	"github.com/hajimehoshi/ebiten"
+	"marvin/GraphEng/GE/WObjs"
 )
 
 type WorldPainter struct {
-	tiles  []*ebiten.Image
+	tiles  []*WObjs.Tile
 	frame  *ImageObj
 	drawer *ImageObj
 
@@ -31,9 +32,9 @@ func GetWorldPainter(X, Y, W, H float64, Xtiles, Ytiles int) (p *WorldPainter) {
 func (p *WorldPainter) GetFrame(thickness float64, alpha uint8) {
 	p.frame = p.drawer.GetFrame(thickness, alpha)
 }
-func (p *WorldPainter) AddTile(img *ebiten.Image) {
+func (p *WorldPainter) AddTile(img *WObjs.Tile) {
 	if p.tiles == nil {
-		p.tiles = make([]*ebiten.Image, 0)
+		p.tiles = make([]*WObjs.Tile, 0)
 	}
 	p.tiles = append(p.tiles, img)
 }
@@ -43,7 +44,7 @@ func (p *WorldPainter) Paint(screen *ebiten.Image, idxMat, layerMat *Matrix, Zla
 		for y := 0; y < idxMat.Y; y++ {
 			idx := idxMat.Get(x, y, 0)
 			if idx >= 0 || idx < len(p.tiles) {
-				p.drawer.Img = p.tiles[idx]
+				p.drawer.Img = p.tiles[idx].Img
 				p.drawer.X = float64(x)*p.tileS + p.xStart
 				p.drawer.Y = float64(y)*p.tileS + p.yStart
 				layerIdx := layerMat.Get(x, y, 0)

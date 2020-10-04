@@ -106,6 +106,7 @@ func (obj *ImageObj) GetFrame(thickness float64, alpha uint8) (frame *ImageObj) 
 }
 //Draws the ImageObj on a screen
 func (obj *ImageObj) DrawImageObj(screen *ebiten.Image) {
+	obj.PanicIfNil()
 	w, h := obj.Img.Size()
 	op := &ebiten.DrawImageOptions{}
 	xScale := obj.W/(float64)(w)
@@ -120,6 +121,7 @@ func (obj *ImageObj) DrawImageObj(screen *ebiten.Image) {
 }
 //Draws a blured Image on a screen (box=3; alphaScale=(box*2+1)^2/2=25)
 func (obj *ImageObj) DrawImageBlured(screen *ebiten.Image, box int, alphaScale float64) {
+	obj.PanicIfNil()
 	// https://en.wikipedia.org/wiki/Box_blur
 	for j := -box; j <= box; j++ {
 		for i := -box; i <= box; i++ {
@@ -140,6 +142,7 @@ func (obj *ImageObj) DrawImageBlured(screen *ebiten.Image, box int, alphaScale f
 }
 //Draws the ImageObj with a certain transparency on a screen
 func (obj *ImageObj) DrawImageObjAlpha(screen *ebiten.Image, alpha float64) {
+	obj.PanicIfNil()
 	w, h := obj.Img.Size()
 	op := &ebiten.DrawImageOptions{}
 	xScale := obj.W/(float64)(w)
@@ -202,4 +205,9 @@ func InitIcons(path string, sizes []int, fileformat string) (error, []image.Imag
 		imgs[i] = *img
 	}
 	return nil, imgs
+}
+func (obj *ImageObj) PanicIfNil() {
+	if obj.Img == nil {
+		panic("ImageObj is nil")
+	}
 }

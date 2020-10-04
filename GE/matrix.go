@@ -3,11 +3,7 @@ package GE
 import (
 	"fmt"
 )
-/**
-Layer 0:
 
-
-**/
 type Matrix struct {
 	X,Y,Z int
 	list []int

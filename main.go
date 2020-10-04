@@ -7,7 +7,6 @@ import (
 	//"io/ioutil"
 	"github.com/hajimehoshi/ebiten"
 	"marvin/GraphEng/GE"
-	"marvin/GraphEng/GE/WObjs"
 	"marvin/GraphEng/res"
 	//"github.com/hajimehoshi/ebiten/text"
 	//"github.com/hajimehoshi/ebiten/ebitenutil"
@@ -35,9 +34,7 @@ type TestGame struct {
 	Tbv_U GE.UpdateFunc
 	Tbv_D GE.DrawFunc
 
-	wrld *GE.WorldPainter
-
-	idxMat, layerMat *GE.Matrix
+	wrld *GE.WorldStructure
 	
 	frame int
 }
@@ -51,10 +48,9 @@ func (g *TestGame) Update(screen *ebiten.Image) error {
 		g.Tbv.Update(g.frame)
 		
 		g.Tbv.Screens.Member[3].(*GE.TabView).Screens.Member[0].(*GE.Animation).UpdatePeriod = g.Tbv.Screens.Member[3].(*GE.TabView).Screens.Member[2].(*GE.ScrollBar).Current()
-		
 		g.Tbv.Draw(screen)
 		
-		g.wrld.Paint(screen, g.idxMat, g.layerMat, 0)
+		g.wrld.Draw(screen, 0)
 	}
 	g.frame ++
 	return nil
@@ -82,7 +78,7 @@ func main() {
 
 	TextView := GE.GetTextView(formatedTestText, 0, 300, 40, 3, GE.StandardFont, &color.RGBA{255, 255, 255, 255}, &color.RGBA{255, 0, 0, 255})
 
-	ScrollBar := GE.GetStandardScrollbar(700, 500, 600, 60, -128, 128, 3, GE.StandardFont)
+	ScrollBar := GE.GetStandardScrollbar(700, 500, 600, 60, 0, 120, 3, GE.StandardFont)
 	
 	animation := GE.GetAnimation(1000, 300, 160, 240, 28, 3, GE.LoadEbitenImgFromBytes(res.SPELL_ANIM))
 
@@ -101,8 +97,20 @@ func main() {
 	params := &GE.TabViewParams{Nms: []string{"Fett", "Sack", "Fettsack", "LOL"}, Scrs: updatable, W: screenWidth, H: screenHeight}
 	tbv := GE.GetTabView(params)
 
-	wmatI := &GE.Matrix{X: 10, Y: 9, Z: 1}
-	wmatI.Init(0)
+	wmatI := &GE.Matrix{X: 10, Y: 9, Z: 3}
+	wmatI.Init(-1)
+	wmatI.Set(0, 0, 0, 0)
+	wmatI.Set(0, 1, 0, 0)
+	wmatI.Set(0, 2, 0, 0)
+	wmatI.Set(0, 3, 0, 0)
+	wmatI.Set(0, 4, 0, 0)
+	wmatI.Set(0, 5, 0, 0)
+	wmatI.Set(0, 6, 0, 0)
+	wmatI.Set(0, 7, 0, 0)
+	wmatI.Set(1, 8, 0, 0)
+	
+	wmatI.Set(1, 7, 1, 0)
+	
 	wmatL := &GE.Matrix{X: 10, Y: 9, Z: 1}
 	wmatL.Init(0)
 	wmatL.Set(0, 0, 0, -4)
@@ -116,11 +124,13 @@ func main() {
 	wmatL.Set(0, 8, 0, 4)
 	//fmt.Println(mat.Print())
 
-	wrld := GE.GetWorldPainter(0, 400, 500, 500, wmatI.X, wmatI.Y)
-	wrld.AddTile(&WObjs.Tile{GE.LoadEbitenImgFromBytes(res.TILE16)})
+	wrld := GE.GetWorldStructure(0, 400, 500, 500, wmatI.X, wmatI.Y)
+	wrld.IdxMat = wmatI; wrld.LayerMat = wmatL
+	wrld.AddTile(&GE.Tile{GE.LoadEbitenImgFromBytes(res.TILE16)})
+	wrld.AddStructureObj(&GE.StructureObj{Animation:*animation})
 	wrld.GetFrame(2, 90)
 
-	g := &TestGame{tbv, nil, nil, wrld, wmatI, wmatL, 0}
+	g := &TestGame{tbv, nil, nil, wrld, 0}
 
 	ebiten.SetWindowSize(screenWidth, screenHeight)
 	ebiten.SetWindowTitle("GameEngine Test")

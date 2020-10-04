@@ -28,7 +28,7 @@ func GetImageButton(eimg *ebiten.Image, X,Y, W,H float64, onPressLeft func(b *Bu
 //EDITTEXT ------------------------------------------------------------------------------------------------------------------------------
 func GetEditText(placeHolderText string, X, Y, H float64, maxRunes int, ttf *truetype.Font, cols ...color.Color) (et *EditText) {
 	imgo := ImageObj{H:H, X:X, Y:Y}
-	et = &EditText{imgo, "", placeHolderText, 0, maxRunes, ttf, cols, 0, false, true, true}
+	et = &EditText{imgo, "", placeHolderText, 0, maxRunes, ttf, cols, 0, false, true, true, nil}
 	return
 }
 //TEXTVIEW ------------------------------------------------------------------------------------------------------------------------------
@@ -110,6 +110,6 @@ func GetStandardScrollbar(X, Y, W, H float64, min, max, current int, ttf *truety
 //ANIMATION ------------------------------------------------------------------------------------------------------------------------------
 func GetAnimation(X, Y, W, H float64, spriteWidth, updatePeriod int, sprites *ebiten.Image) (anim *Animation) {
 	w,h := sprites.Size()
-	anim = &Animation{ImageObj{X:X,Y:Y,W:W,H:H}, int(float64(w)/float64(spriteWidth)),0,spriteWidth,h,updatePeriod,0,sprites}
+	anim = &Animation{ImageObj{X:X,Y:Y,W:W,H:H}, int(float64(w)/float64(spriteWidth)),0,spriteWidth,h,updatePeriod,sprites}
 	return
 }

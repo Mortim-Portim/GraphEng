@@ -16,16 +16,16 @@ type TabView struct {
 func (t *TabView) Init(screen *ebiten.Image, data interface{}) {}
 func (t *TabView) Start(screen *ebiten.Image, data interface{}) {}
 func (t *TabView) Stop(screen *ebiten.Image, data interface{}) {}
-func (t *TabView) Update() {
+func (t *TabView) Update(frame int) {
 	if t.CurrentTab < len(t.Screens) {
-		t.Screens[t.CurrentTab].Update()
+		t.Screens[t.CurrentTab].Update(frame)
 	}
 	for i,btn := range(t.TabBtns) {
 		btn.DrawDark = false
 		if i == t.CurrentTab {
 			btn.DrawDark = true
 		}
-		btn.Update()
+		btn.Update(frame)
 	}
 }
 func (t *TabView) Draw(screen *ebiten.Image) {

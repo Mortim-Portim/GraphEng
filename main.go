@@ -35,15 +35,18 @@ type TestGame struct {
 	wrld *GE.WorldPainter
 
 	idxMat, layerMat *GE.Matrix
+	
+	frame int
 }
 
 func (g *TestGame) Update(screen *ebiten.Image) error {
-	g.Tbv.Update()
+	g.Tbv.Update(g.frame)
 	
 	g.Tbv.Screens[3].(*GE.TabView).Screens[0].(*GE.Animation).UpdatePeriod = g.Tbv.Screens[3].(*GE.TabView).Screens[2].(*GE.ScrollBar).Current()
 	
 	g.Tbv.Draw(screen)
 	g.wrld.Paint(screen, g.idxMat, g.layerMat, 0)
+	g.frame ++
 	return nil
 }
 func (g *TestGame) Layout(outsideWidth, outsideHeight int) (int, int) {
@@ -106,7 +109,7 @@ func main() {
 	wrld.AddTile(GE.LoadEbitenImgFromBytes(res.TILE16))
 	wrld.GetFrame(2, 90)
 
-	g := &TestGame{tbv, wrld, wmatI, wmatL}
+	g := &TestGame{tbv, wrld, wmatI, wmatL, 0}
 
 	ebiten.SetWindowSize(screenWidth, screenHeight)
 	ebiten.SetWindowTitle("GameEngine Test")

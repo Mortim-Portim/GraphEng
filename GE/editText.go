@@ -20,6 +20,10 @@ type EditText struct {
 	currentColor int
 	
 	IsSelected, imageNeedsUpdate,Underscore bool
+	OnChange func(t *EditText)
+}
+func (t *EditText) RegisterOnChange(OnChange func(t *EditText)) {
+	t.OnChange = OnChange
 }
 func (t *EditText) Print() string {
 	return fmt.Sprintf("Text: %s, Placeholder: %s, Counter: %v, MaxRunes: %v", t.text, t.placeHolderText, t.counter, t.MaxRunes)
@@ -28,7 +32,7 @@ func (t *EditText) Print() string {
 func (t *EditText) Init(screen *ebiten.Image, data interface{}) {}
 func (t *EditText) Start(screen *ebiten.Image, data interface{}) {}
 func (t *EditText) Stop(screen *ebiten.Image, data interface{}) {}
-func (t *EditText) Update() {
+func (t *EditText) Update(frame int) {
 	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
 		xi,yi := ebiten.CursorPosition(); x := float64(xi); y := float64(yi)
 		if x > t.X && x < t.X+t.W && y > t.Y && y < t.Y+t.H {
@@ -38,6 +42,9 @@ func (t *EditText) Update() {
 	if repeatingKeyPressed(ebiten.KeyEnter) || repeatingKeyPressed(ebiten.KeyKPEnter) {
 		t.IsSelected = false
 		t.imageNeedsUpdate = true
+		if t.OnChange != nil {
+			t.OnChange(t)
+		}
 	}
 	if t.IsSelected {
 		newText := string(ebiten.InputChars())

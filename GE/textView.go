@@ -25,7 +25,7 @@ func (v *TextView) Start(screen *ebiten.Image, data interface{}) {
 func (v *TextView) Stop(screen *ebiten.Image, data interface{}) {
 	v.Reset()
 }
-func (v *TextView) Update() {
+func (v *TextView) Update(frame int) {
 	x, y := ebiten.CursorPosition()
 	if int(v.X) <= x && x < int(v.X+v.W) && int(v.Y) <= y && y < int(v.Y+v.H) {
 		_, dy := ebiten.Wheel()

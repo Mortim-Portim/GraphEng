@@ -25,12 +25,16 @@ type ScrollBar struct {
 	min, max, length, current int
 	stepsize, relAbsPos float64
 	ttf *truetype.Font
+	OnChange func(b *ScrollBar)
+}
+func (b *ScrollBar) RegisterOnChange(OnChange func(b *ScrollBar)) {
+	b.OnChange = OnChange
 }
 func (b *ScrollBar) Current() int {return b.current}
 func (b *ScrollBar) Init(screen *ebiten.Image, data interface{}) {}
 func (b *ScrollBar)	Start(screen *ebiten.Image, data interface{}) {}
 func (b *ScrollBar)	Stop(screen *ebiten.Image, data interface{}) {}
-func (b *ScrollBar)	Update() {
+func (b *ScrollBar)	Update(frame int) {
 	x, y := ebiten.CursorPosition()
 	if int(b.X) <= x && x < int(b.X+b.W) && int(b.Y) <= y && y < int(b.Y+b.H) {
 		if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
@@ -48,6 +52,10 @@ func (b *ScrollBar) UpdatePos() {
 	b.pointer.SetMiddleX(b.X + b.stepsize*(b.relAbsPos))
 	b.value = GetTextImage(fmt.Sprintf("%v",b.current), b.pointer.X, b.pointer.Y+b.pointer.H, b.pointer.H/2, b.ttf, &color.RGBA{255,255,255,255}, &color.RGBA{0,0,0,0})
 	b.value.SetMiddleX(b.pointer.X+b.pointer.W/2)
+	
+	if b.OnChange != nil {
+		b.OnChange(b)
+	}
 }
 func (b *ScrollBar) CheckChange(x float64) {
 	xC := x-(float64(b.current-b.min)/float64(b.length))

@@ -27,8 +27,8 @@ type UpdateAble interface {
 	Init(screen *ebiten.Image, data interface{})		//Called once at the beginning
 	Start(screen *ebiten.Image, data interface{}) 		//Called whenever the View becomes visible
 	Stop(screen *ebiten.Image, data interface{})		//Called whenever the View becomes invisible
-	Update()									//Called every Frame if the View is visible
-	Draw(screen *ebiten.Image)				//Called every Frame if the View is visible
+	Update(frame int)									//Called every Frame if the View is visible
+	Draw(screen *ebiten.Image)							//Called every Frame if the View is visible
 }
 
 var StandardFont *truetype.Font

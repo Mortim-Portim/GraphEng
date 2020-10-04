@@ -15,7 +15,7 @@ import (
 	//"github.com/hajimehoshi/ebiten/inpututil"
 	//"golang.org/x/image/font"
 	//"github.com/nfnt/resize"
-	//"fmt"
+	"fmt"
 	"image/color"
 	"log"
 	//"math"
@@ -45,12 +45,29 @@ func (g *TestGame) Update(screen *ebiten.Image) error {
 	if g.frame == 0 {
 		g.Init(screen)
 	}else{
+		if g.frame%2 == 0 {
+		if ebiten.IsKeyPressed(ebiten.KeyLeft) {
+			g.wrld.Move(-1,0)
+		}
+		if ebiten.IsKeyPressed(ebiten.KeyRight) {
+			g.wrld.Move(1,0)
+		}
+		if ebiten.IsKeyPressed(ebiten.KeyUp) {
+			g.wrld.Move(0,-1)
+		}
+		if ebiten.IsKeyPressed(ebiten.KeyDown) {
+			g.wrld.Move(0,1)
+		}
+		}
+		x,y := g.wrld.Middle()
+		g.wrld.StructureObjs[0].SetToXY(x,y)
+		
 		g.Tbv.Update(g.frame)
 		
 		g.Tbv.Screens.Member[3].(*GE.TabView).Screens.Member[0].(*GE.Animation).UpdatePeriod = g.Tbv.Screens.Member[3].(*GE.TabView).Screens.Member[2].(*GE.ScrollBar).Current()
 		g.Tbv.Draw(screen)
 		
-		g.wrld.Draw(screen, 0)
+		g.wrld.Draw(screen)
 	}
 	g.frame ++
 	return nil
@@ -61,9 +78,6 @@ func (g *TestGame) Layout(outsideWidth, outsideHeight int) (int, int) {
 func main() {
 	GE.Init("")
 	GE.StandardFont = GE.ParseFontFromBytes(res.MONO_TTF)
-
-	mat := &GE.Matrix{X: 3, Y: 3, Z: 3}
-	mat.InitIdx()
 
 	formatedTestText := GE.FormatTextToWidth(TestText, 21, true)
 
@@ -102,39 +116,37 @@ func main() {
 	params := &GE.TabViewParams{Nms: []string{"Fett", "Sack", "Fettsack", "LOL"}, Scrs: updatable, W: screenWidth, H: screenHeight}
 	tbv := GE.GetTabView(params)
 
-	wmatI := &GE.Matrix{X: 10, Y: 9, Z: 3}
-	wmatI.Init(-1)
-	wmatI.Set(0, 0, 0, 0)
-	wmatI.Set(0, 1, 0, 0)
-	wmatI.Set(0, 2, 0, 0)
-	wmatI.Set(0, 3, 0, 0)
-	wmatI.Set(0, 4, 0, 0)
-	wmatI.Set(0, 5, 0, 0)
-	wmatI.Set(0, 6, 0, 0)
-	wmatI.Set(0, 7, 0, 0)
-	wmatI.Set(1, 8, 0, 0)
-	
-	wmatI.Set(1, 7, 1, 0)
-	
-	wmatL := &GE.Matrix{X: 10, Y: 9, Z: 1}
-	wmatL.Init(0)
-	wmatL.Set(0, 0, 0, -4)
-	wmatL.Set(0, 1, 0, -3)
-	wmatL.Set(0, 2, 0, -2)
-	wmatL.Set(0, 3, 0, -1)
-	wmatL.Set(0, 4, 0, 0)
-	wmatL.Set(0, 5, 0, 1)
-	wmatL.Set(0, 6, 0, 2)
-	wmatL.Set(0, 7, 0, 3)
-	wmatL.Set(0, 8, 0, 4)
-	//fmt.Println(mat.Print())
+	wmatI := GE.GetMatrix(20, 20, 0)
+	fmt.Println(wmatI.Print())
+		
+	wmatL :=  GE.GetMatrix(20, 20, 0)
+	//wmatL.Fill(0,0,19,19, -10)
+	//wmatL.Fill(0,0,18,18, -8)
+	wmatL.Fill(0,0,16,16, -6)
+	wmatL.Fill(0,0,14,14, -4)
+	wmatL.Fill(0,0,12,12, -2)
+	wmatL.Fill(0,0,10,10, 0)
+	wmatL.Fill(0,0,8,8, 2)
+	wmatL.Fill(0,0,6,6, 4)
+	wmatL.Fill(0,0,4,4, 6)
+	wmatL.Fill(0,0,2,2, 8)
+	wmatL.Fill(0,0,0,0, 10)
+	fmt.Println(wmatL.Print())
 
-	wrld := GE.GetWorldStructure(0, 400, 500, 500, wmatI.X, wmatI.Y)
+	wrld := GE.GetWorldStructure(900, 300, 500, 500, 9, 9)
 	wrld.IdxMat = wmatI; wrld.LayerMat = wmatL
+	
 	eTile16,_ := GE.LoadEbitenImgFromBytes(res.TILE16)
 	wrld.AddTile(&GE.Tile{eTile16})
-	wrld.AddStructureObj(&GE.StructureObj{Animation:*animation})
+	
+	treeImg,_ := GE.LoadEbitenImg("./res/jump.png")
+	tree := GE.GetAnimation(0, 0, 16, 32, 16, 5, treeImg)
+	strct := GE.GetStructureObj(tree, GE.GetRectangle(1,1,1,1), 16)
+	
+	wrld.AddStructureObj(strct)
 	wrld.GetFrame(2, 90)
+	//wrld.SetMiddle(&GE.Point{1,1})
+	wrld.SetMiddle(&GE.Point{4,4})
 
 	g := &TestGame{tbv, nil, nil, wrld, 0}
 

@@ -11,9 +11,10 @@ type Animation struct {
 	
 	spriteSheet *ebiten.Image
 }
-
+func (a *Animation) Clone() (*Animation) {
+	return &Animation{a.ImageObj, a.sprites, a.current, a.spriteWidth, a.spriteHeight, a.UpdatePeriod, a.spriteSheet}
+}
 func (a *Animation) Init(screen *ebiten.Image, data interface{}) (UpdateFunc, DrawFunc) {
-	a.Update(0)
 	return a.Update, a.DrawImageObj
 }
 func (a *Animation) Start(screen *ebiten.Image, data interface{}) {}

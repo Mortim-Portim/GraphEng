@@ -4,8 +4,6 @@ import (
 	"github.com/hajimehoshi/ebiten"
 	"io/ioutil"
 )
-//TODO Collision
-
 
 //Returns a WorldStructure object
 func GetWorldStructure(X, Y, W, H float64, WTiles, HTiles int16) (p *WorldStructure) {
@@ -161,4 +159,8 @@ func (p *WorldStructure) GetFrame(thickness float64, alpha uint8) {
 //Returns the width and height of the tiles
 func (p *WorldStructure) GetTileS() float64 {
 	return p.tileS
+}
+//Returns the top left corner of the WorldStruct on the screen
+func (p *WorldStructure) GetTopLeft() *Point {
+	return &Point{p.xStart, p.yStart}
 }

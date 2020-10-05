@@ -4,6 +4,39 @@ import (
 	"fmt"
 	"io/ioutil"
 )
+
+/**
+Matrix is a struct that can store a 2 dimensional array of a maximum width and height of 65535
+the stored values are 16-bit integers
+
+A matrix can have a focus, that lets all functions (except WAbs, HAbs, GetAbs) access only values and indexes withhin that focus
+If a value is outside the matrix Get will return -1
+
+Example:
+whole Matrix:
+ 10  8  8  6  6  4  4  2  2  0  0 -2 -2 -4 -4 -6 -6  0  0  0
+  8  8  8  6  6  4  4  2  2  0  0 -2 -2 -4 -4 -6 -6  0  0  0
+  8  8  8  6  6  4  4  2  2  0  0 -2 -2 -4 -4 -6 -6  0  0  0
+  6  6  6  6  6  4  4  2  2  0  0 -2 -2 -4 -4 -6 -6  0  0  0
+  6  6  6  6  6  4  4  2  2  0  0 -2 -2 -4 -4 -6 -6  0  0  0
+  4  4  4  4  4  4  4  2  2  0  0 -2 -2 -4 -4 -6 -6  0  0  0
+  4  4  4  4  4  4  4  2  2  0  0 -2 -2 -4 -4 -6 -6  0  0  0
+  2  2  2  2  2  2  2  2  2  0  0 -2 -2 -4 -4 -6 -6  0  0  0
+  2  2  2  2  2  2  2  2  2  0  0 -2 -2 -4 -4 -6 -6  0  0  0
+  0  0  0  0  0  0  0  0  0  0  0 -2 -2 -4 -4 -6 -6  0  0  0
+  0  0  0  0  0  0  0  0  0  0  0 -2 -2 -4 -4 -6 -6  0  0  0
+ -2 -2 -2 -2 -2 -2 -2 -2 -2 -2 -2 -2 -2 -4 -4 -6 -6  0  0  0
+ -2 -2 -2 -2 -2 -2 -2 -2 -2 -2 -2 -2 -2 -4 -4 -6 -6  0  0  0
+ -4 -4 -4 -4 -4 -4 -4 -4 -4 -4 -4 -4 -4 -4 -4 -6 -6  0  0  0
+ -4 -4 -4 -4 -4 -4 -4 -4 -4 -4 -4 -4 -4 -4 -4 -6 -6  0  0  0
+ -6 -6 -6 -6 -6 -6 -6 -6 -6 -6 -6 -6 -6 -6 -6 -6 -6  0  0  0
+ -6 -6 -6 -6 -6 -6 -6 -6 -6 -6 -6 -6 -6 -6 -6 -6 -6  0  0  0
+  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+subMatrix with focus 
+**/
+
 //Returns a Matrix of width=x, height=y and initial value=v
 func GetMatrix(x,y,v int16) (m *Matrix) {
 	m = &Matrix{x:x,y:y}
@@ -46,10 +79,11 @@ func (m *Matrix) InitIdx() {
 		m.list[i] = int16(i)
 	}
 }
-//Returns a matrix with 
+//Returns a matrix with the same fields
 func (m *Matrix) Clone() *Matrix {
 	return &Matrix{m.x,m.y,m.list,m.focus}
 }
+//Returns the value of the matrix at the absolute x and y coordinates
 func (m *Matrix) GetAbs(x,y int16) int {
 	idx := x+m.x*y
 	if idx < 0 || idx >= int16(len(m.list)) {
@@ -57,6 +91,7 @@ func (m *Matrix) GetAbs(x,y int16) int {
 	}
 	return int(m.list[idx])
 }
+//Returns the value of the focused matrix at the x and y coordinates
 func (m *Matrix) Get(x, y int16) int {
 	idx := (x+int16(m.focus.Min().X))+m.x*(y+int16(m.focus.Min().Y))
 	if idx < 0 || idx >= int16(len(m.list)) {
@@ -64,12 +99,15 @@ func (m *Matrix) Get(x, y int16) int {
 	}
 	return int(m.list[idx])
 }
+//Sets the value of the focused matrix at the x and y coordinates
 func (m *Matrix) Set(x, y, v int16) {
 	m.list[(x+int16(m.focus.Min().X))+m.x*(y+int16(m.focus.Min().Y))] = v
 }
+//Adds a value to the value of the focused matrix at the x and y coordinate
 func (m *Matrix) Add(x,y, v int16) {
 	m.Set(x,y, int16(m.Get(x,y))+v)
 }
+//Fills a Rectangle with a value
 func (m *Matrix) Fill(x1,y1,x2,y2, v int16) {
 	for x := x1; x <= x2; x++ {
 		for y := y1; y <= y2; y++ {
@@ -77,6 +115,7 @@ func (m *Matrix) Fill(x1,y1,x2,y2, v int16) {
 		}
 	}
 }
+//Adds a value to all focused values
 func (m *Matrix) AddToAll(v int16) {
 	for x := int16(0); x < m.W(); x++ {
 		for y := int16(0); y < m.H(); y++ {
@@ -84,9 +123,11 @@ func (m *Matrix) AddToAll(v int16) {
 		}
 	}
 }
+//Resets the focus (0,0, m.x, m.y)
 func (m *Matrix) ResetFocus() {
 	m.focus = GetRectangle(0,0,float64(m.x),float64(m.y))
 }
+//Sets the focus of the matrix
 func (m *Matrix) SetFocus(x1,y1,x2,y2 int16) {
 	if x1 < 0 {
 		x1 = 0
@@ -102,9 +143,11 @@ func (m *Matrix) SetFocus(x1,y1,x2,y2 int16) {
 	}
 	m.focus = GetRectangle(float64(x1),float64(y1), float64(x2), float64(y2))
 }
+//Returns the focus of the matrix
 func (m *Matrix) Focus() *Rectangle {
 	return m.focus
 }
+//Returns a copy of the matrix focused on a specific rectangle
 func (m *Matrix) SubMatrix(x1,y1,x2,y2 int16) (newM *Matrix) {
 	newM = m.Clone()
 	newM.SetFocus(x1,y1,x2,y2)

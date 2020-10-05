@@ -34,7 +34,18 @@ whole Matrix:
   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-subMatrix with focus 
+  
+subMatrix with focus (3,2,15,12)
+  6  6  4  4  2  2  0  0 -2 -2
+  6  6  4  4  2  2  0  0 -2 -2
+  6  6  4  4  2  2  0  0 -2 -2
+  4  4  4  4  2  2  0  0 -2 -2
+  4  4  4  4  2  2  0  0 -2 -2
+  2  2  2  2  2  2  0  0 -2 -2
+  2  2  2  2  2  2  0  0 -2 -2
+  0  0  0  0  0  0  0  0 -2 -2
+  0  0  0  0  0  0  0  0 -2 -2
+ -2 -2 -2 -2 -2 -2 -2 -2 -2 -2
 **/
 
 //Returns a Matrix of width=x, height=y and initial value=v
@@ -153,7 +164,7 @@ func (m *Matrix) SubMatrix(x1,y1,x2,y2 int16) (newM *Matrix) {
 	newM.SetFocus(x1,y1,x2,y2)
 	return
 }
-
+//Prints a matrix with maximum values of 999
 func (m *Matrix) Print() string {
 	out := ""
 	for y := int16(0); y < m.H(); y++ {
@@ -168,7 +179,7 @@ func (m *Matrix) Print() string {
 	}
 	return out
 }
-
+//Converts a Matrix to a []byte slice
 func (m *Matrix) ToBytes() []byte {
 	b := Int16sToBytes(m.list)
 	b = AppendInt16ToBytes(m.x, b)
@@ -180,6 +191,7 @@ func (m *Matrix) ToBytes() []byte {
 	b = AppendInt16ToBytes(int16(m.focus.Max().Y), b)
 	return b
 }
+//Loads a Matrix from a []byte slice
 func (m *Matrix) FromBytes(bs []byte) {
 	is := BytesToInt16s(bs)
 	m.list = is[:len(is)-6]
@@ -187,11 +199,11 @@ func (m *Matrix) FromBytes(bs []byte) {
 	m.y = is[len(is)-5]
 	m.focus = GetRectangle(float64(is[len(is)-4]), float64(is[len(is)-3]), float64(is[len(is)-2]), float64(is[len(is)-1]))
 }
-
+//Compresses a Matrix to a []byte slice
 func (m *Matrix) Compress() ([]byte, error) {
 	return CompressBytes(m.ToBytes())
 }
-
+//Decompresses a []byte slice, that was compressed by m.Compress()
 func (m *Matrix) Decompress(bs []byte) error {
 	content, err := DecompressBytes(bs)
 	if err != nil {
@@ -200,6 +212,7 @@ func (m *Matrix) Decompress(bs []byte) error {
 	m.FromBytes(content)
 	return nil
 }
+//Loads a compressed matrix from the file system
 func (m *Matrix) Load(path string) error {
 	dat, err2 := ioutil.ReadFile(path)
    	if err2 != nil {
@@ -208,6 +221,7 @@ func (m *Matrix) Load(path string) error {
    	m.Decompress(dat)
 	return nil
 }
+//Saves a matrix in compressed form to the file system
 func (m *Matrix) Save(path string) error {
 	bs, err := m.Compress()
 	if err != nil {
@@ -215,6 +229,7 @@ func (m *Matrix) Save(path string) error {
 	}
 	return ioutil.WriteFile(path, bs, 0644)
 }
+//Loads an uncompressed matrix from the file system
 func (m *Matrix) LoadUnCompressed(path string) error {
 	dat, err2 := ioutil.ReadFile(path)
    	if err2 != nil {
@@ -223,6 +238,7 @@ func (m *Matrix) LoadUnCompressed(path string) error {
    	m.FromBytes(dat)
 	return nil
 }
+//Saves a matrix in uncompressed form to the file system
 func (m *Matrix) SaveUnCompressed(path string) error {
 	return ioutil.WriteFile(path, m.ToBytes(), 0644)
 }

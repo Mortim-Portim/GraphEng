@@ -70,8 +70,8 @@ func (g *TestGame) Update(screen *ebiten.Image) error {
 		
 		g.wrld.Draw(screen)
 		
-		g.wrld.UpdateCollisionMat()
-		fmt.Println(g.wrld.CollisionMat.Print())
+		//g.wrld.UpdateCollisionMat()
+		//fmt.Println(g.wrld.CollisionMat.Print())
 	}
 	g.frame ++
 	return nil
@@ -134,6 +134,9 @@ func main() {
 	wmatL.Fill(0,0,4,4, 6)
 	wmatL.Fill(0,0,2,2, 8)
 	wmatL.Fill(0,0,0,0, 10)
+	
+	fmt.Println(wmatL.Print())
+	fmt.Println(wmatL.SubMatrix(3,2,15,12).Print())
 	
 	startComp := time.Now()
 	err1 := wmatL.Save("./res/wmatL.txt")

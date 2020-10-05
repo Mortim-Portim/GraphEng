@@ -8,15 +8,16 @@ type StructureObj struct {
 	Animation
 	frame, squareSize int
 	HitBox, DrawBox *Rectangle
+	Collides bool
 }
 
-func GetStructureObj(anim *Animation, HitBox *Rectangle, squareSize int) (o *StructureObj) {
-	o = &StructureObj{Animation:*anim, frame:0, HitBox:HitBox, squareSize:squareSize}
+func GetStructureObj(anim *Animation, HitBox *Rectangle, squareSize int, Collides bool) (o *StructureObj) {
+	o = &StructureObj{Animation:*anim, frame:0, HitBox:HitBox, squareSize:squareSize, Collides:Collides}
 	pnt := HitBox.Min()
-	o.SetToXY(int(pnt.X), int(pnt.Y))
+	o.SetToXY(int16(pnt.X), int16(pnt.Y))
 	return
 }
-func (o *StructureObj) SetToXY(x,y int) {
+func (o *StructureObj) SetToXY(x,y int16) {
 	o.HitBox.MoveTo(&Point{float64(x),float64(y)})
 	w,h := o.Img.Size()
 	W := float64(w)/float64(o.squareSize); H := float64(h)/float64(o.squareSize)
@@ -25,7 +26,9 @@ func (o *StructureObj) SetToXY(x,y int) {
 }
 
 func (o *StructureObj) DrawCollisionMatrix(mat *Matrix) {
-	mat.Fill(int(o.HitBox.Min().X), int(o.HitBox.Min().Y), int(o.HitBox.Max().X), int(o.HitBox.Max().Y), COLLIDING_IDX)
+	if o.Collides {
+		mat.Fill(int16(o.HitBox.Min().X), int16(o.HitBox.Min().Y), int16(o.HitBox.Max().X), int16(o.HitBox.Max().Y), COLLIDING_IDX)
+	}
 }
 
 func (o *StructureObj) Draw(screen *ebiten.Image, myLayer, drawLayer int, leftTop *Point, sqSize, xStart, yStart float64) {

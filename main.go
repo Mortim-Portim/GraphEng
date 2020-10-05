@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"image/color"
 	"log"
+	"time"
 	//"math"
 )
 
@@ -60,7 +61,7 @@ func (g *TestGame) Update(screen *ebiten.Image) error {
 		}
 		}
 		x,y := g.wrld.Middle()
-		g.wrld.StructureObjs[0].SetToXY(x,y)
+		g.wrld.StructureObjs[0].SetToXY(int16(x),int16(y))
 		
 		g.Tbv.Update(g.frame)
 		
@@ -117,7 +118,6 @@ func main() {
 	tbv := GE.GetTabView(params)
 
 	wmatI := GE.GetMatrix(20, 20, 0)
-	fmt.Println(wmatI.Print())
 		
 	wmatL :=  GE.GetMatrix(20, 20, 0)
 	//wmatL.Fill(0,0,19,19, -10)
@@ -131,7 +131,22 @@ func main() {
 	wmatL.Fill(0,0,4,4, 6)
 	wmatL.Fill(0,0,2,2, 8)
 	wmatL.Fill(0,0,0,0, 10)
-	fmt.Println(wmatL.Print())
+	
+	startComp := time.Now()
+	err1 := wmatL.Save("./res/wmatL.txt")
+	if err1 != nil {
+		panic(err1)
+	}
+	endComp := time.Now()
+	fmt.Println("Compressing took: ", endComp.Sub(startComp))
+	
+	startDeComp := time.Now()
+	err2 := wmatL.Load("./res/wmatL.txt")
+	if err2 != nil {
+		panic(err2)
+	}
+	endDeComp := time.Now()
+	fmt.Println("Decompressing took: ", endDeComp.Sub(startDeComp))
 
 	wrld := GE.GetWorldStructure(900, 300, 500, 500, 9, 9)
 	wrld.IdxMat = wmatI; wrld.LayerMat = wmatL
@@ -141,12 +156,24 @@ func main() {
 	
 	treeImg,_ := GE.LoadEbitenImg("./res/jump.png")
 	tree := GE.GetAnimation(0, 0, 16, 32, 16, 5, treeImg)
-	strct := GE.GetStructureObj(tree, GE.GetRectangle(1,1,1,1), 16)
+	strct := GE.GetStructureObj(tree, GE.GetRectangle(1,1,1,1), 16, true)
 	
 	wrld.AddStructureObj(strct)
 	wrld.GetFrame(2, 90)
 	//wrld.SetMiddle(&GE.Point{1,1})
 	wrld.SetMiddle(&GE.Point{4,4})
+	
+	errS := wrld.Save("./res/wrld.txt")
+	if errS != nil {
+		panic(errS)
+	}
+	errL := wrld.Load("./res/wrld.txt")
+	if errL != nil {
+		panic(errL)
+	}
+	
+	wrld.UpdateCollisionMat()
+	fmt.Println()
 
 	g := &TestGame{tbv, nil, nil, wrld, 0}
 

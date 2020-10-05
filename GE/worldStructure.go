@@ -4,6 +4,8 @@ import (
 	"github.com/hajimehoshi/ebiten"
 	"io/ioutil"
 )
+//TODO Set world xTiles and yTiles
+
 
 //Returns a WorldStructure object
 func GetWorldStructure(X, Y, W, H float64, WTiles, HTiles int16) (p *WorldStructure) {

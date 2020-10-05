@@ -1,18 +1,8 @@
 package GE
 
 import (
-	//"os"
-	//"image"
-	//_ "image/jpeg"
-	//"io/ioutil"
 	"github.com/hajimehoshi/ebiten"
-	//"github.com/hajimehoshi/ebiten/text"
-	//"github.com/hajimehoshi/ebiten/ebitenutil"
-	//"github.com/hajimehoshi/ebiten/examples/resources/fonts"
 	"github.com/golang/freetype/truetype"
-	//"github.com/hajimehoshi/ebiten/inpututil"
-	//"golang.org/x/image/font"
-	//"github.com/nfnt/resize"
 	"image/color"
 	"fmt"
 	"math"

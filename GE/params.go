@@ -9,6 +9,21 @@ import (
 	"image/color"
 )
 
+/**
+Params represents a struct that can be loaded from a file, that contains paramters
+
+The Parameters of that file can than be accessed with params.Get(string) or params.GetS(string)
+
+The file to load should look like this:
+
+ParameterName1		:		value
+ParameterName2		:		value
+ParameterName3		:		value
+ParameterName4		:		value
+
+floats should be written like this: 3189.89
+**/
+
 // TODO Load Params from directory
 var (
 	EditText_Placeholder_Col = &(color.RGBA{255,255,255,100})
@@ -25,7 +40,7 @@ var (
 	TabsHeight = 1.0/15.0
 )
 
-//Called with GE.Init()
+//Initializes Params
 func InitParams() {
 	
 }

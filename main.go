@@ -69,6 +69,9 @@ func (g *TestGame) Update(screen *ebiten.Image) error {
 		g.Tbv.Draw(screen)
 		
 		g.wrld.Draw(screen)
+		
+		g.wrld.UpdateCollisionMat()
+		fmt.Println(g.wrld.CollisionMat.Print())
 	}
 	g.frame ++
 	return nil
@@ -171,9 +174,6 @@ func main() {
 	if errL != nil {
 		panic(errL)
 	}
-	
-	wrld.UpdateCollisionMat()
-	fmt.Println()
 
 	g := &TestGame{tbv, nil, nil, wrld, 0}
 

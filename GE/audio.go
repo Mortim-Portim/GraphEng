@@ -8,17 +8,15 @@ import (
 	"github.com/hajimehoshi/ebiten/audio/wav"
 )
 
-const (
-	sampleRate = 48000
-)
+//IMPORTANT: Call InitAudioContext() before creating a new Player
+
+const sampleRate = 48000
 
 var (
 	audioContext *audio.Context
 )
 
-// AudioPlayer represents the current audio state.
 type AudioPlayer struct {
-	
 	audioPlayer  *audio.Player
 	seBytes      []byte
 	seCh         chan []byte
@@ -31,7 +29,7 @@ func InitAudioContext() {
 	}
 	audioContext = AudioContext
 }
-
+//Creates a new audio player
 func NewPlayer(filename string) (*AudioPlayer, error) {
     b, fErr := ioutil.ReadFile(filename)
     if fErr != nil {
@@ -73,7 +71,7 @@ func (p *AudioPlayer) load() error {
 	}
     return nil
 }
-
+//Plays the Sound of an audioplayer
 func (p *AudioPlayer) Play() error {
     err := p.load()
     if err != nil {

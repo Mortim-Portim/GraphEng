@@ -4,6 +4,16 @@ import (
 	"github.com/hajimehoshi/ebiten"
 )
 
+/**
+Button represents a struct, which should be updated every frame
+
+Button calls onPressLeft() or onPressRight() if being clicked by the mouse
+
+It can be created from a Image or using Text
+
+Button implements UpdateAble
+**/
+
 type Button struct {
 	Img *ImageObj
 	dark, light *ebiten.Image

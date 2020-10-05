@@ -14,6 +14,20 @@ func (p *Point) Clone() (*Point) {
 	return &Point{p.X, p.Y}
 }
 
+/**
+Rectangle represents two Points spanning a rectangle:
+
+P1
+#----------------------+
+|					   |
+|					   |
+|					   |
+|					   |
++----------------------#
+					   P2
+					   
+the width and height of the Rectangle can be accessed by calling Bounds()
+**/
 func GetRectangle(x1,y1,x2,y2 float64) (r *Rectangle) {
 	r = &Rectangle{&Point{x1,y1}, &Point{x2,y2}, nil}
 	r.updateBounds()

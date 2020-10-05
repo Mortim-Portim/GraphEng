@@ -5,6 +5,22 @@ import (
 	"image"
 )
 
+
+/**
+Animation struct to load and play animations
+
+all frames are contained in a spriteSheet from the left to the right
+  #   |  #   |  #   |  #   |  #   |
+ # #  | # #  | # #  | # #  | # #  |
+  #   |  #   |# #   |  #   |  #   |
+ ###  |####  | #### | ###  | ###  |
+# # # |  # # |  #   |# # # |# # # |
+  #   |  #   |  # # |  #   |  #   |
+ # #  | # ## | # #  | # #  | # #  |
+#   # |#     |#     |#   # |#   # |
+
+Animation implements UpdateAble
+**/
 type Animation struct {
 	ImageObj
 	sprites, current, spriteWidth, spriteHeight, UpdatePeriod int

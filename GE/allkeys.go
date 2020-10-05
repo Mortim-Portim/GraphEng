@@ -4,7 +4,11 @@ import (
 	"github.com/hajimehoshi/ebiten"
 )
 
+/**
 
+List of all possible Keys
+
+**/
 var (
 	AllKeys = []ebiten.Key{
 			ebiten.Key0,

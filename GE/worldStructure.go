@@ -43,7 +43,7 @@ type WorldStructure struct {
 
 //Updates the collision Matrix
 func (p *WorldStructure) UpdateCollisionMat() {
-	p.CollisionMat = GetMatrix(p.IdxMat.W(),p.IdxMat.H(),COLLIDING_IDX-1)
+	p.CollisionMat = GetMatrix(p.IdxMat.WAbs(),p.IdxMat.HAbs(),COLLIDING_IDX-1)
 	for _,obj := range(p.StructureObjs) {
 		obj.DrawCollisionMatrix(p.CollisionMat)
 	}

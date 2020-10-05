@@ -10,22 +10,28 @@ import (
 )
 
 //BUTTONS -------------------------------------------------------------------------------------------------------------------------------
+
+//Returns a Button showing a ImageObj
 func GetButton(img *ImageObj, dark *ebiten.Image) *Button {
 	b := &Button{}
 	b.Img = img; b.dark = dark; b.light = img.Img; b.Active = true
 	return b
 }
+//Returns a Button with Text of a specific color on it
 func GetTextButton(str, downStr string, ttf *truetype.Font, X, Y, H float64, textCol, backCol color.Color) *Button {
 	img := GetTextImage(str, X, Y, H, ttf, textCol, backCol)
 	dark := GetTextImage(downStr, X, Y, H, ttf, textCol, ReduceColor(backCol, ReduceColOnButtonDown))
 	return GetButton(img, dark.Img)
 }
+//Returns a standard Button of an Image
 func GetImageButton(eimg *ebiten.Image, X,Y, W,H float64) *Button {
 	img := &ImageObj{eimg, nil, W, H, X, Y, 0}
 	dark := ReduceColorImage(img.Img, ReduceColOnButtonDown)
 	return GetButton(img, dark)
 }
 //EDITTEXT ------------------------------------------------------------------------------------------------------------------------------
+
+//Returns a EditText, with a placeHolderText and a maximum number of runes
 func GetEditText(placeHolderText string, X, Y, H float64, maxRunes int, ttf *truetype.Font, cols ...color.Color) (et *EditText) {
 	imgo := ImageObj{H:H, X:X, Y:Y}
 	et = &EditText{imgo, "", placeHolderText, 0, maxRunes, ttf, cols, 0, false, true, true, nil}
@@ -33,6 +39,7 @@ func GetEditText(placeHolderText string, X, Y, H float64, maxRunes int, ttf *tru
 }
 //TEXTVIEW ------------------------------------------------------------------------------------------------------------------------------
 
+//Returns the 
 func GetTextView(text string, X, Y, lineHeight float64, displayLines int, ttf *truetype.Font, txtCol, backCol color.Color) (v *TextView) {
 	v = &TextView{X:X,Y:Y, text:text, lineHeight:lineHeight, displayLines:displayLines}
 	v.lines = HasLines(text)

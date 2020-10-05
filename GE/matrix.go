@@ -22,6 +22,12 @@ func (m *Matrix) W() int16 {
 func (m *Matrix) H() int16 {
 	return int16(m.focus.Bounds().Y)
 }
+func (m *Matrix) WAbs() int16 {
+	return m.x
+}
+func (m *Matrix) HAbs() int16 {
+	return m.y
+}
 func (m *Matrix) Init(standard int16) {
 	m.list = make([]int16, m.x*m.y)
 	for i,_ := range(m.list) {
@@ -100,8 +106,8 @@ func (m *Matrix) SubMatrix(x1,y1,x2,y2 int16) (newM *Matrix) {
 
 func (m *Matrix) Print() string {
 	out := ""
-	for x := int16(0); x < m.W(); x++ {
-		for y := int16(0); y < m.H(); y++ {
+	for y := int16(0); y < m.H(); y++ {
+		for x := int16(0); x < m.H(); x++ {
 			valStr := fmt.Sprintf("%v", m.Get(x,y))
 			for i := 0; i < 3-len(valStr); i++ {
 				out += " "

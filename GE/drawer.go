@@ -7,6 +7,12 @@ import (
 	"github.com/hajimehoshi/ebiten/vector"
 )
 
+/**
+Points are a slice of vectors, that can be drawn as a polygon using a specific color
+
+This is currently only used to draw simple forms such as a Circle
+**/
+
 type Points []*GC.Vector
 func (ps *Points) Fill(screen *ebiten.Image, col color.Color) {
 	var path vector.Path

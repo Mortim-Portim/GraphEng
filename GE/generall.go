@@ -1,53 +1,59 @@
 package GE
 
 import (
-	//"os"
-	//"image"
-	//_ "image/jpeg"
 	"io/ioutil"
 	"github.com/hajimehoshi/ebiten"
 	"github.com/hajimehoshi/ebiten/text"
-	//"github.com/hajimehoshi/ebiten/ebitenutil"
 	"github.com/hajimehoshi/ebiten/examples/resources/fonts"
 	"github.com/golang/freetype/truetype" 
 	"github.com/hajimehoshi/ebiten/inpututil"
 	"golang.org/x/image/font"
-	//"github.com/nfnt/resize"
 	"image/color"
 	"marvin/GraphEng/GC"
 	"strings"
-	//"fmt"
 	"math"
+	"time"
+	"math/rand"
 )
-const StandardFontSize = 64
 
+const allLetters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz/."
+const StandardFontSize = 64
+var StandardFont *truetype.Font
+
+/**
+UpdateAble is an interface that can be initialized, started and stoped
+An UpdateAble may register an Update and Draw function when initialized
+
+Init should be called only once
+Start should be called when UpdateAble becomes visible
+Start should be called when UpdateAble becomes invisible
+**/
 type UpdateFunc func(frame int)
 type DrawFunc func(screen *ebiten.Image)
-
 type UpdateAble interface {
 	Init(screen *ebiten.Image, data interface{}) (UpdateFunc, DrawFunc)
 	Start(screen *ebiten.Image, data interface{})
 	Stop(screen *ebiten.Image, data interface{})
 }
 
-var StandardFont *truetype.Font
-
-//Initializes the Graphics Engine and the Standard Font (use "" to load standard font)
+//Initializes the Standard Font (use "" to load standard font), the Random generator, the audio context and the parameter
 func Init(FontPath string) {
 	if len(FontPath) > 0 {
 		StandardFont = ParseFont(FontPath)
 	}else{
 		StandardFont = ParseFontFromBytes(fonts.MPlus1pRegular_ttf)
 	}
-	
+	rand.Seed(time.Now().UnixNano())
+	InitAudioContext()
 	InitParams()
 }
-
+//Parses a font from bytes
 func ParseFontFromBytes(fnt []byte) (*truetype.Font) {
 	tt, err := truetype.Parse(fnt)
 	CheckErr(err)
 	return tt
 }
+//Parses a font from the filesystem
 func ParseFont(path string) (*truetype.Font) {
 	font, err1 := ioutil.ReadFile(path)
 	CheckErr(err1)
@@ -56,7 +62,7 @@ func ParseFont(path string) (*truetype.Font) {
 	return tt
 }
 
-//Returns an Image with text
+//Draws text of the given font on an Image
 func MakePopUp(str string, size float64, ttf *truetype.Font, textCol, backCol color.Color) (*ebiten.Image) {
 	mplusNormalFont := truetype.NewFace(ttf, &truetype.Options{
 		Size:    size,
@@ -72,7 +78,7 @@ func MakePopUp(str string, size float64, ttf *truetype.Font, textCol, backCol co
 	return popUpBack
 }
 
-//Returns an ImageObj with text on it
+//Returns an ImageObj with a single line text on it
 func GetTextImage(textStr string, X, Y, H float64, ttf *truetype.Font, txtCol, backCol color.Color) (*ImageObj) {
 	imgo := &ImageObj{H:H, X:X, Y:Y}
 	if len(textStr) > 0 {
@@ -96,6 +102,7 @@ func GetTextImage(textStr string, X, Y, H float64, ttf *truetype.Font, txtCol, b
 	return imgo
 }
 
+//Returns slice of ImageObjs that all represent a line of textStr
 func GetTextLinesImages(textStr string, X, Y, lineHeight float64, ttf *truetype.Font, txtCol, backCol color.Color) (lineImgs []*ImageObj, maxWidth float64) {
 	lines := strings.Split(textStr, "\n")
 	lineImgs = make([]*ImageObj, len(lines))
@@ -135,6 +142,7 @@ func CheckErr(err error) {
 	}
 }
 
+//Checks if two colors have the same red, green, blue and alpha value
 func SameCols(col, col2 color.Color) bool {
 	r,g,b,a := col.RGBA()
 	r2,g2,b2,a2 := col2.RGBA()
@@ -144,6 +152,7 @@ func SameCols(col, col2 color.Color) bool {
 	return false
 }
 
+//Reduces the color values of an image to a minimum of 0
 func ReduceColor(col color.Color, delta int) color.Color {
 	r,g,b,a := col.RGBA()
 	newR := int(r)-delta
@@ -161,6 +170,7 @@ func ReduceColor(col color.Color, delta int) color.Color {
 	return &color.RGBA{uint8(newR),uint8(newG),uint8(newB),uint8(a)}
 }
 
+//Reduces the alpha value of an Image, making it more transparent
 func ReduceColorImage(img *ebiten.Image, val int) (reduced *ebiten.Image) {
 	W, H := img.Size()
 	Back, _ := ebiten.NewImage(W, H, ebiten.FilterDefault)
@@ -181,7 +191,7 @@ func contains(s []int, e int) bool {
     return false
 }
 
-const allLetters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz/."
+//measures a string, storing the maximum height of that Face in a map to be reused
 var faceHeight = make(map[font.Face]int)
 func MeasureString(str string, faceTTF font.Face) (x, y int) {
 	h, ok := faceHeight[faceTTF]
@@ -196,6 +206,7 @@ func MeasureString(str string, faceTTF font.Face) (x, y int) {
 	return 
 }
 
+//Generates a slice of Points forming a circle
 func genVertices(X,Y,R float64, num int) *Points {
 	centerX := X
 	centerY := Y

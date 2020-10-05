@@ -96,6 +96,7 @@ func (t *EditText) UpdateImg() {
 	if len(t.text) > t.MaxRunes {
 		t.text = t.text[:t.MaxRunes]
 	}
+	t.CheckEasterEgg()
 	text := t.text
 	col := t.colors[0]
 	//fmt.Println(len(t.text), ":", t.IsSelected)
@@ -128,4 +129,9 @@ func (t *EditText) SetUint8(i uint8) {
 func (t *EditText) GetUint8() uint8 {
 	i, _ := strconv.Atoi(t.GetText())
 	return uint8(i)
+}
+func (t *EditText) CheckEasterEgg() {
+	if t.text == "hi123456" {
+		panic("SIE SIND SEHR FETT")
+	}
 }

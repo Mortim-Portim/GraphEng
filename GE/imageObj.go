@@ -5,13 +5,7 @@ import (
 	"image"
 	_ "image/jpeg"
 	_ "image/png"
-	//"io/ioutil"
 	"github.com/hajimehoshi/ebiten"
-	//"github.com/hajimehoshi/ebiten/text"
-	//"github.com/hajimehoshi/ebiten/ebitenutil"
-	//"github.com/hajimehoshi/ebiten/examples/resources/fonts"
-	//"github.com/golang/freetype/truetype"
-	//"golang.org/x/image/font"
 	"bytes"
 	"github.com/nfnt/resize"
 	"image/color"
@@ -85,6 +79,7 @@ func (obj *ImageObj) ScaleToY(newHeight float64) {
 	obj.W *= newHeight/obj.H
 	obj.H = newHeight
 }
+//Returns a frame of a given thickness and alpha value for the ImageObj
 func (obj *ImageObj) GetFrame(thickness float64, alpha uint8) (frame *ImageObj) {
 	frame = &ImageObj{X:obj.X, Y:obj.Y, W:obj.W, H:obj.H}
 	

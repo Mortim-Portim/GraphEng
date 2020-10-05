@@ -39,7 +39,7 @@ func GetEditText(placeHolderText string, X, Y, H float64, maxRunes int, ttf *tru
 }
 //TEXTVIEW ------------------------------------------------------------------------------------------------------------------------------
 
-//Returns the 
+//Returns a TextView displaying a specifc number of lines of a specific height
 func GetTextView(text string, X, Y, lineHeight float64, displayLines int, ttf *truetype.Font, txtCol, backCol color.Color) (v *TextView) {
 	v = &TextView{X:X,Y:Y, text:text, lineHeight:lineHeight, displayLines:displayLines}
 	v.lines = HasLines(text)
@@ -48,6 +48,8 @@ func GetTextView(text string, X, Y, lineHeight float64, displayLines int, ttf *t
 	return
 }
 //TABVIEW -------------------------------------------------------------------------------------------------------------------------------
+
+//TabViewParams are used when creating a TabView, storing all necassary information
 type TabViewParams struct {
 	Back, Text color.Color
 	TTF *truetype.Font
@@ -77,6 +79,8 @@ func (p *TabViewParams) fillDefault() {
 		p.TTF = StandardFont
 	}
 }
+
+//Returns a TabView Created using TabViewParams
 func GetTabView(p *TabViewParams) (*TabView) {
 	p.fillDefault()
 	if p.Imgs != nil {
@@ -85,6 +89,8 @@ func GetTabView(p *TabViewParams) (*TabView) {
 	return getTabView(p.Nms, p.Scrs, p.X, p.Y, p.W, p.H, p.TabH, p.TTF, p.Text, p.Back, p.Dis, p.Curr)
 }
 //SCROLLBAR ------------------------------------------------------------------------------------------------------------------------------
+
+//Returns a horizontal ScrollBar
 func GetImageScrollbar(X, Y, W, H float64, bar, pointer *ebiten.Image, min, max, current int, ttf *truetype.Font) (b *ScrollBar) {
 	b = &ScrollBar{min: min, max: max, current: current, ttf:ttf}
 	b.Img = bar
@@ -100,6 +106,7 @@ func GetImageScrollbar(X, Y, W, H float64, bar, pointer *ebiten.Image, min, max,
 	b.UpdatePos()
 	return
 }
+//Returns a standard horizontal ScrollBar
 func GetStandardScrollbar(X, Y, W, H float64, min, max, current int, ttf *truetype.Font) (b *ScrollBar) {
 	
 	bar, _ := ebiten.NewImage(int(W), int(H), ebiten.FilterDefault)
@@ -115,6 +122,8 @@ func GetStandardScrollbar(X, Y, W, H float64, min, max, current int, ttf *truety
 	return GetImageScrollbar(X,Y,W,H,bar,pointer,min,max,current,ttf)
 }
 //ANIMATION ------------------------------------------------------------------------------------------------------------------------------
+
+//Returns an Animation
 func GetAnimation(X, Y, W, H float64, spriteWidth, updatePeriod int, sprites *ebiten.Image) (anim *Animation) {
 	w,h := sprites.Size()
 	anim = &Animation{ImageObj{X:X,Y:Y,W:W,H:H}, int(float64(w)/float64(spriteWidth)),0,spriteWidth,h,updatePeriod,sprites}

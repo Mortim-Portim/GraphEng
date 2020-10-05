@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 )
-
+//Returns a Matrix of width=x, height=y and initial value=v
 func GetMatrix(x,y,v int16) (m *Matrix) {
 	m = &Matrix{x:x,y:y}
 	m.Init(v)
@@ -16,30 +16,37 @@ type Matrix struct {
 	list []int16
 	focus *Rectangle
 }
+//Returns the width of the focused Matrix
 func (m *Matrix) W() int16 {
 	return int16(m.focus.Bounds().X)
 }
+//Returns the height of the focused Matrix
 func (m *Matrix) H() int16 {
 	return int16(m.focus.Bounds().Y)
 }
+//Returns the absolute width of the Matrix
 func (m *Matrix) WAbs() int16 {
 	return m.x
 }
+//Returns the absolute height of the Matrix
 func (m *Matrix) HAbs() int16 {
 	return m.y
 }
+//Initializes m with a certain value
 func (m *Matrix) Init(standard int16) {
 	m.list = make([]int16, m.x*m.y)
 	for i,_ := range(m.list) {
 		m.list[i] = standard
 	}
 }
+//Initializes m with the indexes (used for debugging)
 func (m *Matrix) InitIdx() {
 	m.list = make([]int16, m.x*m.y)
 	for i,_ := range(m.list) {
 		m.list[i] = int16(i)
 	}
 }
+//Returns a matrix with 
 func (m *Matrix) Clone() *Matrix {
 	return &Matrix{m.x,m.y,m.list,m.focus}
 }

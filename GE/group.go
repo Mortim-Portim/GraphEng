@@ -3,6 +3,18 @@ package GE
 import (
 	"github.com/hajimehoshi/ebiten"
 )
+
+/**
+Group represents a fixed group of structs implementing UpdateAble
+all members of the group can be Initialized, Started, Stopped, Updated and Drawn using one function call
+
+Example:
+A EditText and Animation form a group, that is always updated and drawn at the same time
+
+Group implements UpdateAble
+**/
+
+
 func GetGroup(members ...UpdateAble) (g *Group) {
 	g = &Group{}
 	g.Member = members

@@ -9,6 +9,22 @@ import (
 	"encoding/json"
 	"io/ioutil"
 )
+/**
+KeyboardListener represents a struct, that listens for KeyboardEvents
+
+The Key is maped, so that a user can specifiy a Key of his choice to use for an action
+
+Example:
+W is maped to index 0, which means Run forward
+if SetKeyState(0) is called the next Key the user presses is mapped to i
+for Example:
+SetKeyState(0) is called
+User presses L_Shift
+L_Shift is maped to index 0, which means Run forward
+
+when SetKeyState(0) was called the all Keys should be updated(Update), otherwise
+only update used keys, increasing performance (UpdateMapped)
+**/
 
 //KeyboardListener
 type KeyLi struct {
@@ -19,7 +35,7 @@ type KeyLi struct {
 	
 	SettingKey int
 }
-
+//Resets the configurations
 func (l *KeyLi) Reset() {
 	l.mapper = make(map[int]int)
 	l.keyStates = make(map[int]bool)

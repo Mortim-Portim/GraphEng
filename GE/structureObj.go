@@ -3,7 +3,6 @@ package GE
 import (
 	"github.com/hajimehoshi/ebiten"
 	"io/ioutil"
-	"fmt"
 )
 
 /**
@@ -30,7 +29,6 @@ Collides:		[true/false]
 squareSize:		[1-NaN]
 **/
 func GetStructObjFromParams(img *ebiten.Image, p *Params) (s *StructureObj) {
-	fmt.Println(p.Print())
 	anim := GetAnimation(1,1,1,1, int(p.Get("spriteWidth")), int(p.Get("updatePeriod")), img)
 	hitBox := GetRectangle(0,0,p.Get("hitBoxWidth")-1,p.Get("hitBoxHeight")-1)
 	collides := false
@@ -79,9 +77,8 @@ func (o *StructureObj) Draw(screen *ebiten.Image, myLayer, drawLayer int, leftTo
 	if myLayer == drawLayer {
 		o.DrawImageObj(screen)
 	} else if myLayer < drawLayer {
-		//dif := 1.0 / float64(drawLayer-myLayer+1)
-		//o.DrawImageObjAlpha(screen, dif)
-		o.DrawImageObj(screen)
+		dif := 1.0 / float64(drawLayer-myLayer+1)
+		o.DrawImageObjAlpha(screen, dif)
 	} else {
 		//box := float64(1 + myLayer - drawLayer)
 		//sq := box*2 + 1
@@ -119,7 +116,6 @@ func ReadStructureObj(folderPath string) ([]*StructureObj, error) {
 				if err2 != nil {
 					return nil, err2
 				}
-				fmt.Println(p.Print())
 				obj := GetStructObjFromParams(img, p)
 				obj.Name = name
 				ts = append(ts, obj)

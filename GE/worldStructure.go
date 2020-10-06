@@ -133,22 +133,26 @@ func (p *WorldStructure) AddTempObj(obj *StructureObj, frames int) {
 	p.TmpObj[obj] = frames
 	p.UpdateCollisionMat()
 }
-//Saves the world in a highly compressed way to the file system
-func (p *WorldStructure) Save(path string) error {
+//Converts the World into a []byte slice
+func (p *WorldStructure) ToBytes() ([]byte, error) {
 	idxBs, err1 := p.IdxMat.Compress()
-	if err1 != nil {return err1}
+	if err1 != nil {return nil, err1}
 	layBs, err2 := p.LayerMat.Compress()
-	if err2 != nil {return err2}
+	if err2 != nil {return nil, err2}
 	mats := append(idxBs, layBs...)
 	bs, err3 := CompressBytes(append(mats, AppendInt16ToBytes( int16(len(layBs)), Int16ToBytes(int16(len(idxBs))) )...))
-	if err3 != nil {return err3}
+	if err3 != nil {return nil, err3}
+	return bs, nil
+}
+//Saves the world in a highly compressed way to the file system
+func (p *WorldStructure) Save(path string) error {
+	bs, err := p.ToBytes()
+	if err != nil {return err}
 	return ioutil.WriteFile(path, bs, 0644)
 }
-//Loads the world from the file system
-func (p *WorldStructure) Load(path string) error {
-	data, err1 := ioutil.ReadFile(path)
-   	if err1 != nil {return err1}
-   	bs, err2 := DecompressBytes(data)
+//Converts a []byte slice into a WorldStructure
+func (p *WorldStructure) FromBytes(data []byte) error {
+	bs, err2 := DecompressBytes(data)
    	if err2 != nil {return err2}
    	lenIdx := BytesToInt16(bs[len(bs)-4:len(bs)-2])
    	lenLay := BytesToInt16(bs[len(bs)-2:len(bs)])
@@ -156,6 +160,14 @@ func (p *WorldStructure) Load(path string) error {
    	if err3 != nil {return err3}
    	err4 := p.LayerMat.Decompress(bs[lenIdx:lenIdx+lenLay])
    	if err4 != nil {return err4}
+   	return nil
+}
+//Loads the world from the file system
+func (p *WorldStructure) Load(path string) error {
+	data, err1 := ioutil.ReadFile(path)
+   	if err1 != nil {return err1}
+   	err2 := p.FromBytes(data)
+   	if err2 != nil {return err2}
    	return nil
 }
 //returns the middle of the view

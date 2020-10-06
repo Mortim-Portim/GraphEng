@@ -40,9 +40,8 @@ func (t *Tile) Draw(screen *ebiten.Image, x, y, w, h float64, myLayer, drawLayer
 	if myLayer == drawLayer {
 		drawer.DrawImageObj(screen)
 	} else if myLayer < drawLayer {
-		//dif := 1.0 / float64(drawLayer-myLayer+1)
-		//drawer.DrawImageObjAlpha(screen, dif)
-		drawer.DrawImageObj(screen)
+		dif := 1.0 / float64(drawLayer-myLayer+1)
+		drawer.DrawImageObjAlpha(screen, dif)
 	} else {
 		//box := float64(1 + myLayer - drawLayer)
 		//sq := box*2 + 1

@@ -6,6 +6,15 @@ import (
 	"image/color"
 )
 
+/**
+TabView represents a structs containing a group of updatables
+It displays one tab at the time updating and drawing only the components of that tab
+
+The buttons of the tabs can be Text or Images
+
+TabView implements UpdateAble
+**/
+
 type TabView struct {
 	X, Y, W, H, TabH float64
 	
@@ -14,19 +23,23 @@ type TabView struct {
 	Screens *Group
 	CurrentTab int
 }
+//Initializes all contents of the TabView
 func (t *TabView) Init(screen *ebiten.Image, data interface{}) (UpdateFunc, DrawFunc) {
 	t.TabBtns.Init(screen, data)
 	t.Screens.Init(screen, data)
 	return t.Update, t.Draw
 }
+//Starts all contents of the TabView
 func (t *TabView) Start(screen *ebiten.Image, data interface{}) {
 	t.TabBtns.Init(screen, data)
 	t.Screens.Init(screen, data)
 }
+//Stops all contents of the TabView
 func (t *TabView) Stop(screen *ebiten.Image, data interface{}) {
 	t.TabBtns.Init(screen, data)
 	t.Screens.Init(screen, data)
 }
+//Updates all currently active contents of the TabView
 func (t *TabView) Update(frame int) {
 	t.Screens.UpdateFuncs[t.CurrentTab](frame)
 	for i,mmb := range(t.TabBtns.Member) {
@@ -38,11 +51,12 @@ func (t *TabView) Update(frame int) {
 		t.TabBtns.UpdateFuncs[i](frame)
 	}
 }
+//Draws all currently active contents of TabView
 func (t *TabView) Draw(screen *ebiten.Image) {
 	t.Screens.DrawFuncs[t.CurrentTab](screen)
 	t.TabBtns.Draw(screen)
 }
-
+//Callback function for the tab buttons to change the index
 func (t *TabView) OnClick(b *Button) {
 	if b.LPressed || b.RPressed {
 		t.CurrentTab = b.Data.(int)

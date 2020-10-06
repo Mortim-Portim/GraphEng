@@ -5,6 +5,17 @@ import (
 	"strings"
 	//"image"
 )
+
+/**
+TextView displays a text of an arbitrary number of lines
+
+The number of lines displayed can be specified, as well as the height of each line
+
+It is recommended to format the text to a maximum number of runes using FormatTextToWidth()
+
+TextView implements UpdateAble
+**/
+
 type TextView struct {
 	X,Y,W,H float64
 	text string
@@ -13,19 +24,22 @@ type TextView struct {
 	
 	lineImages []*ImageObj
 }
+//Resets the TextView
 func (v *TextView) Reset() {
 	v.scrollIdx = 0
 }
+//Initializes the TextView
 func (v *TextView) Init(screen *ebiten.Image, data interface{}) (UpdateFunc, DrawFunc) {
 	v.Reset()
 	return v.Update, v.Draw
 }
+//Starts the TextView
 func (v *TextView) Start(screen *ebiten.Image, data interface{}) {
 	v.Reset()
 }
-func (v *TextView) Stop(screen *ebiten.Image, data interface{}) {
-	v.Reset()
-}
+//Stops the TextView
+func (v *TextView) Stop(screen *ebiten.Image, data interface{}) {}
+//Updates the TextView
 func (v *TextView) Update(frame int) {
 	x, y := ebiten.CursorPosition()
 	if int(v.X) <= x && x < int(v.X+v.W) && int(v.Y) <= y && y < int(v.Y+v.H) {
@@ -39,6 +53,7 @@ func (v *TextView) Update(frame int) {
 		}
 	}
 }
+//Draws the TextView
 func (v *TextView) Draw(screen *ebiten.Image) {
 	for i := 0; i < v.displayLines; i++ {
 		idx := i+v.scrollIdx
@@ -47,11 +62,12 @@ func (v *TextView) Draw(screen *ebiten.Image) {
 	}
 }
 
-
+//Returns the number of lines a string has
 func HasLines(text string) int {
 	return strings.Count(text, "\n")+1
 }
 
+//Formats a string to a specific number of maximum runes per line
 func FormatTextToWidth(text string, maxRunes int, hardBreak bool) (string) {
 	if hardBreak {
 		return formatTextToWidthHardBreak(text, maxRunes)

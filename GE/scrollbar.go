@@ -8,6 +8,19 @@ import (
 	"math"
 )
 
+/**
+A ScrollBar is a horizontal bar that can be used to get input
+index of the scrollbar can be between a min and max value
+
+				  ++++
+------------------++++-----------------
+				  ++++
+				   2
+
+ScrollBar implements UpdateAble
+**/
+
+
 type ScrollBar struct {
 	ImageObj
 	pointer, value *ImageObj
@@ -17,9 +30,11 @@ type ScrollBar struct {
 	ttf *truetype.Font
 	OnChange func(b *ScrollBar)
 }
+//Registers a method to be called when the index changes
 func (b *ScrollBar) RegisterOnChange(OnChange func(*ScrollBar)) {
 	b.OnChange = OnChange
 }
+//Returns the current index of the scrollbar
 func (b *ScrollBar) Current() int {return b.current}
 func (b *ScrollBar) Init(screen *ebiten.Image, data interface{}) (UpdateFunc, DrawFunc) {
 	return b.Update, b.Draw

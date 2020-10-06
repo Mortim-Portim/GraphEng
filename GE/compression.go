@@ -5,8 +5,20 @@ import (
 	"io/ioutil"
 	"compress/gzip"
 	"encoding/binary"
+	"math/big"
 )
-
+//converts an int64 into a [8]byte array
+func BigIntToBytes(i *big.Int) (b []byte) {
+	b = make([]byte, 8)
+	i.FillBytes(b)
+	return
+}
+//converts an int64 into a [8]byte array
+func BytesToBigInt(b []byte) (*big.Int) {
+	i := &big.Int{}
+	i.SetBytes(b)
+	return i
+}
 //Converts an int16 into a [2]byte array
 func Int16ToBytes(i int16) (b []byte) {
 	b = make([]byte, 2)
@@ -28,7 +40,7 @@ func Int16sToBytes(is []int16) (bs []byte) {
 	}
 	return
 }
-//Converts  a []byte slice into a slice of ints
+//Converts a []byte slice into a slice of ints
 func BytesToInt16s(bs []byte) (is []int16) {
 	is = make([]int16, len(bs)/2)
 	for idx,_ := range(bs) {

@@ -3,6 +3,7 @@ package GE
 import (
 	"fmt"
 	"io/ioutil"
+	"math/big"
 )
 
 /**
@@ -49,43 +50,47 @@ subMatrix with focus (3,2,15,12)
 **/
 
 //Returns a Matrix of width=x, height=y and initial value=v
-func GetMatrix(x,y,v int16) (m *Matrix) {
-	m = &Matrix{x:x,y:y}
+func GetMatrix(x,y int, v int16) (m *Matrix) {
+	m = &Matrix{}
+	m.x = &big.Int{}
+	m.y = &big.Int{}
+	m.x.SetInt64(int64(x))
+	m.y.SetInt64(int64(y))
 	m.Init(v)
 	m.ResetFocus()
 	return
 }
 type Matrix struct {
-	x,y int16
+	x,y *big.Int
 	list []int16
 	focus *Rectangle
 }
 //Returns the width of the focused Matrix
-func (m *Matrix) W() int16 {
-	return int16(m.focus.Bounds().X)
+func (m *Matrix) W() int {
+	return int(m.focus.Bounds().X)
 }
 //Returns the height of the focused Matrix
-func (m *Matrix) H() int16 {
-	return int16(m.focus.Bounds().Y)
+func (m *Matrix) H() int {
+	return int(m.focus.Bounds().Y)
 }
 //Returns the absolute width of the Matrix
-func (m *Matrix) WAbs() int16 {
-	return m.x
+func (m *Matrix) WAbs() int {
+	return int(m.x.Int64())
 }
 //Returns the absolute height of the Matrix
-func (m *Matrix) HAbs() int16 {
-	return m.y
+func (m *Matrix) HAbs() int {
+	return int(m.y.Int64())
 }
 //Initializes m with a certain value
 func (m *Matrix) Init(standard int16) {
-	m.list = make([]int16, m.x*m.y)
+	m.list = make([]int16, m.x.Int64()*m.y.Int64())
 	for i,_ := range(m.list) {
 		m.list[i] = standard
 	}
 }
 //Initializes m with the indexes (used for debugging)
 func (m *Matrix) InitIdx() {
-	m.list = make([]int16, m.x*m.y)
+	m.list = make([]int16, m.x.Int64()*m.y.Int64())
 	for i,_ := range(m.list) {
 		m.list[i] = int16(i)
 	}
@@ -95,31 +100,33 @@ func (m *Matrix) Clone() *Matrix {
 	return &Matrix{m.x,m.y,m.list,m.focus}
 }
 //Returns the value of the matrix at the absolute x and y coordinates
-func (m *Matrix) GetAbs(x,y int16) int {
-	idx := x+m.x*y
-	if idx < 0 || idx >= int16(len(m.list)) {
+func (m *Matrix) GetAbs(x,y int) int16 {
+	idx := x+int(m.x.Int64())*y
+	if idx < 0 || idx >= len(m.list) {
 		return -1
 	}
-	return int(m.list[idx])
+	return m.list[idx]
 }
 //Returns the value of the focused matrix at the x and y coordinates
-func (m *Matrix) Get(x, y int16) int {
-	idx := (x+int16(m.focus.Min().X))+m.x*(y+int16(m.focus.Min().Y))
-	if idx < 0 || idx >= int16(len(m.list)) {
+func (m *Matrix) Get(x, y int) int16 {
+	xl,yl := int(m.focus.Min().X)+x, int(m.focus.Min().Y)+y
+	if xl < 0 || xl >= m.WAbs() || yl < 0 || yl >= m.HAbs() {
 		return -1
 	}
-	return int(m.list[idx])
+	
+	idx := int(x+int(m.focus.Min().X))+int(m.x.Int64())*int((y+int(m.focus.Min().Y)))
+	return m.list[idx]
 }
 //Sets the value of the focused matrix at the x and y coordinates
-func (m *Matrix) Set(x, y, v int16) {
-	m.list[(x+int16(m.focus.Min().X))+m.x*(y+int16(m.focus.Min().Y))] = v
+func (m *Matrix) Set(x, y int, v int16) {
+	m.list[(int(x)+int(m.focus.Min().X))+int(m.x.Int64())*(int(y)+int(m.focus.Min().Y))] = v
 }
 //Adds a value to the value of the focused matrix at the x and y coordinate
-func (m *Matrix) Add(x,y, v int16) {
+func (m *Matrix) Add(x,y int, v int16) {
 	m.Set(x,y, int16(m.Get(x,y))+v)
 }
 //Fills a Rectangle with a value
-func (m *Matrix) Fill(x1,y1,x2,y2, v int16) {
+func (m *Matrix) Fill(x1,y1,x2,y2 int, v int16) {
 	for x := x1; x <= x2; x++ {
 		for y := y1; y <= y2; y++ {
 			m.Set(x,y,v)
@@ -128,30 +135,30 @@ func (m *Matrix) Fill(x1,y1,x2,y2, v int16) {
 }
 //Adds a value to all focused values
 func (m *Matrix) AddToAll(v int16) {
-	for x := int16(0); x < m.W(); x++ {
-		for y := int16(0); y < m.H(); y++ {
+	for x := 0; x < m.W(); x++ {
+		for y := 0; y < m.H(); y++ {
 			m.Add(x,y,v)
 		}
 	}
 }
 //Resets the focus (0,0, m.x, m.y)
 func (m *Matrix) ResetFocus() {
-	m.focus = GetRectangle(0,0,float64(m.x),float64(m.y))
+	m.focus = GetRectangle(0,0,float64(m.x.Int64()),float64(m.y.Int64()))
 }
 //Sets the focus of the matrix
-func (m *Matrix) SetFocus(x1,y1,x2,y2 int16) {
-	if x1 < 0 {
-		x1 = 0
-	}
-	if y1 < 0 {
-		y1 = 0
-	}
-	if x2 > m.x {
-		x2 = m.x
-	}
-	if y2 > m.y {
-		y2 = m.y
-	}
+func (m *Matrix) SetFocus(x1,y1,x2,y2 int) {
+//	if x1 < 0 {
+//		x1 = 0
+//	}
+//	if y1 < 0 {
+//		y1 = 0
+//	}
+//	if x2 > int(m.x.Int64()) {
+//		x2 = int(m.x.Int64())
+//	}
+//	if y2 > int(m.y.Int64()) {
+//		y2 = int(m.y.Int64())
+//	}
 	m.focus = GetRectangle(float64(x1),float64(y1), float64(x2), float64(y2))
 }
 //Returns the focus of the matrix
@@ -159,7 +166,7 @@ func (m *Matrix) Focus() *Rectangle {
 	return m.focus
 }
 //Returns a copy of the matrix focused on a specific rectangle
-func (m *Matrix) SubMatrix(x1,y1,x2,y2 int16) (newM *Matrix) {
+func (m *Matrix) SubMatrix(x1,y1,x2,y2 int) (newM *Matrix) {
 	newM = m.Clone()
 	newM.SetFocus(x1,y1,x2,y2)
 	return
@@ -167,8 +174,8 @@ func (m *Matrix) SubMatrix(x1,y1,x2,y2 int16) (newM *Matrix) {
 //Prints a matrix with maximum values of 999
 func (m *Matrix) Print() string {
 	out := ""
-	for y := int16(0); y < m.H(); y++ {
-		for x := int16(0); x < m.H(); x++ {
+	for y := 0; y < m.H(); y++ {
+		for x := 0; x < m.H(); x++ {
 			valStr := fmt.Sprintf("%v", m.Get(x,y))
 			for i := 0; i < 3-len(valStr); i++ {
 				out += " "
@@ -182,21 +189,21 @@ func (m *Matrix) Print() string {
 //Converts a Matrix to a []byte slice
 func (m *Matrix) ToBytes() []byte {
 	b := Int16sToBytes(m.list)
-	b = AppendInt16ToBytes(m.x, b)
-	b = AppendInt16ToBytes(m.y, b)
-	
-	b = AppendInt16ToBytes(int16(m.focus.Min().X), b)
+	b =	AppendInt16ToBytes(int16(m.focus.Min().X), b)
 	b = AppendInt16ToBytes(int16(m.focus.Min().Y), b)
 	b = AppendInt16ToBytes(int16(m.focus.Max().X), b)
 	b = AppendInt16ToBytes(int16(m.focus.Max().Y), b)
+	
+	b = append(b, BigIntToBytes(m.x)...)
+	b = append(b, BigIntToBytes(m.y)...)
 	return b
 }
 //Loads a Matrix from a []byte slice
 func (m *Matrix) FromBytes(bs []byte) {
-	is := BytesToInt16s(bs)
-	m.list = is[:len(is)-6]
-	m.x = is[len(is)-6]
-	m.y = is[len(is)-5]
+	is := BytesToInt16s(bs[:len(bs)-16])
+	m.list = is[:len(is)-4]
+	m.x = BytesToBigInt(bs[len(bs)-16:len(bs)-8])
+	m.y = BytesToBigInt(bs[len(bs)-8:len(bs)])
 	m.focus = GetRectangle(float64(is[len(is)-4]), float64(is[len(is)-3]), float64(is[len(is)-2]), float64(is[len(is)-1]))
 }
 //Compresses a Matrix to a []byte slice

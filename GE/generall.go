@@ -14,6 +14,7 @@ import (
 	"math"
 	"time"
 	"math/rand"
+	"os"
 )
 
 const allLetters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz/."
@@ -45,7 +46,7 @@ func Init(FontPath string) {
 	}
 	rand.Seed(time.Now().UnixNano())
 	InitAudioContext()
-	InitParams()
+	InitParams(nil)
 }
 //Parses a font from bytes
 func ParseFontFromBytes(fnt []byte) (*truetype.Font) {
@@ -182,7 +183,17 @@ func ReduceColorImage(img *ebiten.Image, val int) (reduced *ebiten.Image) {
 }
 
 //Returns true if e is in s
-func contains(s []int, e int) bool {
+func containsI(s []int, e int) bool {
+    for _, a := range s {
+        if a == e {
+            return true
+        }
+    }
+    return false
+}
+
+//Returns true if e is in s
+func containsS(s []string, e string) bool {
     for _, a := range s {
         if a == e {
             return true
@@ -227,4 +238,21 @@ func genVertices(X,Y,R float64, num int) *Points {
 		Z:0})
 	ps := Points(vs)
 	return &ps
+}
+
+var LOGFILE *os.File
+func SetLogFile(path string) {
+	f, err := os.OpenFile(path, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
+	if err != nil {
+	    panic(err)
+	}
+	LOGFILE = f
+}
+func LogToFile(text string) {
+	if _, err := LOGFILE.WriteString(text); err != nil {
+	    panic(err)
+	}
+}
+func CloseLogFile() {
+	LOGFILE.Close()
 }

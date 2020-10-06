@@ -67,7 +67,7 @@ func (l *KeyLi) UpdateKeyState(KeyID int) {
 	if ebiten.IsKeyPressed(AllKeys[KeyID]) {
 		l.keyStates[KeyID] = true
 	}
-	if lastKeyState != l.keyStates[KeyID] && !contains(l.JustChanged, KeyID) {
+	if lastKeyState != l.keyStates[KeyID] && !containsI(l.JustChanged, KeyID) {
 		l.JustChanged = append(l.JustChanged, KeyID)
 		if l.SettingKey >= 0 {
 			l.mapper[l.SettingKey] = KeyID
@@ -87,7 +87,7 @@ func (l *KeyLi) GetJustChangedKeys() (IDs []int) {
 //Returns the state and weather it just changed based on the Keys ID
 func (l *KeyLi) GetRawKeyState(KeyID int) (state, change bool) {
 	state = l.keyStates[KeyID]
-	change = contains(l.JustChanged, KeyID)
+	change = containsI(l.JustChanged, KeyID)
 	return
 }
 //Returns the state and weather it just changed based on the Keys mapped ID

@@ -42,5 +42,7 @@ func (a *Animation) Update(frame int) {
 			a.current = 0
 		}
 		a.Img = a.spriteSheet.SubImage(image.Rect(a.spriteWidth*a.current, 0, a.spriteWidth*(a.current+1), a.spriteHeight)).(*ebiten.Image)
+	}else if a.UpdatePeriod == 0 && a.Img == nil{
+		a.Img = a.spriteSheet.SubImage(image.Rect(a.spriteWidth*a.current, 0, a.spriteWidth*(a.current+1), a.spriteHeight)).(*ebiten.Image)
 	}
 }

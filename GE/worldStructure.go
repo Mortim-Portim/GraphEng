@@ -2,7 +2,6 @@ package GE
 
 import (
 	"github.com/hajimehoshi/ebiten"
-	"io/ioutil"
 )
 
 //Returns a WorldStructure object
@@ -16,77 +15,32 @@ func GetWorldStructure(X, Y, W, H float64, WTiles, HTiles int) (p *WorldStructur
 const COLLIDING_IDX = 1
 type WorldStructure struct {
 	Tiles  			[]*Tile
-	StructureObjs	[]*StructureObj
+	BackStructObjs	[]*StructureObj
+	FrontStructObjs	[]*StructureObj
 	TmpObj			map[*StructureObj]int
-		
-	IdxMat, BioMat, LightMat, CollisionMat *Matrix
-	xTiles, yTiles, middleX, middleY int
 	
+	LightLevel uint8
+	IdxMat, LightMat, CollisionMat *Matrix
+	
+	//SetMiddle/Move
+	middleX, middleY int
+	
+	//GetFrame
 	frame  *ImageObj
+	
+	//Set in GetWorldStructure
+	X,Y,W,H float64
 	drawer *ImageObj
-
-	X,Y,W,H, xStart, yStart, tileS float64
+	//Set by SetDisplayWH and 
+	xTiles, yTiles int
+	xStart, yStart, tileS float64
 }
 
-//Sets the number of tiles to be displayed in X and Y direction
-func (p *WorldStructure) SetDisplayWH(x,y int) {
-	p.xTiles = x
-	p.yTiles = y
-	p.xStart = p.X
-	p.tileS = p.W / float64(x)
-	p.yStart = p.Y - (float64(y)*p.tileS-p.H)/2
-	if p.W < p.H {
-		p.tileS = p.H / float64(y)
-		p.xStart = p.X - (float64(x)*p.tileS-p.W)/2
-		p.yStart = p.Y
-	}
-	p.drawer = &ImageObj{}
-	p.drawer.W = p.tileS
-	p.drawer.H = p.tileS
-}
 
-//Converts the World into a []byte slice
-func (p *WorldStructure) ToBytes() ([]byte, error) {
-	idxBs, err1 := p.IdxMat.Compress()
-	if err1 != nil {return nil, err1}
-	bioBs, err2 := p.BioMat.Compress()
-	if err2 != nil {return nil, err2}
-	mats := append(idxBs, bioBs...)
-	bs, err3 := CompressBytes(append(mats, AppendInt16ToBytes( int16(len(bioBs)), Int16ToBytes(int16(len(idxBs))) )...))
-	if err3 != nil {return nil, err3}
-	return bs, nil
-}
-//Converts a []byte slice into a WorldStructure
-func (p *WorldStructure) FromBytes(data []byte) error {
-	bs, err2 := DecompressBytes(data)
-   	if err2 != nil {return err2}
-   	lenIdx := BytesToInt16(bs[len(bs)-4:len(bs)-2])
-   	lenBio := BytesToInt16(bs[len(bs)-2:len(bs)])
-   	err3 := p.IdxMat.Decompress(bs[:lenIdx])
-   	if err3 != nil {return err3}
-   	err4 := p.BioMat.Decompress(bs[lenIdx:lenIdx+lenBio])
-   	if err4 != nil {return err4}
-   	return nil
-}
 
-//sets the Middle of the View
-func (p *WorldStructure) SetMiddle(pnt *Point) {
-	p.middleX = int(pnt.X)
-	p.middleY = int(pnt.Y)
-	x,y := p.middleX-(p.xTiles-1)/2, p.middleY-(p.yTiles-1)/2
-	p.IdxMat.SetFocus(x,y, x+p.xTiles, y+p.yTiles)
-	p.BioMat.SetFocus(x,y, x+p.xTiles, y+p.yTiles)
-}
-//moves the view by dx and dy
-func (p *WorldStructure) Move(dx,dy int) {
-	p.middleX += dx
-	p.middleY += dy
-	x,y := p.middleX-(p.xTiles-1)/2, p.middleY-(p.yTiles-1)/2
-	p.IdxMat.SetFocus(x,y, x+p.xTiles, y+p.yTiles)
-	p.BioMat.SetFocus(x,y, x+p.xTiles, y+p.yTiles)
-}
+
 //Draws The World Ground Tiles and the Objects form the layer which is currently in the middle of the screen
-func (p *WorldStructure) Draw(screen *ebiten.Image) {
+func (p *WorldStructure) DrawBack(screen *ebiten.Image) {
 	for x := 0; x < p.IdxMat.W(); x++ {
 		for y := 0; y < p.IdxMat.H(); y++ {
 			tile_idx := p.IdxMat.Get(x, y)
@@ -96,16 +50,24 @@ func (p *WorldStructure) Draw(screen *ebiten.Image) {
 			}
 		}
 	}
-	for _,obj := range(p.StructureObjs) {
+	for _,obj := range(p.BackStructObjs) {
 		if p.IdxMat.Focus().Overlaps(obj.DrawBox) {
 			pnt := obj.HitBox.Min()
-			obj.DrawStructObj(screen, p.IdxMat.Focus().Min(), p.tileS, p.xStart, p.yStart, uint8(p.LightMat.Get(int(pnt.X), int(pnt.Y))))
+			obj.DrawStructObj(screen, p.IdxMat.Focus().Min(), p.tileS, p.xStart, p.yStart, uint8(p.LightMat.GetAbs(int(pnt.X), int(pnt.Y))))
+		}
+	}
+}
+func (p *WorldStructure) DrawFront(screen *ebiten.Image) {
+	for _,obj := range(p.FrontStructObjs) {
+		if p.IdxMat.Focus().Overlaps(obj.DrawBox) {
+			pnt := obj.HitBox.Min()
+			obj.DrawStructObj(screen, p.IdxMat.Focus().Min(), p.tileS, p.xStart, p.yStart, uint8(p.LightMat.GetAbs(int(pnt.X), int(pnt.Y))))
 		}
 	}
 	for obj,frm := range(p.TmpObj) {
 		if p.IdxMat.Focus().Overlaps(obj.DrawBox) {
 			pnt := obj.HitBox.Min()
-			obj.DrawStructObj(screen, p.IdxMat.Focus().Min(), p.tileS, p.xStart, p.yStart, uint8(p.LightMat.Get(int(pnt.X), int(pnt.Y))))
+			obj.DrawStructObj(screen, p.IdxMat.Focus().Min(), p.tileS, p.xStart, p.yStart, uint8(p.LightMat.GetAbs(int(pnt.X), int(pnt.Y))))
 		}
 		if frm < 1 {
 			delete(p.TmpObj, obj)
@@ -114,63 +76,13 @@ func (p *WorldStructure) Draw(screen *ebiten.Image) {
 		}
 	}
 }
-//Adds a tile to the index list of the worlds tiles
-func (p *WorldStructure) AddTile(img *Tile) {
-	if p.Tiles == nil {
-		p.Tiles = make([]*Tile, 0)
-	}
-	p.Tiles = append(p.Tiles, img)
-}
-//Adds a StructureObj to the list of the worlds Objs
-func (p *WorldStructure) AddStructureObj(obj *StructureObj) {
-	if p.StructureObjs == nil {
-		p.StructureObjs = make([]*StructureObj, 0)
-	}
-	p.StructureObjs = append(p.StructureObjs, obj)
-	p.UpdateCollisionMat()
-}
-//Adds a temporary Obj to the map of the worlds TmpObj
-func (p *WorldStructure) AddTempObj(obj *StructureObj, frames int) {
-	if p.TmpObj == nil {
-		p.TmpObj = make(map[*StructureObj]int)
-	}
-	p.TmpObj[obj] = frames
-	p.UpdateCollisionMat()
-}
-//Saves the world in a highly compressed way to the file system
-func (p *WorldStructure) Save(path string) error {
-	bs, err := p.ToBytes()
-	if err != nil {return err}
-	return ioutil.WriteFile(path, bs, 0644)
-}
-//Loads the world from the file system
-func (p *WorldStructure) Load(path string) error {
-	data, err1 := ioutil.ReadFile(path)
-   	if err1 != nil {return err1}
-   	err2 := p.FromBytes(data)
-   	if err2 != nil {return err2}
-   	return nil
-}
-//returns the middle of the view
-func (p *WorldStructure) Middle() (int, int) {
-	return p.middleX, p.middleY
-}
-//Applies a frame
-func (p *WorldStructure) GetFrame(thickness float64, alpha uint8) {
-	p.frame = p.drawer.GetFrame(thickness, alpha)
-}
-//Returns the width and height of the tiles
-func (p *WorldStructure) GetTileS() float64 {
-	return p.tileS
-}
-//Returns the top left corner of the WorldStruct on the screen
-func (p *WorldStructure) GetTopLeft() *Point {
-	return &Point{p.xStart, p.yStart}
-}
+
+
+
 //Updates the collision Matrix
 func (p *WorldStructure) UpdateCollisionMat() {
 	p.CollisionMat = GetMatrix(p.IdxMat.WAbs(),p.IdxMat.HAbs(),COLLIDING_IDX-1)
-	for _,obj := range(p.StructureObjs) {
+	for _,obj := range(append(p.FrontStructObjs, p.BackStructObjs...)) {
 		obj.DrawCollisionMatrix(p.CollisionMat)
 	}
 	for obj,_ := range(p.TmpObj) {

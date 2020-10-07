@@ -186,6 +186,13 @@ func LoadEbitenImgFromBytes(im []byte) (*ebiten.Image, error) {
 	}
 	return ebiten.NewImageFromImage(img, ebiten.FilterDefault)
 }
+//Returns an empty image
+func GetEmptyImage(w,h int) (img *ebiten.Image) {
+	img, _ = ebiten.NewImage(w, h, ebiten.FilterDefault)
+	img.Fill(color.RGBA{0,0,0,0})
+	return
+}
+
 //Loads all Icons from a path with a list of sizes and a fileformat ("./64.png")
 func InitIcons(path string, sizes []int, fileformat string) (error, []image.Image) {
 	imgs := make([]image.Image, len(sizes))

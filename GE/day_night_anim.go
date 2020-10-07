@@ -34,5 +34,5 @@ func (a *DayNightAnim) Update(frame int) {
 	}
 }
 func (a *DayNightAnim) DrawAnim(screen *ebiten.Image) {
-	a.Draw(screen, float64(255-a.LightLevel)/float64(255))
+	a.Draw(screen, float64(a.LightLevel)/float64(255))
 }

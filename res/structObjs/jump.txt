@@ -4,3 +4,4 @@ hitBoxWidth:    1
 hitBoxHeight:   1
 Collides:       true
 squareSize:     16
+o.Background:   true

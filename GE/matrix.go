@@ -119,6 +119,10 @@ func (m *Matrix) Get(x, y int) int16 {
 }
 //Sets the value of the focused matrix at the x and y coordinates
 func (m *Matrix) Set(x, y int, v int16) {
+	xl,yl := int(m.focus.Min().X)+x, int(m.focus.Min().Y)+y
+	if xl < 0 || xl >= m.WAbs() || yl < 0 || yl >= m.HAbs() {
+		return
+	}
 	m.list[(int(x)+int(m.focus.Min().X))+int(m.x.Int64())*(int(y)+int(m.focus.Min().Y))] = v
 }
 //Adds a value to the value of the focused matrix at the x and y coordinate

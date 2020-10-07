@@ -18,10 +18,10 @@ func ReadTiles(folderPath string) ([]*Tile, error) {
 	ts := make([]*Tile, 0)
 	names := make([]string, 0)
     for _, f := range files {
-            name := f.Name()[:len(f.Name())-6]
+            name := f.Name()[:len(f.Name())-4]
 	        if !containsS(names, name) {
 				names = append(names, name)
-				DNImg := LoadDayNightImg(folderPath+name+"_D.png", folderPath+name+"_N.png",0,0,0,0,0)
+				DNImg := LoadDayNightImg(folderPath+name+".png",0,0,0,0,0)
 				DNImg.ScaleToOriginalSize()
 				ts = append(ts, &Tile{DNImg, name})
             }
@@ -37,7 +37,7 @@ type Tile struct {
 
 func (t *Tile) Draw(screen *ebiten.Image, drawer, frame *ImageObj, lightlevel uint8) {
 	drawer.CopyXYWHToDN(t.Img)
-	alpha := float64(255-lightlevel)/float64(255)
+	alpha := float64(lightlevel)/float64(255)
 	t.Img.Draw(screen, alpha)
 	if frame != nil {
 		frame.X = drawer.X

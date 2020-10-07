@@ -3,6 +3,7 @@ package GE
 import (
 	"github.com/hajimehoshi/ebiten"
 	"github.com/nfnt/resize"
+	"image"
 )
 
 type DayNightImg struct {
@@ -20,10 +21,12 @@ func LoadDayImg(day_path string, width, height, x, y, angle float64) (img *DayNi
 	img.night = img.day
 	return
 }
-func LoadDayNightImg(day_path, night_path string, width, height, x, y, angle float64) (img *DayNightImg) {
+func LoadDayNightImg(path string, width, height, x, y, angle float64) (img *DayNightImg) {
 	img = &DayNightImg{}
-	img.day = LoadImgObj(day_path, width, height, x, y, angle)
-	img.night = LoadImgObj(night_path, width, height, x, y, angle)
+	dn,_ := LoadEbitenImg(path)
+	w,h := dn.Size()
+	img.day = &ImageObj{Img:dn.SubImage(image.Rect(0, 0, w, h/2)).(*ebiten.Image), W:width, H:height, X:x, Y:y, Angle:angle}
+	img.night = &ImageObj{Img:dn.SubImage(image.Rect(0, h/2, w, h)).(*ebiten.Image), W:width, H:height, X:x, Y:y, Angle:angle}
 	return
 }
 
@@ -45,8 +48,8 @@ func (i *DayNightImg) SetParams(x,y,w,h float64) {
 
 //Lightlevel 0: day, 1: night
 func (i *DayNightImg) Draw(screen *ebiten.Image, lightlevel float64) {
-	i.day.DrawImageObj(screen)
-	i.night.DrawImageObjAlpha(screen, lightlevel)
+	i.night.DrawImageObj(screen)
+	i.day.DrawImageObjAlpha(screen, lightlevel)
 }
 //Sets the middle of the Image to x,y
 func (i *DayNightImg) SetMiddle(x,y float64) {

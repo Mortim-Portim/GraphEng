@@ -16,7 +16,7 @@ type StructureObj struct {
 	DayNightAnim
 	frame, squareSize int
 	HitBox, DrawBox *Rectangle
-	Collides bool
+	Collides, Background bool
 	Name string
 }
 /**
@@ -27,6 +27,7 @@ hitBoxWidth:	[1-NaN]
 hitBoxHeight:	[1-NaN]
 Collides:		[true/false]
 squareSize:		[1-NaN]
+Background:		[true/false]
 **/
 func GetStructObjFromParams(img *ebiten.Image, p *Params) (s *StructureObj) {
 	anim := GetDayNightAnim(1,1,1,1, int(p.Get("spriteWidth")), int(p.Get("updatePeriod")), img)
@@ -35,20 +36,24 @@ func GetStructObjFromParams(img *ebiten.Image, p *Params) (s *StructureObj) {
 	if p.GetS("Collides") != "false" {
 		collides = true
 	}
-	s = GetStructureObj(anim, hitBox, int(p.Get("squareSize")), collides)
+	Background := false
+	if p.GetS("Background") != "false" {
+		Background = true
+	}
+	s = GetStructureObj(anim, hitBox, int(p.Get("squareSize")), collides, Background)
 	return
 }
 
 //Returns a StructureObj
-func GetStructureObj(anim *DayNightAnim, HitBox *Rectangle, squareSize int, Collides bool) (o *StructureObj) {
-	o = &StructureObj{DayNightAnim:*anim, frame:0, HitBox:HitBox, squareSize:squareSize, Collides:Collides}
+func GetStructureObj(anim *DayNightAnim, HitBox *Rectangle, squareSize int, Collides, Background bool) (o *StructureObj) {
+	o = &StructureObj{DayNightAnim:*anim, frame:0, HitBox:HitBox, squareSize:squareSize, Collides:Collides, Background:Background}
 	o.Update(0)
 	pnt := HitBox.Min()
 	o.SetToXY(int(pnt.X), int(pnt.Y))
 	return
 }
 func (o *StructureObj) Clone() *StructureObj {
-	return &StructureObj{o.DayNightAnim, o.frame, o.squareSize, o.HitBox.Clone(), o.DrawBox.Clone(), o.Collides, o.Name}
+	return &StructureObj{o.DayNightAnim, o.frame, o.squareSize, o.HitBox.Clone(), o.DrawBox.Clone(), o.Collides, o.Background, o.Name}
 }
 //Sets the top left corner of the hitbox to a coordinate on the map
 func (o *StructureObj) SetToXY(x,y int) {

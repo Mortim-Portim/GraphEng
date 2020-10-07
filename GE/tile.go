@@ -15,39 +15,30 @@ func ReadTiles(folderPath string) ([]*Tile, error) {
     if err1 != nil {
     	return nil, err1
     }
-	ts := make([]*Tile, len(files))
-    for i, f := range files {
-            path := folderPath+f.Name()
-            img, err := LoadEbitenImg(path)
-            if err != nil {
-	            return ts, err
+	ts := make([]*Tile, 0)
+	names := make([]string, 0)
+    for _, f := range files {
+            name := f.Name()[:len(f.Name())-6]
+	        if !containsS(names, name) {
+				names = append(names, name)
+				DNImg := LoadDayNightImg(folderPath+name+"_D.png", folderPath+name+"_N.png",0,0,0,0,0)
+				DNImg.ScaleToOriginalSize()
+				ts = append(ts, &Tile{DNImg, name})
             }
-            ts[i] = &Tile{img, f.Name()[:len(f.Name())-4]}
     }
     return ts, nil
 }
 
 
 type Tile struct {
-	Img *ebiten.Image
+	Img *DayNightImg
 	Name string
 }
 
-func (t *Tile) Draw(screen *ebiten.Image, x, y, w, h float64, myLayer, drawLayer int, drawer, frame *ImageObj) {
-	drawer.Img = t.Img
-	drawer.X = x
-	drawer.Y = y
-	if myLayer == drawLayer {
-		drawer.DrawImageObj(screen)
-	} else if myLayer < drawLayer {
-		dif := 1.0 / float64(drawLayer-myLayer+1)
-		drawer.DrawImageObjAlpha(screen, dif)
-	} else {
-		//box := float64(1 + myLayer - drawLayer)
-		//sq := box*2 + 1
-		//drawer.DrawImageBlured(screen, int(box), 1.0/((sq*sq)*0.35))
-		drawer.DrawImageObj(screen)
-	}
+func (t *Tile) Draw(screen *ebiten.Image, drawer, frame *ImageObj, lightlevel uint8) {
+	drawer.CopyXYWHToDN(t.Img)
+	alpha := float64(255-lightlevel)/float64(255)
+	t.Img.Draw(screen, alpha)
 	if frame != nil {
 		frame.X = drawer.X
 		frame.Y = drawer.Y

@@ -174,8 +174,8 @@ func (g *TestGame) Update(screen *ebiten.Image) error {
 	x,y := g.wrld.Middle()
 	g.wrld.StructureObjs[0].SetToXY(x,y)
 	g.wrld.Draw(screen)
-	//g.wrld.UpdateCollisionMat()
-	//fmt.Println(g.wrld.CollisionMat.Print())
+	g.wrld.UpdateCollisionMat()
+	fmt.Println(g.wrld.CollisionMat.Print())
 	g.frame ++
 	
 	msg := fmt.Sprintf(`TPS: %0.2f`, ebiten.CurrentTPS())
@@ -194,41 +194,43 @@ func main() {
 
 	//----------------------------------------------------------------------------------------------------------------------------------------------
 	//Creates the index Matrix
-	wmatI := GE.GetMatrix(1000, 1000, 0)
+	wmatI := GE.GetMatrix(20, 20, 0)
+	//Creates the light Matrix
+	wmatL := GE.GetMatrix(20, 20, 120)
 	//Creates the layer Matrix
-	wmatL :=  GE.GetMatrix(1000, 1000, 0)
-	wmatL.Fill(0,0,19,19, -4)
-	wmatL.Fill(0,0,17,17, -3)
-	wmatL.Fill(0,0,15,15, -2)
-	wmatL.Fill(0,0,13,13, -1)
-	wmatL.Fill(0,0,11,11, 0)
-	wmatL.Fill(0,0,9,9, 2)
-	wmatL.Fill(0,0,7,7, 4)
-	wmatL.Fill(0,0,5,5, 6)
-	wmatL.Fill(0,0,3,3, 8)
+	wmatB :=  GE.GetMatrix(20, 20, 0)
+	wmatB.Fill(0,0,19,19, -4)
+	wmatB.Fill(0,0,17,17, -3)
+	wmatB.Fill(0,0,15,15, -2)
+	wmatB.Fill(0,0,13,13, -1)
+	wmatB.Fill(0,0,11,11, 0)
+	wmatB.Fill(0,0,9,9, 2)
+	wmatB.Fill(0,0,7,7, 4)
+	wmatB.Fill(0,0,5,5, 6)
+	wmatB.Fill(0,0,3,3, 8)
 	//Prints the full layer matrix
-	fmt.Println("wmatL width: ", wmatL.WAbs())
+	fmt.Println("wmatL width: ", wmatB.WAbs())
 	//Prints a submatrix of the layer matrix
-	fmt.Println(wmatL.SubMatrix(3,2,15,12).Print())
+	fmt.Println(wmatB.SubMatrix(3,2,15,12).Print())
 	
 	//----------------------------------------------------------------------------------------------------------------------------------------------
 	//Saves the matrix in a compressed form to the file system
-	err1 := wmatL.Save("./res/wmatL.txt")
+	err1 := wmatB.Save("./res/wmatL.txt")
 	if err1 != nil {
 		panic(err1)
 	}
 	
 	//Loads the matrix from the file system
-	err2 := wmatL.Load("./res/wmatL.txt")
+	err2 := wmatB.Load("./res/wmatL.txt")
 	if err2 != nil {
 		panic(err2)
 	}
-	fmt.Println("wmatL width: ", wmatL.WAbs())
+	fmt.Println("wmatL width: ", wmatB.WAbs())
 
 	//----------------------------------------------------------------------------------------------------------------------------------------------
 	//Creates a WorldStructure object
 	wrld := GE.GetWorldStructure(0, 0, 1600, 900, 16, 9)
-	wrld.IdxMat = wmatI; wrld.LayerMat = wmatL
+	wrld.IdxMat = wmatI; wrld.BioMat = wmatB; wrld.LightMat = wmatL
 	
 	//----------------------------------------------------------------------------------------------------------------------------------------------
 	//Creates a raster

@@ -203,3 +203,9 @@ func (obj *ImageObj) PanicIfNil() {
 		panic("ImageObj is nil")
 	}
 }
+func (obj *ImageObj) CopyXYWHTo(obj2 *ImageObj) {
+	obj2.X = obj.X
+	obj2.Y = obj.Y
+	obj2.W = obj.W
+	obj2.H = obj.H
+}

@@ -18,8 +18,8 @@ type WorldStructure struct {
 	Tiles  			[]*Tile
 	StructureObjs	[]*StructureObj
 	TmpObj			map[*StructureObj]int
-	
-	IdxMat, LayerMat, CollisionMat *Matrix
+		
+	IdxMat, BioMat, LightMat, CollisionMat *Matrix
 	xTiles, yTiles, middleX, middleY int
 	
 	frame  *ImageObj
@@ -45,24 +45,29 @@ func (p *WorldStructure) SetDisplayWH(x,y int) {
 	p.drawer.H = p.tileS
 }
 
-//Updates the collision Matrix
-func (p *WorldStructure) UpdateCollisionMat() {
-	p.CollisionMat = GetMatrix(p.IdxMat.WAbs(),p.IdxMat.HAbs(),COLLIDING_IDX-1)
-	for _,obj := range(p.StructureObjs) {
-		obj.DrawCollisionMatrix(p.CollisionMat)
-	}
-	for obj,_ := range(p.TmpObj) {
-		obj.DrawCollisionMatrix(p.CollisionMat)
-	}
+//Converts the World into a []byte slice
+func (p *WorldStructure) ToBytes() ([]byte, error) {
+	idxBs, err1 := p.IdxMat.Compress()
+	if err1 != nil {return nil, err1}
+	bioBs, err2 := p.BioMat.Compress()
+	if err2 != nil {return nil, err2}
+	mats := append(idxBs, bioBs...)
+	bs, err3 := CompressBytes(append(mats, AppendInt16ToBytes( int16(len(bioBs)), Int16ToBytes(int16(len(idxBs))) )...))
+	if err3 != nil {return nil, err3}
+	return bs, nil
 }
-//Checks if point collides with the collision matrix
-func (p *WorldStructure) Collides(x,y int) bool {
-	if p.CollisionMat.Get(x,y) == COLLIDING_IDX {
-		return true
-	}
-	return false
+//Converts a []byte slice into a WorldStructure
+func (p *WorldStructure) FromBytes(data []byte) error {
+	bs, err2 := DecompressBytes(data)
+   	if err2 != nil {return err2}
+   	lenIdx := BytesToInt16(bs[len(bs)-4:len(bs)-2])
+   	lenBio := BytesToInt16(bs[len(bs)-2:len(bs)])
+   	err3 := p.IdxMat.Decompress(bs[:lenIdx])
+   	if err3 != nil {return err3}
+   	err4 := p.BioMat.Decompress(bs[lenIdx:lenIdx+lenBio])
+   	if err4 != nil {return err4}
+   	return nil
 }
-
 
 //sets the Middle of the View
 func (p *WorldStructure) SetMiddle(pnt *Point) {
@@ -70,7 +75,7 @@ func (p *WorldStructure) SetMiddle(pnt *Point) {
 	p.middleY = int(pnt.Y)
 	x,y := p.middleX-(p.xTiles-1)/2, p.middleY-(p.yTiles-1)/2
 	p.IdxMat.SetFocus(x,y, x+p.xTiles, y+p.yTiles)
-	p.LayerMat.SetFocus(x,y, x+p.xTiles, y+p.yTiles)
+	p.BioMat.SetFocus(x,y, x+p.xTiles, y+p.yTiles)
 }
 //moves the view by dx and dy
 func (p *WorldStructure) Move(dx,dy int) {
@@ -78,30 +83,29 @@ func (p *WorldStructure) Move(dx,dy int) {
 	p.middleY += dy
 	x,y := p.middleX-(p.xTiles-1)/2, p.middleY-(p.yTiles-1)/2
 	p.IdxMat.SetFocus(x,y, x+p.xTiles, y+p.yTiles)
-	p.LayerMat.SetFocus(x,y, x+p.xTiles, y+p.yTiles)
+	p.BioMat.SetFocus(x,y, x+p.xTiles, y+p.yTiles)
 }
 //Draws The World Ground Tiles and the Objects form the layer which is currently in the middle of the screen
 func (p *WorldStructure) Draw(screen *ebiten.Image) {
-	Zlayer := int(p.LayerMat.GetAbs(p.Middle()))
 	for x := 0; x < p.IdxMat.W(); x++ {
 		for y := 0; y < p.IdxMat.H(); y++ {
 			tile_idx := p.IdxMat.Get(x, y)
-			xp, yp := float64(x)*p.tileS + p.xStart, float64(y)*p.tileS + p.yStart
+			p.drawer.X, p.drawer.Y = float64(x)*p.tileS + p.xStart, float64(y)*p.tileS + p.yStart
 			if int(tile_idx) >= 0 && int(tile_idx) < len(p.Tiles) {
-				p.Tiles[tile_idx].Draw(screen, xp, yp, p.tileS, p.tileS, int(p.LayerMat.Get(x, y)), Zlayer, p.drawer, p.frame)
+				p.Tiles[tile_idx].Draw(screen, p.drawer, p.frame, uint8(p.LightMat.Get(x, y)))
 			}
 		}
 	}
 	for _,obj := range(p.StructureObjs) {
 		if p.IdxMat.Focus().Overlaps(obj.DrawBox) {
-			objPnt := obj.HitBox.Min()
-			obj.Draw(screen, int(p.LayerMat.GetAbs(int(objPnt.X), int(objPnt.Y))), Zlayer, p.IdxMat.Focus().Min(), p.tileS, p.xStart, p.yStart)
+			pnt := obj.HitBox.Min()
+			obj.DrawStructObj(screen, p.IdxMat.Focus().Min(), p.tileS, p.xStart, p.yStart, uint8(p.LightMat.Get(int(pnt.X), int(pnt.Y))))
 		}
 	}
 	for obj,frm := range(p.TmpObj) {
 		if p.IdxMat.Focus().Overlaps(obj.DrawBox) {
-			objPnt := obj.HitBox.Min()
-			obj.Draw(screen, int(p.LayerMat.GetAbs(int(objPnt.X), int(objPnt.Y))), Zlayer, p.IdxMat.Focus().Min(), p.tileS, p.xStart, p.yStart)
+			pnt := obj.HitBox.Min()
+			obj.DrawStructObj(screen, p.IdxMat.Focus().Min(), p.tileS, p.xStart, p.yStart, uint8(p.LightMat.Get(int(pnt.X), int(pnt.Y))))
 		}
 		if frm < 1 {
 			delete(p.TmpObj, obj)
@@ -133,34 +137,11 @@ func (p *WorldStructure) AddTempObj(obj *StructureObj, frames int) {
 	p.TmpObj[obj] = frames
 	p.UpdateCollisionMat()
 }
-//Converts the World into a []byte slice
-func (p *WorldStructure) ToBytes() ([]byte, error) {
-	idxBs, err1 := p.IdxMat.Compress()
-	if err1 != nil {return nil, err1}
-	layBs, err2 := p.LayerMat.Compress()
-	if err2 != nil {return nil, err2}
-	mats := append(idxBs, layBs...)
-	bs, err3 := CompressBytes(append(mats, AppendInt16ToBytes( int16(len(layBs)), Int16ToBytes(int16(len(idxBs))) )...))
-	if err3 != nil {return nil, err3}
-	return bs, nil
-}
 //Saves the world in a highly compressed way to the file system
 func (p *WorldStructure) Save(path string) error {
 	bs, err := p.ToBytes()
 	if err != nil {return err}
 	return ioutil.WriteFile(path, bs, 0644)
-}
-//Converts a []byte slice into a WorldStructure
-func (p *WorldStructure) FromBytes(data []byte) error {
-	bs, err2 := DecompressBytes(data)
-   	if err2 != nil {return err2}
-   	lenIdx := BytesToInt16(bs[len(bs)-4:len(bs)-2])
-   	lenLay := BytesToInt16(bs[len(bs)-2:len(bs)])
-   	err3 := p.IdxMat.Decompress(bs[:lenIdx])
-   	if err3 != nil {return err3}
-   	err4 := p.LayerMat.Decompress(bs[lenIdx:lenIdx+lenLay])
-   	if err4 != nil {return err4}
-   	return nil
 }
 //Loads the world from the file system
 func (p *WorldStructure) Load(path string) error {
@@ -185,4 +166,21 @@ func (p *WorldStructure) GetTileS() float64 {
 //Returns the top left corner of the WorldStruct on the screen
 func (p *WorldStructure) GetTopLeft() *Point {
 	return &Point{p.xStart, p.yStart}
+}
+//Updates the collision Matrix
+func (p *WorldStructure) UpdateCollisionMat() {
+	p.CollisionMat = GetMatrix(p.IdxMat.WAbs(),p.IdxMat.HAbs(),COLLIDING_IDX-1)
+	for _,obj := range(p.StructureObjs) {
+		obj.DrawCollisionMatrix(p.CollisionMat)
+	}
+	for obj,_ := range(p.TmpObj) {
+		obj.DrawCollisionMatrix(p.CollisionMat)
+	}
+}
+//Checks if point collides with the collision matrix
+func (p *WorldStructure) Collides(x,y int) bool {
+	if p.CollisionMat.Get(x,y) == COLLIDING_IDX {
+		return true
+	}
+	return false
 }

@@ -17,6 +17,12 @@ func (p *Point) Clone() (*Point) {
 func (p *Point) DistanceTo(p2 *Point) float64 {
 	return math.Pow(math.Pow(p.X-p2.X, 2)+math.Pow(p.Y-p2.Y, 2) ,1.0/2.0)
 }
+func (p *Point) InBounds(r *Rectangle) bool {
+	if p.X >= r.Min().X && p.X <= r.Max().X && p.Y >= r.Min().Y && p.Y <= r.Max().Y {
+		return true
+	}
+	return false
+}
 
 /**
 Rectangle represents two Points spanning a rectangle:
@@ -39,6 +45,9 @@ func GetRectangle(x1,y1,x2,y2 float64) (r *Rectangle) {
 }
 type Rectangle struct {
 	min, max, bounds *Point
+}
+func (r *Rectangle) Print() string {
+	return fmt.Sprintf("Min: %s, Max: %s, Bounds: %s", r.Min().Print(), r.Max().Print(), r.Bounds().Print())
 }
 func (r *Rectangle) Clone() (*Rectangle) {
 	return &Rectangle{r.min.Clone(), r.max.Clone(), r.bounds.Clone()}

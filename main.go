@@ -10,7 +10,7 @@ import (
 	"time"
 )
 const (
-	screenWidth  = 1600
+	screenWidth  = 1700
 	screenHeight = 900
 	FPS = 30
 	TestText = "Licht ist eine Form der elektromagnetischen Strahlung. Im engeren Sinne sind vom gesamten elektromagnetischen Spektrum nur die Anteile gemeint, die für das menschliche Auge sichtbar sind. Im weiteren Sinne werden auch elektromagnetische Wellen kürzerer Wellenlänge (Ultraviolett) und größerer Wellenlänge (Infrarot) dazu gezählt.\nDie physikalischen Eigenschaften des Lichts werden durch verschiedene Modelle beschrieben: In der Strahlenoptik wird die geradlinige Ausbreitung des Lichts durch „Lichtstrahlen“ veranschaulicht; in der Wellenoptik wird die Wellennatur des Lichts betont, wodurch auch Beugungs- und Interferenzerscheinungen erklärt werden können. In der Quantenphysik schließlich wird das Licht als ein Strom von Quantenobjekten, den Photonen (veranschaulichend auch „Lichtteilchen“ genannt), beschrieben. Eine vollständige Beschreibung des Lichts bietet die Quantenelektrodynamik. Im Vakuum breitet sich Licht mit der konstanten Lichtgeschwindigkeit von 299.792.458 m/s aus. Trifft Licht auf Materie, so kann es gestreut, reflektiert, gebrochen und verlangsamt oder absorbiert werden.\nLicht ist der für das menschliche Auge adäquate Sinnesreiz. Dabei wird die Intensität des Lichts als Helligkeit wahrgenommen, die spektrale Zusammensetzung als Farbe."
@@ -173,6 +173,9 @@ func (g *TestGame) Update(screen *ebiten.Image) error {
 	}
 	x,y := g.wrld.Middle()
 	g.wrld.Objects[0].SetToXY(float64(x),float64(y))
+	
+	g.wrld.UpdateObjMat()
+	
 	g.wrld.DrawBack(screen)
 	g.frame ++
 	
@@ -225,8 +228,8 @@ func main() {
 
 	//----------------------------------------------------------------------------------------------------------------------------------------------
 	//Creates a WorldStructure object
-	wrld := GE.GetWorldStructure(0, 0, 1600, 900, 16, 9)
-	wrld.TileMat = wmatI; wrld.LightMat = wmatL
+	wrld := GE.GetWorldStructure(0, 0, 1700, 900, 17, 9)
+	wrld.TileMat = wmatI; wrld.LightMat = wmatL; wrld.ObjMat = wmatI
 	
 	//----------------------------------------------------------------------------------------------------------------------------------------------
 	//Creates a raster
@@ -273,10 +276,18 @@ func main() {
 	}
 	wrld.Tiles = tiles
 	wrld.AddStruct(objs[0])
+	player := GE.GetStructureObj(objs[0], 1,1)
+	wrld.AddStructObj(player)
 	
 	g := &TestGame{wrld, 0}
 
 	GE.SetLogFile("./res/log.txt")
+	
+	
+	light := GE.GetLightSource(GE.GetRectangle(9,9,10,10), 255, 0.04)
+	lmat := GE.GetMatrix(20,20, 0)
+	light.LightMatrix(lmat)
+	fmt.Println(lmat.Print())
 
 	StartGame(g)
 }

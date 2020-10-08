@@ -1,7 +1,7 @@
 package GE
 
 import (
-
+	"fmt"
 )
 
 //sets the Middle of the View
@@ -12,6 +12,7 @@ func (p *WorldStructure) SetMiddle(xP, yP int) {
 	p.TileMat.SetFocus(x,y, x+p.xTiles, y+p.yTiles)
 	p.LightMat.SetFocus(x,y, x+p.xTiles, y+p.yTiles)
 	p.ObjMat.SetFocus(x,y, x+p.xTiles, y+p.yTiles)
+	fmt.Println(p.ObjMat.Focus().Print())
 }
 //moves the view by dx and dy
 func (p *WorldStructure) Move(dx,dy int) {

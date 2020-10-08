@@ -59,11 +59,13 @@ func (p *WorldStructure) DrawBack(screen *ebiten.Image) {
 	for x := 0; x < p.ObjMat.W(); x++ {
 		for y := 0; y < p.ObjMat.H(); y++ {
 			idx := p.ObjMat.Get(x, y)
-			obj := p.Objects[idx]
-			if obj.Background && !containsI(drawnObjs, int(idx)){
-				pnt := obj.HitBox.Min()
-				obj.DrawStructObj(screen, p.ObjMat.Focus().Min(), p.tileS, p.xStart, p.yStart, uint8(p.LightMat.GetAbs(int(pnt.X), int(pnt.Y))))
-				drawnObjs = append(drawnObjs, int(idx))
+			if idx >= 0 {
+				obj := p.Objects[idx]
+				if obj.Background && !containsI(drawnObjs, int(idx)){
+					pnt := obj.HitBox.Min()
+					obj.DrawStructObj(screen, p.ObjMat.Focus().Min(), p.tileS, p.xStart, p.yStart, uint8(p.LightMat.GetAbs(int(pnt.X), int(pnt.Y))))
+					drawnObjs = append(drawnObjs, int(idx))
+				}
 			}
 		}
 	}
@@ -73,11 +75,13 @@ func (p *WorldStructure) DrawFront(screen *ebiten.Image) {
 	for x := 0; x < p.ObjMat.W(); x++ {
 		for y := 0; y < p.ObjMat.H(); y++ {
 			idx := p.ObjMat.Get(x, y)
-			obj := p.Objects[idx]
-			if !obj.Background && !containsI(drawnObjs, int(idx)){
-				pnt := obj.HitBox.Min()
-				obj.DrawStructObj(screen, p.ObjMat.Focus().Min(), p.tileS, p.xStart, p.yStart, uint8(p.LightMat.GetAbs(int(pnt.X), int(pnt.Y))))
-				drawnObjs = append(drawnObjs, int(idx))
+			if idx >= 0 {
+				obj := p.Objects[idx]
+				if !obj.Background && !containsI(drawnObjs, int(idx)){
+					pnt := obj.HitBox.Min()
+					obj.DrawStructObj(screen, p.ObjMat.Focus().Min(), p.tileS, p.xStart, p.yStart, uint8(p.LightMat.GetAbs(int(pnt.X), int(pnt.Y))))
+					drawnObjs = append(drawnObjs, int(idx))
+				}
 			}
 		}
 	}
@@ -91,6 +95,7 @@ func (p *WorldStructure) UpdateObjMat() {
 	for i,obj := range(p.Objects) {
 		obj.DrawCollisionMatrix(p.ObjMat, int16(i))
 	}
+	p.TileMat.CopyFocus(p.ObjMat)
 }
 
 //Checks if point collides with the objects matrix

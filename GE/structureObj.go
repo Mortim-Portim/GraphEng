@@ -2,6 +2,7 @@ package GE
 
 import (
 	"github.com/hajimehoshi/ebiten"
+	"fmt"
 )
 
 /**
@@ -33,6 +34,7 @@ func (o *StructureObj) SetToXY(x,y float64) {
 	W := float64(w)/float64(o.squareSize); H := float64(h)/float64(o.squareSize)
 	o.DrawBox = GetRectangle(o.HitBox.Min().X-(W-o.HitBox.Bounds().X-1)/2, o.HitBox.Min().Y-(H-o.HitBox.Bounds().Y-1), 0,0)
 	o.DrawBox.SetBounds(&Point{W,H})
+	//fmt.Println(o.DrawBox.Print())
 }
 
 //Draws the objects hitbox if it can collide
@@ -46,6 +48,7 @@ func (o *StructureObj) DrawCollisionMatrix(mat *Matrix, value int16) {
 func (o *StructureObj) DrawStructObj(screen *ebiten.Image, leftTop *Point, sqSize, xStart, yStart float64, lightlevel uint8) {
 	o.Update(o.frame)
 	relPx, relPy := float64(o.DrawBox.Min().X-leftTop.X), float64(o.DrawBox.Min().Y-leftTop.Y)
+	fmt.Println(leftTop.Print(), " : ", relPx, ":", relPy)
 	o.SetParams(relPx*sqSize+xStart, relPy*sqSize+yStart, float64(o.DrawBox.Bounds().X)*sqSize, float64(o.DrawBox.Bounds().Y)*sqSize)
 	o.LightLevel = lightlevel
 	o.DrawAnim(screen)

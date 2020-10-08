@@ -165,6 +165,10 @@ func (m *Matrix) SetFocus(x1,y1,x2,y2 int) {
 //	}
 	m.focus = GetRectangle(float64(x1),float64(y1), float64(x2), float64(y2))
 }
+//Copys the focus of the matrix
+func (m *Matrix) CopyFocus(m2 *Matrix) {
+	m2.focus = m.focus.Clone()
+}
 //Returns the focus of the matrix
 func (m *Matrix) Focus() *Rectangle {
 	return m.focus

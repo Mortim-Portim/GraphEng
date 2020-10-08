@@ -29,6 +29,13 @@ func LoadDayNightImg(path string, width, height, x, y, angle float64) (img *DayN
 	img.night = &ImageObj{Img:dn.SubImage(image.Rect(0, h/2, w, h)).(*ebiten.Image), W:width, H:height, X:x, Y:y, Angle:angle}
 	return
 }
+func CreateDayNightImg(dn *ebiten.Image, width, height, x, y, angle float64) (img *DayNightImg) {
+	img = &DayNightImg{}
+	w,h := dn.Size()
+	img.day = &ImageObj{Img:dn.SubImage(image.Rect(0, 0, w, h/2)).(*ebiten.Image), W:width, H:height, X:x, Y:y, Angle:angle}
+	img.night = &ImageObj{Img:dn.SubImage(image.Rect(0, h/2, w, h)).(*ebiten.Image), W:width, H:height, X:x, Y:y, Angle:angle}
+	return
+}
 
 func (obj *ImageObj) CopyXYWHToDN(obj2 *DayNightImg) {
 	obj.CopyXYWHTo(obj2.day)

@@ -17,8 +17,8 @@ type Light struct {
 }
 
 func (l *Light) LightMatrix(mat *Matrix) {
-	rad := l.GetRadius()
-	minX := l.Location.Min().X
+	//rad := l.GetRadius()
+	//minX := l.Location.Min().X
 	
 }
 func (l *Light) GetValueAtXY(x,y int) float64 {

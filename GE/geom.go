@@ -84,11 +84,5 @@ func (r *Rectangle) Overlaps(r2 *Rectangle) bool {
 	return true
 }
 func (r *Rectangle) DistanceTo(p *Point) float64 {
-	minD := p.DistanceTo(r.Min())
-	maxD := p.DistanceTo(r.Max())
-	
-	if minD < maxD {
-		return minD
-	}
-	return maxD
+	return p.DistanceTo(r.GetMiddle())
 }

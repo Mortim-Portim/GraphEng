@@ -3,21 +3,21 @@ package GE
 import (
 
 )
+
 //sets the Middle of the View
-func (p *WorldStructure) SetMiddle(pnt *Point) {
-	p.middleX = int(pnt.X)
-	p.middleY = int(pnt.Y)
+func (p *WorldStructure) SetMiddle(xP, yP int) {
+	p.middleX = xP
+	p.middleY = yP
 	x,y := p.middleX-(p.xTiles-1)/2, p.middleY-(p.yTiles-1)/2
-	p.IdxMat.SetFocus(x,y, x+p.xTiles, y+p.yTiles)
+	p.TileMat.SetFocus(x,y, x+p.xTiles, y+p.yTiles)
 	p.LightMat.SetFocus(x,y, x+p.xTiles, y+p.yTiles)
+	p.ObjMat.SetFocus(x,y, x+p.xTiles, y+p.yTiles)
 }
 //moves the view by dx and dy
 func (p *WorldStructure) Move(dx,dy int) {
 	p.middleX += dx
 	p.middleY += dy
-	x,y := p.middleX-(p.xTiles-1)/2, p.middleY-(p.yTiles-1)/2
-	p.IdxMat.SetFocus(x,y, x+p.xTiles, y+p.yTiles)
-	p.LightMat.SetFocus(x,y, x+p.xTiles, y+p.yTiles)
+	p.SetMiddle(p.middleX, p.middleY)
 }
 //Sets the number of tiles to be displayed in X and Y direction
 func (p *WorldStructure) SetDisplayWH(x,y int) {
@@ -48,8 +48,8 @@ func (p *WorldStructure) GetTileS() float64 {
 	return p.tileS
 }
 //Returns the top left corner of the WorldStruct on the screen
-func (p *WorldStructure) GetTopLeft() *Point {
-	return &Point{p.xStart, p.yStart}
+func (p *WorldStructure) GetTopLeft() (float64, float64) {
+	return p.xStart, p.yStart
 }
 //Adds a tile to the index list of the worlds tiles
 func (p *WorldStructure) AddTile(img *Tile) {
@@ -58,27 +58,17 @@ func (p *WorldStructure) AddTile(img *Tile) {
 	}
 	p.Tiles = append(p.Tiles, img)
 }
-//Adds a StructureObj to the list of the worlds Objs
-func (p *WorldStructure) AddStructObjBack(obj *StructureObj) {
-	if p.BackStructObjs == nil {
-		p.BackStructObjs = make([]*StructureObj, 0)
+//Adds a StructureObj to the list of the worlds Structures
+func (p *WorldStructure) AddStruct(obj *Structure) {
+	if p.Structures == nil {
+		p.Structures = make([]*Structure, 0)
 	}
-	p.BackStructObjs = append(p.BackStructObjs, obj)
-	p.UpdateCollisionMat()
+	p.Structures = append(p.Structures, obj)
 }
 //Adds a StructureObj to the list of the worlds Objs
-func (p *WorldStructure) AddStructObjFront(obj *StructureObj) {
-	if p.FrontStructObjs == nil {
-		p.FrontStructObjs = make([]*StructureObj, 0)
+func (p *WorldStructure) AddStructObj(obj *StructureObj) {
+	if p.Objects == nil {
+		p.Objects = make([]*StructureObj, 0)
 	}
-	p.FrontStructObjs = append(p.FrontStructObjs, obj)
-	p.UpdateCollisionMat()
-}
-//Adds a temporary Obj to the map of the worlds TmpObj
-func (p *WorldStructure) AddTempObj(obj *StructureObj, frames int) {
-	if p.TmpObj == nil {
-		p.TmpObj = make(map[*StructureObj]int)
-	}
-	p.TmpObj[obj] = frames
-	p.UpdateCollisionMat()
+	p.Objects = append(p.Objects, obj)
 }

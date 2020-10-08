@@ -2,7 +2,6 @@ package GE
 
 import (
 	"github.com/hajimehoshi/ebiten"
-	"io/ioutil"
 )
 
 /**
@@ -13,62 +12,36 @@ The embedded type Animation does not necessarily need consist out of multiple fr
 **/
 					
 type StructureObj struct {
-	DayNightAnim
-	frame, squareSize int
+	*Structure
 	HitBox, DrawBox *Rectangle
-	Collides, Background bool
-	Name string
 }
-/**
-Params.txt:
-spriteWidth: 	[1-NaN]
-updatePeriod: 	[0-NaN]
-hitBoxWidth:	[1-NaN]
-hitBoxHeight:	[1-NaN]
-Collides:		[true/false]
-squareSize:		[1-NaN]
-Background:		[true/false]
-**/
-func GetStructObjFromParams(img *ebiten.Image, p *Params) (s *StructureObj) {
-	anim := GetDayNightAnim(1,1,1,1, int(p.Get("spriteWidth")), int(p.Get("updatePeriod")), img)
-	hitBox := GetRectangle(0,0,p.Get("hitBoxWidth")-1,p.Get("hitBoxHeight")-1)
-	collides := false
-	if p.GetS("Collides") != "false" {
-		collides = true
-	}
-	Background := false
-	if p.GetS("Background") != "false" {
-		Background = true
-	}
-	s = GetStructureObj(anim, hitBox, int(p.Get("squareSize")), collides, Background)
-	return
-}
-
 //Returns a StructureObj
-func GetStructureObj(anim *DayNightAnim, HitBox *Rectangle, squareSize int, Collides, Background bool) (o *StructureObj) {
-	o = &StructureObj{DayNightAnim:*anim, frame:0, HitBox:HitBox, squareSize:squareSize, Collides:Collides, Background:Background}
+func GetStructureObj(stru *Structure, x, y float64) (o *StructureObj) {
+	o = &StructureObj{Structure:stru}
+	o.HitBox = GetRectangle(x,y, x+stru.HitboxW, y+stru.HitboxH)
 	o.Update(0)
-	pnt := HitBox.Min()
-	o.SetToXY(int(pnt.X), int(pnt.Y))
+	o.SetToXY(x, y)
 	return
 }
 func (o *StructureObj) Clone() *StructureObj {
-	return &StructureObj{o.DayNightAnim, o.frame, o.squareSize, o.HitBox.Clone(), o.DrawBox.Clone(), o.Collides, o.Background, o.Name}
+	return &StructureObj{o.Structure, o.HitBox.Clone(), o.DrawBox.Clone()}
 }
 //Sets the top left corner of the hitbox to a coordinate on the map
-func (o *StructureObj) SetToXY(x,y int) {
-	o.HitBox.MoveTo(&Point{float64(x),float64(y)})
+func (o *StructureObj) SetToXY(x,y float64) {
+	o.HitBox.MoveTo(&Point{x,y})
 	w,h := o.DayNightAnim.Size()
 	W := float64(w)/float64(o.squareSize); H := float64(h)/float64(o.squareSize)
 	o.DrawBox = GetRectangle(o.HitBox.Min().X-(W-o.HitBox.Bounds().X-1)/2, o.HitBox.Min().Y-(H-o.HitBox.Bounds().Y-1), 0,0)
 	o.DrawBox.SetBounds(&Point{W,H})
 }
+
 //Draws the objects hitbox if it can collide
-func (o *StructureObj) DrawCollisionMatrix(mat *Matrix) {
+func (o *StructureObj) DrawCollisionMatrix(mat *Matrix, value int16) {
 	if o.Collides {
-		mat.Fill(int(o.HitBox.Min().X), int(o.HitBox.Min().Y), int(o.HitBox.Max().X), int(o.HitBox.Max().Y), COLLIDING_IDX)
+		mat.Fill(int(o.HitBox.Min().X), int(o.HitBox.Min().Y), int(o.HitBox.Max().X), int(o.HitBox.Max().Y), value)
 	}
 }
+
 //Draws the StructureObj
 func (o *StructureObj) DrawStructObj(screen *ebiten.Image, leftTop *Point, sqSize, xStart, yStart float64, lightlevel uint8) {
 	o.Update(o.frame)
@@ -77,40 +50,4 @@ func (o *StructureObj) DrawStructObj(screen *ebiten.Image, leftTop *Point, sqSiz
 	o.LightLevel = lightlevel
 	o.DrawAnim(screen)
 	o.frame ++
-}
-
-/**
-Reads a slice of StructureObjs from a folder like this:
-folder
-----> obj1.png
-----> obj1.txt
-----> obj2.png
-----> obj2.txt
-**/
-func ReadStructureObj(folderPath string) ([]*StructureObj, error) {
-	files, err1 := ioutil.ReadDir(folderPath)
-    if err1 != nil {
-    	return nil, err1
-    }
-	ts := make([]*StructureObj, 0)
-	names := make([]string, 0)
-    for _, f := range files {
-            name := f.Name()[:len(f.Name())-4]
-	        if !containsS(names, name) {
-				names = append(names, name)
-				img, err := LoadEbitenImg(folderPath+name+".png")
-				if err != nil {
-					return nil, err
-				}
-				p := &Params{}
-				err2 := p.LoadFromFile(folderPath+name+".txt")
-				if err2 != nil {
-					return nil, err2
-				}
-				obj := GetStructObjFromParams(img, p)
-				obj.Name = name
-				ts = append(ts, obj)
-            }
-    }
-    return ts, nil
 }

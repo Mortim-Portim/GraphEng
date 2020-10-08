@@ -6,12 +6,14 @@ import (
 
 //Converts the World into a []byte slice
 func (p *WorldStructure) ToBytes() ([]byte, error) {
-	idxBs, err1 := p.IdxMat.Compress()
+	idxBs, err1 := p.TileMat.Compress()
 	if err1 != nil {return nil, err1}
-	bioBs, err2 := p.LightMat.Compress()
+	
+	ligBs, err2 := p.LightMat.Compress()
 	if err2 != nil {return nil, err2}
-	mats := append(idxBs, bioBs...)
-	bs, err3 := CompressBytes(append(mats, AppendInt16ToBytes( int16(len(bioBs)), Int16ToBytes(int16(len(idxBs))) )...))
+	mats := append(idxBs, ligBs...)
+	
+	bs, err3 := CompressBytes(append(mats, AppendInt16ToBytes( int16(len(ligBs)), Int16ToBytes(int16(len(idxBs))) )...))
 	if err3 != nil {return nil, err3}
 	return bs, nil
 }
@@ -19,11 +21,14 @@ func (p *WorldStructure) ToBytes() ([]byte, error) {
 func (p *WorldStructure) FromBytes(data []byte) error {
 	bs, err2 := DecompressBytes(data)
    	if err2 != nil {return err2}
+   	
    	lenIdx := BytesToInt16(bs[len(bs)-4:len(bs)-2])
-   	lenBio := BytesToInt16(bs[len(bs)-2:len(bs)])
-   	err3 := p.IdxMat.Decompress(bs[:lenIdx])
+   	lenLig := BytesToInt16(bs[len(bs)-2:len(bs)])
+   	
+   	err3 := p.TileMat.Decompress(bs[:lenIdx])
    	if err3 != nil {return err3}
-   	err4 := p.LightMat.Decompress(bs[lenIdx:lenIdx+lenBio])
+   	
+   	err4 := p.LightMat.Decompress(bs[lenIdx:lenIdx+lenLig])
    	if err4 != nil {return err4}
    	return nil
 }

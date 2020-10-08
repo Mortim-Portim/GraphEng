@@ -2,6 +2,7 @@ package GE
 
 import (
 	"fmt"
+	"math"
 )
 
 type Point struct {
@@ -12,6 +13,9 @@ func (p *Point) Print() string {
 }
 func (p *Point) Clone() (*Point) {
 	return &Point{p.X, p.Y}
+}
+func (p *Point) DistanceTo(p2 *Point) float64 {
+	return math.Pow(math.Pow(p.X-p2.X, 2)+math.Pow(p.Y-p2.Y, 2) ,1.0/2.0)
 }
 
 /**
@@ -78,4 +82,13 @@ func (r *Rectangle) Overlaps(r2 *Rectangle) bool {
 		return false
 	}
 	return true
+}
+func (r *Rectangle) DistanceTo(p *Point) float64 {
+	minD := p.DistanceTo(r.Min())
+	maxD := p.DistanceTo(r.Max())
+	
+	if minD < maxD {
+		return minD
+	}
+	return maxD
 }

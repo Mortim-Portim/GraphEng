@@ -172,10 +172,8 @@ func (g *TestGame) Update(screen *ebiten.Image) error {
 		}
 	}
 	x,y := g.wrld.Middle()
-	g.wrld.BackStructObjs[0].SetToXY(x,y)
+	g.wrld.Objects[0].SetToXY(float64(x),float64(y))
 	g.wrld.DrawBack(screen)
-	g.wrld.UpdateCollisionMat()
-	fmt.Println(g.wrld.CollisionMat.Print())
 	g.frame ++
 	
 	msg := fmt.Sprintf(`TPS: %0.2f`, ebiten.CurrentTPS())
@@ -228,13 +226,13 @@ func main() {
 	//----------------------------------------------------------------------------------------------------------------------------------------------
 	//Creates a WorldStructure object
 	wrld := GE.GetWorldStructure(0, 0, 1600, 900, 16, 9)
-	wrld.IdxMat = wmatI; wrld.LightMat = wmatL
+	wrld.TileMat = wmatI; wrld.LightMat = wmatL
 	
 	//----------------------------------------------------------------------------------------------------------------------------------------------
 	//Creates a raster
 	wrld.GetFrame(2, 90)
 	//Sets the start point
-	wrld.SetMiddle(&GE.Point{10,10})
+	wrld.SetMiddle(10,10)
 	
 	//Saves the compressed world
 	startComp := time.Now()
@@ -266,7 +264,7 @@ func main() {
 		fmt.Println(t.Name)
 	}
 	//loads all objs
-	objs, errO := GE.ReadStructureObj("./res/structObjs/")
+	objs, errO := GE.ReadStructures("./res/structObjs/")
 	if errO != nil {
 		panic(errO)
 	}
@@ -274,7 +272,7 @@ func main() {
 		fmt.Println(o.Name)
 	}
 	wrld.Tiles = tiles
-	wrld.AddStructObjBack(objs[0].Clone())
+	wrld.AddStruct(objs[0])
 	
 	g := &TestGame{wrld, 0}
 

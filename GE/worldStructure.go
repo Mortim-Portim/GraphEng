@@ -12,15 +12,20 @@ func GetWorldStructure(X, Y, W, H float64, WTiles, HTiles int) (p *WorldStructur
 }
 
 
-const COLLIDING_IDX = 1
+const NON_COLLIDING_IDX = -1
 type WorldStructure struct {
+	//Tiles and Structures should be the same on all devices
 	Tiles  			[]*Tile
-	BackStructObjs	[]*StructureObj
-	FrontStructObjs	[]*StructureObj
-	TmpObj			map[*StructureObj]int
+	Structures		[]*Structure
 	
-	LightLevel uint8
-	IdxMat, LightMat, CollisionMat *Matrix
+	//Represent Pointer to structures with a hitbox
+	Objects			[]*StructureObj
+	ObjMatNeedsUpdate bool
+	
+	//The standard light level
+	LightLevel uint8; LightNeedsUpdate bool
+	//TileMat stores indexes of tiles, LightMat stores the lightlevel, ObjMat stores indexes of Objects, LSMat stores the indexes of light sources
+	TileMat, LightMat, ObjMat, LSMat *Matrix
 	
 	//SetMiddle/Move
 	middleX, middleY int
@@ -41,58 +46,57 @@ type WorldStructure struct {
 
 //Draws The World Ground Tiles and the Objects form the layer which is currently in the middle of the screen
 func (p *WorldStructure) DrawBack(screen *ebiten.Image) {
-	for x := 0; x < p.IdxMat.W(); x++ {
-		for y := 0; y < p.IdxMat.H(); y++ {
-			tile_idx := p.IdxMat.Get(x, y)
+	for x := 0; x < p.TileMat.W(); x++ {
+		for y := 0; y < p.TileMat.H(); y++ {
+			tile_idx := p.TileMat.Get(x, y)
 			p.drawer.X, p.drawer.Y = float64(x)*p.tileS + p.xStart, float64(y)*p.tileS + p.yStart
 			if int(tile_idx) >= 0 && int(tile_idx) < len(p.Tiles) {
 				p.Tiles[tile_idx].Draw(screen, p.drawer, p.frame, uint8(p.LightMat.Get(x, y)))
 			}
 		}
 	}
-	for _,obj := range(p.BackStructObjs) {
-		if p.IdxMat.Focus().Overlaps(obj.DrawBox) {
-			pnt := obj.HitBox.Min()
-			obj.DrawStructObj(screen, p.IdxMat.Focus().Min(), p.tileS, p.xStart, p.yStart, uint8(p.LightMat.GetAbs(int(pnt.X), int(pnt.Y))))
+	drawnObjs := make([]int,0)
+	for x := 0; x < p.ObjMat.W(); x++ {
+		for y := 0; y < p.ObjMat.H(); y++ {
+			idx := p.ObjMat.Get(x, y)
+			obj := p.Objects[idx]
+			if obj.Background && !containsI(drawnObjs, int(idx)){
+				pnt := obj.HitBox.Min()
+				obj.DrawStructObj(screen, p.ObjMat.Focus().Min(), p.tileS, p.xStart, p.yStart, uint8(p.LightMat.GetAbs(int(pnt.X), int(pnt.Y))))
+				drawnObjs = append(drawnObjs, int(idx))
+			}
 		}
 	}
 }
 func (p *WorldStructure) DrawFront(screen *ebiten.Image) {
-	for _,obj := range(p.FrontStructObjs) {
-		if p.IdxMat.Focus().Overlaps(obj.DrawBox) {
-			pnt := obj.HitBox.Min()
-			obj.DrawStructObj(screen, p.IdxMat.Focus().Min(), p.tileS, p.xStart, p.yStart, uint8(p.LightMat.GetAbs(int(pnt.X), int(pnt.Y))))
-		}
-	}
-	for obj,frm := range(p.TmpObj) {
-		if p.IdxMat.Focus().Overlaps(obj.DrawBox) {
-			pnt := obj.HitBox.Min()
-			obj.DrawStructObj(screen, p.IdxMat.Focus().Min(), p.tileS, p.xStart, p.yStart, uint8(p.LightMat.GetAbs(int(pnt.X), int(pnt.Y))))
-		}
-		if frm < 1 {
-			delete(p.TmpObj, obj)
-		}else{
-			p.TmpObj[obj] = frm-1
+	drawnObjs := make([]int,0)
+	for x := 0; x < p.ObjMat.W(); x++ {
+		for y := 0; y < p.ObjMat.H(); y++ {
+			idx := p.ObjMat.Get(x, y)
+			obj := p.Objects[idx]
+			if !obj.Background && !containsI(drawnObjs, int(idx)){
+				pnt := obj.HitBox.Min()
+				obj.DrawStructObj(screen, p.ObjMat.Focus().Min(), p.tileS, p.xStart, p.yStart, uint8(p.LightMat.GetAbs(int(pnt.X), int(pnt.Y))))
+				drawnObjs = append(drawnObjs, int(idx))
+			}
 		}
 	}
 }
 
 
 
-//Updates the collision Matrix
-func (p *WorldStructure) UpdateCollisionMat() {
-	p.CollisionMat = GetMatrix(p.IdxMat.WAbs(),p.IdxMat.HAbs(),COLLIDING_IDX-1)
-	for _,obj := range(append(p.FrontStructObjs, p.BackStructObjs...)) {
-		obj.DrawCollisionMatrix(p.CollisionMat)
-	}
-	for obj,_ := range(p.TmpObj) {
-		obj.DrawCollisionMatrix(p.CollisionMat)
+//Updates the objects Matrix
+func (p *WorldStructure) UpdateObjMat() {
+	p.ObjMat = GetMatrix(p.TileMat.WAbs(),p.TileMat.HAbs(),NON_COLLIDING_IDX)
+	for i,obj := range(p.Objects) {
+		obj.DrawCollisionMatrix(p.ObjMat, int16(i))
 	}
 }
-//Checks if point collides with the collision matrix
+
+//Checks if point collides with the objects matrix
 func (p *WorldStructure) Collides(x,y int) bool {
-	if p.CollisionMat.Get(x,y) == COLLIDING_IDX {
-		return true
+	if p.ObjMat.Get(x,y) == NON_COLLIDING_IDX {
+		return false
 	}
-	return false
+	return true
 }

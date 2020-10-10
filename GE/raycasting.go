@@ -1,92 +1,85 @@
 package GE
 
 import (
+	//"fmt"
 	"math"
 	"marvin/GraphEng/GC"
 )
 
-func (l *Light) ApplyRaycasting(factor float64) {
+func (l *Light) ApplyRaycasting(collMat *Matrix, factor float64) {
 	rad := l.GetRadius()
-	l.LightMat = GetMatrix(int(rad*2+1), int(rad*2+1), 0)
-	//dira := l.direction.GetRotationZ()
-	rays := int(l.angle/l.accuracy)
+	CollMat := collMat.SubMatrix(int(l.Location.X-rad), int(l.Location.Y-rad), int(l.Location.X+rad), int(l.Location.Y+rad))
+	length := rad*2+1
+	l.LightMat = GetMatrix(int(length), int(length), 0)
+	dira := l.direction.GetRotationZ()
+	pnts := getPointsForBox(int(length))
+	mina := dira-l.angle/2
+	maxa := dira+l.angle/2
 	
-	for i := 0; i < rays; i++ {
-		a := float64(i)*l.accuracy-l.angle/2
-		//vec := GC.GetVectorFromRot(a)
-		startPnt := l.Location.Clone()
-		endPnt := 
-		for startPnt.X >= 0 && startPnt.Y >= 0 && startPnt.X <= 2*rad && startPnt.Y <= 2*rad {
+	
+	for _,op := range(pnts) {
+		pnt := &GC.Vector{rad, rad, 0}
+		a := op.Sub(pnt).GetRotationZ(); aI1 := a-360; aI2 := a+360
+		
+		if isInBounds(a, mina, maxa) || isInBounds(aI1, mina, maxa) || isInBounds(aI2, mina, maxa) {
+			dx := float64(int(op.X-pnt.X))
+			dy := float64(int(op.Y-pnt.Y))
 			
+			l.iterateOverLine(dx,dy,rad,factor,pnt,CollMat)
 		}
 	}
-	
-	/**
-	for x := int(md.X-rad-1); x < int(md.X+rad+1); x++ {
-		for y := int(md.Y-rad-1); y < int(md.Y+rad+1); y++ {
-			pnt := &Point{float64(x), float64(y)}
-			if !pnt.InBounds(l.Location) {
-				realPnt := &Point{float64(x)+0.5, float64(y)+0.5}
-				ray := &line{md.X, md.Y, realPnt.X, realPnt.Y}
-				shadow := false
-				for x2 := int(md.X-rad-1); x2 < int(md.X+rad+1); x2++ {
-					for y2 := int(md.Y-rad-1); y2 < int(md.Y+rad+1); y2++ {
-						if collM.GetAbs(x2,y2) != NON_COLLIDING_IDX {
-							ln1 := &line{float64(x2),float64(y2), float64(x2+1), float64(y2+1)}
-							ln2 := &line{float64(x2),float64(y2+1), float64(x2+1), float64(y2)}
-							_,_,i1 := intersection(ln1, ray)
-							_,_,i2 := intersection(ln2, ray)
-							if i1 || i2 {
-								shadow = true
-							}
-						}
-					}
-				}
-				if !shadow {
-					lightM.AddAbs(x,y, int16(l.GetValueAtXY(x,y)*factor))
-				}
-			}else{
-				lightM.AddAbs(x,y, int16(float64(l.maximumIntesity)*factor))
-			}
+}
+
+func (l *Light) iterateOverLine(dx, dy, rad, factor float64, pnt *GC.Vector, CollMat *Matrix) {
+	xStep := 1.0
+	if dx < 0 {
+		xStep = -1.0
+	}
+	yStep := 1.0
+	if dy < 0 {
+		yStep = -1.0
+	}
+	stepYpX := dy/dx
+	stepXpY := dx/dy
+	for pnt.X >= 0 && pnt.Y >= 0 && pnt.X <= 2*rad && pnt.Y <= 2*rad {
+		x,y := int(pnt.X), int(pnt.Y)
+		if CollMat.Get(x,y) != NON_COLLIDING_IDX {
+			break
+		}
+		if l.LightMat.Get(x,y) == 0 {
+			val := int16(l.getValueAtXYdif(x-int(rad),y-int(rad))*factor)
+			l.LightMat.Set(x,y, val)
+		}
+		if math.Abs(dx) > math.Abs(dy) {
+			pnt.X += xStep
+			pnt.Y += xStep*stepYpX
+		}else{
+			pnt.Y += yStep
+			pnt.X += yStep*stepXpY
 		}
 	}
-	**/
 }
 
-type line struct {
-	X1, Y1, X2, Y2 float64
-}
-func NewRay(x, y, length, angle float64) line {
-	return line{
-		X1: x,
-		Y1: y,
-		X2: x + length*math.Cos(angle),
-		Y2: y + length*math.Sin(angle),
+func isInBounds(val, bl, bm float64) bool {
+	if val >= bl && val <= bm {
+		return true
 	}
+	return false
 }
 
-// intersection calculates the intersection of given two lines.
-func intersection(l1, l2 *line) (float64, float64, bool) {
-	// https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection#Given_two_points_on_each_line
-	denom := (l1.X1-l1.X2)*(l2.Y1-l2.Y2) - (l1.Y1-l1.Y2)*(l2.X1-l2.X2)
-	tNum := (l1.X1-l2.X1)*(l2.Y1-l2.Y2) - (l1.Y1-l2.Y1)*(l2.X1-l2.X2)
-	uNum := -((l1.X1-l1.X2)*(l1.Y1-l2.Y1) - (l1.Y1-l1.Y2)*(l1.X1-l2.X1))
-
-	if denom == 0 {
-		return 0, 0, false
+func getPointsForBox(length int) (ps []*GC.Vector) {
+	ps = make([]*GC.Vector, 0)
+	for x := 0; x < length; x++ {
+		ps = append(ps, &GC.Vector{float64(x), 0,0})
 	}
-
-	t := tNum / denom
-	if t > 1 || t < 0 {
-		return 0, 0, false
+	for y := 0; y < length; y++ {
+		ps = append(ps, &GC.Vector{0, float64(y),0})
 	}
-
-	u := uNum / denom
-	if u > 1 || u < 0 {
-		return 0, 0, false
+	for x := 0; x < length; x++ {
+		ps = append(ps, &GC.Vector{float64(x), float64(length),0})
 	}
-
-	x := l1.X1 + t*(l1.X2-l1.X1)
-	y := l1.Y1 + t*(l1.Y2-l1.Y1)
-	return x, y, true
+	for y := 0; y < length; y++ {
+		ps = append(ps, &GC.Vector{float64(length), float64(y),0})
+	}
+	return
 }

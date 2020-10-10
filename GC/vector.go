@@ -27,6 +27,7 @@ func (v *Vector) RotateZ(angle float64) *Vector {
 }
 //Rotates v around the axis
 func (v *Vector) Rotate(axis *Vector, angle float64) *Vector {
+	angle *= (math.Pi/180)
 	if axis == nil || !axis.IsFilled() {
 		panic("Cannot Rotate Vector around Zero or nil Axis")
 	}
@@ -44,7 +45,7 @@ func (v *Vector) RotateAbsZ(angle float64) *Vector {
 }
 //Sets the Rotation of v around the axis
 func (v *Vector) RotateAbs(axis *Vector, angle float64) *Vector {
-	v.X=0;v.Y=0;v.Z=0
+	v.X=0;v.Y=-1;v.Z=0
     v.Rotate(axis, angle)
     return v
 }
@@ -52,13 +53,13 @@ func (v *Vector) RotateAbs(axis *Vector, angle float64) *Vector {
 func (v *Vector) GetRotationZ() (angle float64) {
 	angle = 0
 	if v.IsFilled() {
-		if v.Y >= 0 {
-			angle = math.Atan(v.X/v.Y)/(math.Pi)*180.0
-		}else{
-			angle = 180.0 - math.Atan(v.X/math.Abs(v.Y))/(math.Pi)*180.0
-		}
-		if angle < 0 {
-			angle += 360
+		if v.Y < 0 {
+				angle = math.Atan(math.Abs(v.X)/-v.Y)/(math.Pi)*180.0
+			}else{
+				angle = 90+math.Atan(v.Y/math.Abs(v.X))/(math.Pi)*180.0
+			}
+		if v.X < 0 {
+			angle = 360-angle
 		}
 	}
 	return

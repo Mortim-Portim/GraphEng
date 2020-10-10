@@ -3,14 +3,20 @@ package GE
 import (
 	"fmt"
 	"math"
-	"marvin/GraphEng/"
+	"marvin/GraphEng/GC"
 )
 
 type Point struct {
 	X,Y float64
 }
 func (p *Point) ToVec() *GC.Vector {
-	
+	return &GC.Vector{p.X, p.Y, 0}
+}
+func (p *Point) Equals(p2 *Point) bool {
+	if p.X == p2.X && p.Y == p2.Y {
+		return true
+	}
+	return false
 }
 func (p *Point) Print() string {
 	return fmt.Sprintf("X:%v, Y:%v", p.X, p.Y)
@@ -106,6 +112,7 @@ func (r *Rectangle) DistanceTo(p *Point) float64 {
 	return p.DistanceTo(r.GetMiddle())
 }
 
+/**
 func (r *Rectangle) GetLines() (l []*line) {
 	l = make([]*line, 4)
 	l[0] = &line{r.min.X, r.min.Y, r.max.X, r.min.Y}
@@ -114,3 +121,4 @@ func (r *Rectangle) GetLines() (l []*line) {
 	l[3] = &line{r.min.X, r.max.Y, r.min.X, r.min.Y}
 	return
 }
+**/

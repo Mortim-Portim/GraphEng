@@ -27,7 +27,7 @@ type WorldStructure struct {
 	//The standard light level
 	lightLevel uint8
 	//TileMat stores indexes of tiles, LightMat stores the lightlevel, ObjMat stores indexes of Objects
-	TileMat, LightMat , ObjMat *Matrix
+	TileMat, LightIdxMat, ObjMat *Matrix
 	
 	//SetMiddle/Move
 	middleX, middleY int
@@ -50,7 +50,7 @@ func (p *WorldStructure) DrawBack(screen *ebiten.Image) {
 			tile_idx := p.TileMat.Get(x, y)
 			p.drawer.X, p.drawer.Y = float64(x)*p.tileS + p.xStart, float64(y)*p.tileS + p.yStart
 			if int(tile_idx) >= 0 && int(tile_idx) < len(p.Tiles) {
-				p.Tiles[tile_idx].Draw(screen, p.drawer, p.frame, p.LightMat.Get(x, y))
+				p.Tiles[tile_idx].Draw(screen, p.drawer, p.frame, p.LightIdxMat.Get(x, y))
 			}
 		}
 	}
@@ -62,7 +62,7 @@ func (p *WorldStructure) DrawBack(screen *ebiten.Image) {
 				obj := p.Objects[idx]
 				if obj.Background && !containsI(drawnObjs, int(idx)){
 					pnt := obj.HitBox.Min()
-					obj.DrawStructObj(screen, p.ObjMat.Focus().Min(), p.tileS, p.xStart, p.yStart, p.LightMat.GetAbs(int(pnt.X), int(pnt.Y)))
+					obj.DrawStructObj(screen, p.ObjMat.Focus().Min(), p.tileS, p.xStart, p.yStart, p.LightIdxMat.GetAbs(int(pnt.X), int(pnt.Y)))
 					drawnObjs = append(drawnObjs, int(idx))
 				}
 			}
@@ -78,7 +78,7 @@ func (p *WorldStructure) DrawFront(screen *ebiten.Image) {
 				obj := p.Objects[idx]
 				if !obj.Background && !containsI(drawnObjs, int(idx)){
 					pnt := obj.HitBox.Min()
-					obj.DrawStructObj(screen, p.ObjMat.Focus().Min(), p.tileS, p.xStart, p.yStart, p.LightMat.GetAbs(int(pnt.X), int(pnt.Y)))
+					obj.DrawStructObj(screen, p.ObjMat.Focus().Min(), p.tileS, p.xStart, p.yStart, p.LightIdxMat.GetAbs(int(pnt.X), int(pnt.Y)))
 					drawnObjs = append(drawnObjs, int(idx))
 				}
 			}
@@ -86,10 +86,10 @@ func (p *WorldStructure) DrawFront(screen *ebiten.Image) {
 	}
 }
 func (p *WorldStructure) UpdateLightMat(newLightLevel uint8) {
-	if p.LightMat == nil {
-		p.LightMat = GetMatrix(p.TileMat.WAbs(), p.TileMat.HAbs(), 0)
+	if p.LightIdxMat == nil {
+		p.LightIdxMat = GetMatrix(p.TileMat.WAbs(), p.TileMat.HAbs(), 0)
 	}
-	p.LightMat.AddToAllAbs(int16(newLightLevel-p.lightLevel))
+	p.LightIdxMat.AddToAllAbs(int16(newLightLevel-p.lightLevel))
 	p.lightLevel = newLightLevel
 }
 func (p *WorldStructure) UpdateObjMat() {

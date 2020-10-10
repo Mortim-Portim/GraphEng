@@ -10,7 +10,7 @@ func (p *WorldStructure) SetMiddle(xP, yP int) {
 	p.middleY = yP
 	x,y := p.middleX-(p.xTiles-1)/2, p.middleY-(p.yTiles-1)/2
 	p.TileMat.SetFocus(x,y, x+p.xTiles, y+p.yTiles)
-	p.LightMat.SetFocus(x,y, x+p.xTiles, y+p.yTiles)
+	p.LightIdxMat.SetFocus(x,y, x+p.xTiles, y+p.yTiles)
 	p.ObjMat.SetFocus(x,y, x+p.xTiles, y+p.yTiles)
 }
 //moves the view by dx and dy

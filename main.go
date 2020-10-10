@@ -4,6 +4,7 @@ import (
 	"github.com/hajimehoshi/ebiten/ebitenutil"
 	"github.com/hajimehoshi/ebiten"
 	"marvin/GraphEng/GE"
+	"marvin/GraphEng/GC"
 	"marvin/GraphEng/res"
 	"fmt"
 	"time"
@@ -193,6 +194,13 @@ func main() {
 	GE.Init("")
 	GE.StandardFont = GE.ParseFontFromBytes(res.MONO_TTF)
 	GE.SetLogFile("./res/log.txt")
+	
+	
+//	vec := &GC.Vector{0,-1,0}
+//	for a := 0; a < 360; a++ {
+//		vec.RotateAbsZ(float64(a))
+//		fmt.Println(a,":",vec.GetRotationZ(),":",vec.GetInfos())
+//	}
 
 	//----------------------------------------------------------------------------------------------------------------------------------------------
 	//Creates the index Matrix
@@ -235,22 +243,25 @@ func main() {
 	}
 	wrld.Tiles = tiles
 	wrld.AddStruct(objs[0])
-	player := GE.GetStructureObj(objs[0].Clone(), 1,1)
-	playerS := GE.GetStructureObj(objs[0].Clone(), 12,12)
+	player := GE.GetStructureObj(objs[0].Clone(), 12,12)
+	//playerS := GE.GetStructureObj(objs[0].Clone(), 12,12)
 	wrld.AddStructObj(player)
-	wrld.AddStructObj(playerS)
+	//wrld.AddStructObj(playerS)
 	wrld.UpdateObjMat()
 	
 	//----------------------------------------------------------------------------------------------------------------------------------------------
 	//Add a light source to the world
-	light := GE.GetLightSource(GE.GetRectangle(14,14,14,14), 255, 0.01)
+	light := GE.GetLightSource(&GE.Point{14,14}, &GC.Vector{-1,-1,0}, 90, 0.01, 255, 0.01)
 	light.SetRadius(20)
 	
 	wrld.Lights = append(wrld.Lights, light)
 	wrld.UpdateLightMat(0)
 	
-	light.ApplyRaycasting(wrld.LightMat, wrld.ObjMat, 1)
-	fmt.Println(wrld.LightMat.Print())
+	startCalc := time.Now()
+	light.ApplyRaycasting(wrld.ObjMat, 1)
+	endCalc := time.Now()
+	fmt.Println("Calculating Raycasting took: ", endCalc.Sub(startCalc))
+	fmt.Println(light.LightMat.Print())
 	
 	//----------------------------------------------------------------------------------------------------------------------------------------------
 	//Sets the start point

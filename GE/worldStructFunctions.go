@@ -9,7 +9,7 @@ func (p *WorldStructure) ToBytes() ([]byte, error) {
 	idxBs, err1 := p.TileMat.Compress()
 	if err1 != nil {return nil, err1}
 	
-	ligBs, err2 := p.LightMat.Compress()
+	ligBs, err2 := p.LightIdxMat.Compress()
 	if err2 != nil {return nil, err2}
 	mats := append(idxBs, ligBs...)
 	
@@ -28,7 +28,7 @@ func (p *WorldStructure) FromBytes(data []byte) error {
    	err3 := p.TileMat.Decompress(bs[:lenIdx])
    	if err3 != nil {return err3}
    	
-   	err4 := p.LightMat.Decompress(bs[lenIdx:lenIdx+lenLig])
+   	err4 := p.LightIdxMat.Decompress(bs[lenIdx:lenIdx+lenLig])
    	if err4 != nil {return err4}
    	return nil
 }

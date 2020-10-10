@@ -6,8 +6,8 @@ import (
 )
 
 type Structure struct {
-	DayNightAnim
-	frame, squareSize int
+	*DayNightAnim
+	squareSize int
 	Collides, Background bool
 	HitboxW,HitboxH float64
 	Name string
@@ -37,9 +37,12 @@ func GetStructFromParams(img *ebiten.Image, p *Params) (s *Structure) {
 }
 //Returns a StructureObj
 func GetStructure(anim *DayNightAnim, HitboxW,HitboxH float64, squareSize int, Collides, Background bool) (o *Structure) {
-	o = &Structure{DayNightAnim:*anim, frame:0, HitboxW:HitboxW ,HitboxH:HitboxH, squareSize:squareSize, Collides:Collides, Background:Background}
+	o = &Structure{DayNightAnim:anim, HitboxW:HitboxW ,HitboxH:HitboxH, squareSize:squareSize, Collides:Collides, Background:Background}
 	o.Update(0)
 	return
+}
+func (s *Structure) Clone() *Structure {
+	return &Structure{DayNightAnim:s.DayNightAnim.Clone(), squareSize:s.squareSize, Collides:s.Collides, Background:s.Background, HitboxW:s.HitboxW, HitboxH:s.HitboxH, Name:s.Name}
 }
 /**
 Reads a slice of Structures from a folder like this:

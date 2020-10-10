@@ -4,6 +4,12 @@ import (
 	"math"
 	"fmt"
 )
+func GetVectorFromRot(a float64) (v *Vector) {
+	v = &Vector{}
+	v.RotateAbsZ(a)
+	return
+}
+
 //3d Vector
 type Vector struct{
     X, Y, Z float64

@@ -3,10 +3,14 @@ package GE
 import (
 	"fmt"
 	"math"
+	"marvin/GraphEng/"
 )
 
 type Point struct {
 	X,Y float64
+}
+func (p *Point) ToVec() *GC.Vector {
+	
 }
 func (p *Point) Print() string {
 	return fmt.Sprintf("X:%v, Y:%v", p.X, p.Y)
@@ -57,6 +61,12 @@ func (r *Rectangle) MoveTo(pnt *Point) {
 	r.SetMin(pnt)
 	r.SetBounds(&Point{w,h})
 }
+func (r *Rectangle) MoveBy(dx, dy float64) {
+	r.min.X += dx
+	r.min.Y += dy
+	r.max.X += dx
+	r.max.Y += dy
+}
 func (r *Rectangle) SetMin(min *Point) {
 	r.min = min
 	r.updateBounds()
@@ -94,4 +104,13 @@ func (r *Rectangle) Overlaps(r2 *Rectangle) bool {
 }
 func (r *Rectangle) DistanceTo(p *Point) float64 {
 	return p.DistanceTo(r.GetMiddle())
+}
+
+func (r *Rectangle) GetLines() (l []*line) {
+	l = make([]*line, 4)
+	l[0] = &line{r.min.X, r.min.Y, r.max.X, r.min.Y}
+	l[1] = &line{r.max.X, r.min.Y, r.max.X, r.max.Y}
+	l[2] = &line{r.max.X, r.max.Y, r.min.X, r.max.Y}
+	l[3] = &line{r.min.X, r.max.Y, r.min.X, r.min.Y}
+	return
 }

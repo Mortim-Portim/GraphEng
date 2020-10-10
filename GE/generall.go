@@ -14,7 +14,9 @@ import (
 	"math"
 	"time"
 	"math/rand"
+	"runtime/debug"
 	"os"
+	"fmt"
 )
 
 const allLetters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz/."
@@ -255,4 +257,12 @@ func LogToFile(text string) {
 }
 func CloseLogFile() {
 	LOGFILE.Close()
+}
+func ShitImDying(err error) {
+	help := fmt.Sprintf("ShitImDying: %v", err)
+	if LOGFILE != nil {
+		LogToFile(help)
+	}
+	panic(err)
+	debug.PrintStack()
 }

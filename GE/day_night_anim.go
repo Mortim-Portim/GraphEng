@@ -6,13 +6,13 @@ import (
 )
 
 type DayNightAnim struct {
-	DayNightImg
+	*DayNightImg
 	sprites, current, spriteWidth, spriteHeight, UpdatePeriod int
-	LightLevel uint8
+	LightLevel int16
 	spriteSheet *ebiten.Image
 }
 func (a *DayNightAnim) Clone() (*DayNightAnim) {
-	return &DayNightAnim{a.DayNightImg, a.sprites, a.current, a.spriteWidth, a.spriteHeight, a.UpdatePeriod, 255, a.spriteSheet}
+	return &DayNightAnim{a.DayNightImg.Clone(), a.sprites, a.current, a.spriteWidth, a.spriteHeight, a.UpdatePeriod, a.LightLevel, a.spriteSheet}
 }
 func (a *DayNightAnim) Init(screen *ebiten.Image, data interface{}) (UpdateFunc, DrawFunc) {
 	return a.Update, a.DrawAnim

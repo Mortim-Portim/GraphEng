@@ -20,12 +20,14 @@ type WorldStructure struct {
 	
 	//Represent Pointer to structures with a hitbox
 	Objects			[]*StructureObj
-	ObjMatNeedsUpdate bool
+	
+	//Represent Pointer to light sources
+	Lights			[]*Light
 	
 	//The standard light level
-	LightLevel uint8; LightNeedsUpdate bool
-	//TileMat stores indexes of tiles, LightMat stores the lightlevel, ObjMat stores indexes of Objects, LSMat stores the indexes of light sources
-	TileMat, LightMat, ObjMat, LSMat *Matrix
+	lightLevel uint8
+	//TileMat stores indexes of tiles, LightMat stores the lightlevel, ObjMat stores indexes of Objects
+	TileMat, LightMat , ObjMat *Matrix
 	
 	//SetMiddle/Move
 	middleX, middleY int
@@ -41,9 +43,6 @@ type WorldStructure struct {
 	xStart, yStart, tileS float64
 }
 
-
-
-
 //Draws The World Ground Tiles and the Objects form the layer which is currently in the middle of the screen
 func (p *WorldStructure) DrawBack(screen *ebiten.Image) {
 	for x := 0; x < p.TileMat.W(); x++ {
@@ -51,7 +50,7 @@ func (p *WorldStructure) DrawBack(screen *ebiten.Image) {
 			tile_idx := p.TileMat.Get(x, y)
 			p.drawer.X, p.drawer.Y = float64(x)*p.tileS + p.xStart, float64(y)*p.tileS + p.yStart
 			if int(tile_idx) >= 0 && int(tile_idx) < len(p.Tiles) {
-				p.Tiles[tile_idx].Draw(screen, p.drawer, p.frame, uint8(p.LightMat.Get(x, y)))
+				p.Tiles[tile_idx].Draw(screen, p.drawer, p.frame, p.LightMat.Get(x, y))
 			}
 		}
 	}
@@ -63,7 +62,7 @@ func (p *WorldStructure) DrawBack(screen *ebiten.Image) {
 				obj := p.Objects[idx]
 				if obj.Background && !containsI(drawnObjs, int(idx)){
 					pnt := obj.HitBox.Min()
-					obj.DrawStructObj(screen, p.ObjMat.Focus().Min(), p.tileS, p.xStart, p.yStart, uint8(p.LightMat.GetAbs(int(pnt.X), int(pnt.Y))))
+					obj.DrawStructObj(screen, p.ObjMat.Focus().Min(), p.tileS, p.xStart, p.yStart, p.LightMat.GetAbs(int(pnt.X), int(pnt.Y)))
 					drawnObjs = append(drawnObjs, int(idx))
 				}
 			}
@@ -79,17 +78,20 @@ func (p *WorldStructure) DrawFront(screen *ebiten.Image) {
 				obj := p.Objects[idx]
 				if !obj.Background && !containsI(drawnObjs, int(idx)){
 					pnt := obj.HitBox.Min()
-					obj.DrawStructObj(screen, p.ObjMat.Focus().Min(), p.tileS, p.xStart, p.yStart, uint8(p.LightMat.GetAbs(int(pnt.X), int(pnt.Y))))
+					obj.DrawStructObj(screen, p.ObjMat.Focus().Min(), p.tileS, p.xStart, p.yStart, p.LightMat.GetAbs(int(pnt.X), int(pnt.Y)))
 					drawnObjs = append(drawnObjs, int(idx))
 				}
 			}
 		}
 	}
 }
-
-
-
-//Updates the objects Matrix
+func (p *WorldStructure) UpdateLightMat(newLightLevel uint8) {
+	if p.LightMat == nil {
+		p.LightMat = GetMatrix(p.TileMat.WAbs(), p.TileMat.HAbs(), 0)
+	}
+	p.LightMat.AddToAllAbs(int16(newLightLevel-p.lightLevel))
+	p.lightLevel = newLightLevel
+}
 func (p *WorldStructure) UpdateObjMat() {
 	p.ObjMat = GetMatrix(p.TileMat.WAbs(),p.TileMat.HAbs(),NON_COLLIDING_IDX)
 	for i,obj := range(p.Objects) {
@@ -97,8 +99,6 @@ func (p *WorldStructure) UpdateObjMat() {
 	}
 	p.TileMat.CopyFocus(p.ObjMat)
 }
-
-//Checks if point collides with the objects matrix
 func (p *WorldStructure) Collides(x,y int) bool {
 	if p.ObjMat.Get(x,y) == NON_COLLIDING_IDX {
 		return false

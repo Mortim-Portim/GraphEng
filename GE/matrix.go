@@ -107,6 +107,13 @@ func (m *Matrix) GetAbs(x,y int) int16 {
 	}
 	return m.list[idx]
 }
+//Sets the value of the matrix at the x and y coordinates
+func (m *Matrix) SetAbs(x, y int, v int16) {
+	if x < 0 || y < 0 || x >= m.WAbs() || y >= m.HAbs() {
+		return
+	}
+	m.list[(int(x))+int(m.x.Int64())*(int(y))] = v
+}
 //Returns the value of the focused matrix at the x and y coordinates
 func (m *Matrix) Get(x, y int) int16 {
 	xl,yl := int(m.focus.Min().X)+x, int(m.focus.Min().Y)+y
@@ -129,6 +136,10 @@ func (m *Matrix) Set(x, y int, v int16) {
 func (m *Matrix) Add(x,y int, v int16) {
 	m.Set(x,y, int16(m.Get(x,y))+v)
 }
+//Adds a value to the value of the focused matrix at the x and y coordinate
+func (m *Matrix) AddAbs(x,y int, v int16) {
+	m.SetAbs(x,y, int16(m.GetAbs(x,y))+v)
+}
 //Fills a Rectangle with a value
 func (m *Matrix) Fill(x1,y1,x2,y2 int, v int16) {
 	for x := x1; x <= x2; x++ {
@@ -137,10 +148,26 @@ func (m *Matrix) Fill(x1,y1,x2,y2 int, v int16) {
 		}
 	}
 }
+//Adds a value to a Rectangle
+func (m *Matrix) AddToRect(x1,y1,x2,y2 int, v int16) {
+	for x := x1; x <= x2; x++ {
+		for y := y1; y <= y2; y++ {
+			m.Add(x,y,v)
+		}
+	}
+}
 //Adds a value to all focused values
 func (m *Matrix) AddToAll(v int16) {
 	for x := 0; x < m.W(); x++ {
 		for y := 0; y < m.H(); y++ {
+			m.Add(x,y,v)
+		}
+	}
+}
+//Adds a value to all values
+func (m *Matrix) AddToAllAbs(v int16) {
+	for x := 0; x < m.WAbs(); x++ {
+		for y := 0; y < m.HAbs(); y++ {
 			m.Add(x,y,v)
 		}
 	}
@@ -185,7 +212,7 @@ func (m *Matrix) Print() string {
 	for y := 0; y < m.H(); y++ {
 		for x := 0; x < m.H(); x++ {
 			valStr := fmt.Sprintf("%v", m.Get(x,y))
-			for i := 0; i < 3-len(valStr); i++ {
+			for i := 0; i < 4-len(valStr); i++ {
 				out += " "
 			}
 			out += valStr

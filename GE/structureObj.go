@@ -2,7 +2,6 @@ package GE
 
 import (
 	"github.com/hajimehoshi/ebiten"
-	"fmt"
 )
 
 /**
@@ -15,6 +14,7 @@ The embedded type Animation does not necessarily need consist out of multiple fr
 type StructureObj struct {
 	*Structure
 	HitBox, DrawBox *Rectangle
+	frame int
 }
 //Returns a StructureObj
 func GetStructureObj(stru *Structure, x, y float64) (o *StructureObj) {
@@ -25,7 +25,7 @@ func GetStructureObj(stru *Structure, x, y float64) (o *StructureObj) {
 	return
 }
 func (o *StructureObj) Clone() *StructureObj {
-	return &StructureObj{o.Structure, o.HitBox.Clone(), o.DrawBox.Clone()}
+	return &StructureObj{o.Structure, o.HitBox.Clone(), o.DrawBox.Clone(), o.frame}
 }
 //Sets the top left corner of the hitbox to a coordinate on the map
 func (o *StructureObj) SetToXY(x,y float64) {
@@ -34,7 +34,6 @@ func (o *StructureObj) SetToXY(x,y float64) {
 	W := float64(w)/float64(o.squareSize); H := float64(h)/float64(o.squareSize)
 	o.DrawBox = GetRectangle(o.HitBox.Min().X-(W-o.HitBox.Bounds().X-1)/2, o.HitBox.Min().Y-(H-o.HitBox.Bounds().Y-1), 0,0)
 	o.DrawBox.SetBounds(&Point{W,H})
-	//fmt.Println(o.DrawBox.Print())
 }
 
 //Draws the objects hitbox if it can collide
@@ -45,10 +44,9 @@ func (o *StructureObj) DrawCollisionMatrix(mat *Matrix, value int16) {
 }
 
 //Draws the StructureObj
-func (o *StructureObj) DrawStructObj(screen *ebiten.Image, leftTop *Point, sqSize, xStart, yStart float64, lightlevel uint8) {
+func (o *StructureObj) DrawStructObj(screen *ebiten.Image, leftTop *Point, sqSize, xStart, yStart float64, lightlevel int16) {
 	o.Update(o.frame)
 	relPx, relPy := float64(o.DrawBox.Min().X-leftTop.X), float64(o.DrawBox.Min().Y-leftTop.Y)
-	fmt.Println(leftTop.Print(), " : ", relPx, ":", relPy)
 	o.SetParams(relPx*sqSize+xStart, relPy*sqSize+yStart, float64(o.DrawBox.Bounds().X)*sqSize, float64(o.DrawBox.Bounds().Y)*sqSize)
 	o.LightLevel = lightlevel
 	o.DrawAnim(screen)

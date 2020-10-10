@@ -14,7 +14,9 @@ func (i *DayNightImg) Size() (w int, h int) {
 	w,h = i.day.Img.Size()
 	return 
 }
-
+func (i *DayNightImg) Clone() *DayNightImg {
+	return &DayNightImg{i.day.Copy(), i.night.Copy()}
+}
 func LoadDayImg(day_path string, width, height, x, y, angle float64) (img *DayNightImg) {
 	img = &DayNightImg{}
 	img.day = LoadImgObj(day_path, width, height, x, y, angle)
@@ -53,7 +55,7 @@ func (i *DayNightImg) SetParams(x,y,w,h float64) {
 	i.day.H = h; i.night.H = h
 }
 
-//Lightlevel 0: day, 1: night
+//Lightlevel 1: day, 0: night
 func (i *DayNightImg) Draw(screen *ebiten.Image, lightlevel float64) {
 	i.night.DrawImageObj(screen)
 	i.day.DrawImageObjAlpha(screen, lightlevel)
@@ -130,4 +132,10 @@ func (obj *DayNightImg) SetDay(i *ebiten.Image) {
 }
 func (obj *DayNightImg) SetNight(i *ebiten.Image) {
 	obj.night.Img = i
+}
+func (obj *DayNightImg) GetDay() (i *ebiten.Image) {
+	return obj.day.Img
+}
+func (obj *DayNightImg) GetNight() (i *ebiten.Image) {
+	return obj.night.Img
 }

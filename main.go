@@ -6,7 +6,6 @@ import (
 	"marvin/GraphEng/GE"
 	"marvin/GraphEng/res"
 	"fmt"
-	"log"
 	"time"
 )
 const (
@@ -23,9 +22,9 @@ func StartGame(g ebiten.Game) {
 	ebiten.SetVsyncEnabled(true)
 	ebiten.SetMaxTPS(FPS)
 	if err := ebiten.RunGame(g); err != nil {
-		GE.CloseLogFile()
-		log.Fatal(err)
+		panic(err)
 	}
+	GE.CloseLogFile()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -173,8 +172,9 @@ func (g *TestGame) Update(screen *ebiten.Image) error {
 	}
 	x,y := g.wrld.Middle()
 	g.wrld.Objects[0].SetToXY(float64(x),float64(y))
-	
 	g.wrld.UpdateObjMat()
+	
+	//g.wrld.Lights[0].ApplyRaycasting(g.wrld.LightMat, g.wrld.ObjMat, 1)
 	
 	g.wrld.DrawBack(screen)
 	g.frame ++
@@ -192,70 +192,29 @@ func (g *TestGame) Layout(outsideWidth, outsideHeight int) (int, int) {
 func main() {
 	GE.Init("")
 	GE.StandardFont = GE.ParseFontFromBytes(res.MONO_TTF)
+	GE.SetLogFile("./res/log.txt")
 
 	//----------------------------------------------------------------------------------------------------------------------------------------------
 	//Creates the index Matrix
-	wmatI := GE.GetMatrix(20, 20, 0)
-	//Creates the light Matrix
-	wmatL :=  GE.GetMatrix(20, 20, 0)
-	wmatL.Fill(0,0,19,19, 0)
-	wmatL.Fill(0,0,17,17, 40)
-	wmatL.Fill(0,0,15,15, 70)
-	wmatL.Fill(0,0,13,13, 100)
-	wmatL.Fill(0,0,11,11, 130)
-	wmatL.Fill(0,0,9,9, 160)
-	wmatL.Fill(0,0,7,7, 190)
-	wmatL.Fill(0,0,5,5, 220)
-	wmatL.Fill(0,0,3,3, 255)
-	//Prints the full layer matrix
-	fmt.Println("wmatL width: ", wmatL.WAbs())
-	//Prints a submatrix of the layer matrix
-	fmt.Println(wmatL.SubMatrix(3,2,15,12).Print())
-	
-	//----------------------------------------------------------------------------------------------------------------------------------------------
+	wmatI := GE.GetMatrix(30, 30, 0)
 	//Saves the matrix in a compressed form to the file system
-	err1 := wmatL.Save("./res/wmatL.txt")
+	err1 := wmatI.Save("./res/wmatI.txt")
 	if err1 != nil {
 		panic(err1)
 	}
-	
 	//Loads the matrix from the file system
-	err2 := wmatL.Load("./res/wmatL.txt")
+	err2 := wmatI.Load("./res/wmatI.txt")
 	if err2 != nil {
 		panic(err2)
 	}
-	fmt.Println("wmatL width: ", wmatL.WAbs())
+	fmt.Println("wmatI width: ", wmatI.WAbs())
 
 	//----------------------------------------------------------------------------------------------------------------------------------------------
 	//Creates a WorldStructure object
 	wrld := GE.GetWorldStructure(0, 0, 1700, 900, 17, 9)
-	wrld.TileMat = wmatI; wrld.LightMat = wmatL; wrld.ObjMat = wmatI
-	
-	//----------------------------------------------------------------------------------------------------------------------------------------------
+	wrld.TileMat = wmatI
 	//Creates a raster
 	wrld.GetFrame(2, 90)
-	//Sets the start point
-	wrld.SetMiddle(10,10)
-	
-	//Saves the compressed world
-	startComp := time.Now()
-	errS := wrld.Save("./res/wrld.txt")
-	if errS != nil {
-		panic(errS)
-	}
-	//Calculates how long it took to save the world
-	endComp := time.Now()
-	fmt.Println("Saving wrld took: ", endComp.Sub(startComp))
-	
-	//loads the compressed world
-	startDeComp := time.Now()
-	errL := wrld.Load("./res/wrld.txt")
-	if errL != nil {
-		panic(errL)
-	}
-	//Calculates how long it took to load the world
-	endDeComp := time.Now()
-	fmt.Println("Loading wrld took: ", endDeComp.Sub(startDeComp))
 	
 	//----------------------------------------------------------------------------------------------------------------------------------------------
 	//loads all tiles
@@ -276,18 +235,47 @@ func main() {
 	}
 	wrld.Tiles = tiles
 	wrld.AddStruct(objs[0])
-	player := GE.GetStructureObj(objs[0], 1,1)
+	player := GE.GetStructureObj(objs[0].Clone(), 1,1)
+	playerS := GE.GetStructureObj(objs[0].Clone(), 12,12)
 	wrld.AddStructObj(player)
+	wrld.AddStructObj(playerS)
+	wrld.UpdateObjMat()
 	
-	g := &TestGame{wrld, 0}
-
-	GE.SetLogFile("./res/log.txt")
+	//----------------------------------------------------------------------------------------------------------------------------------------------
+	//Add a light source to the world
+	light := GE.GetLightSource(GE.GetRectangle(14,14,14,14), 255, 0.01)
+	light.SetRadius(20)
 	
+	wrld.Lights = append(wrld.Lights, light)
+	wrld.UpdateLightMat(0)
 	
-	light := GE.GetLightSource(GE.GetRectangle(9,9,10,10), 255, 0.04)
-	lmat := GE.GetMatrix(20,20, 0)
-	light.LightMatrix(lmat)
-	fmt.Println(lmat.Print())
+	light.ApplyRaycasting(wrld.LightMat, wrld.ObjMat, 1)
+	fmt.Println(wrld.LightMat.Print())
+	
+	//----------------------------------------------------------------------------------------------------------------------------------------------
+	//Sets the start point
+	wrld.SetMiddle(14,14)
+	//Saves the compressed world
+	startComp := time.Now()
+	errS := wrld.Save("./res/wrld.txt")
+	if errS != nil {
+		panic(errS)
+	}
+	//Calculates how long it took to save the world
+	endComp := time.Now()
+	fmt.Println("Saving wrld took: ", endComp.Sub(startComp))
+	
+	//loads the compressed world
+	startDeComp := time.Now()
+	errL := wrld.Load("./res/wrld.txt")
+	if errL != nil {
+		GE.ShitImDying(errL)
+	}
+	//Calculates how long it took to load the world
+	endDeComp := time.Now()
+	fmt.Println("Loading wrld took: ", endDeComp.Sub(startDeComp))
+	
+	g := &TestGame{wrld, 0}	
 
 	StartGame(g)
 }

@@ -3,7 +3,6 @@ package GE
 import (
 	//"fmt"
 	"math"
-	"marvin/GraphEng/GC"
 )
 
 func (l *Light) ApplyRaycasting(collMat *Matrix, factor float64) {
@@ -18,7 +17,7 @@ func (l *Light) ApplyRaycasting(collMat *Matrix, factor float64) {
 	
 	
 	for _,op := range(pnts) {
-		pnt := &GC.Vector{rad, rad, 0}
+		pnt := &Vector{rad, rad, 0}
 		a := op.Sub(pnt).GetRotationZ(); aI1 := a-360; aI2 := a+360
 		
 		if isInBounds(a, mina, maxa) || isInBounds(aI1, mina, maxa) || isInBounds(aI2, mina, maxa) {
@@ -30,7 +29,7 @@ func (l *Light) ApplyRaycasting(collMat *Matrix, factor float64) {
 	}
 }
 
-func (l *Light) iterateOverLine(dx, dy, rad, factor float64, pnt *GC.Vector, CollMat *Matrix) {
+func (l *Light) iterateOverLine(dx, dy, rad, factor float64, pnt *Vector, CollMat *Matrix) {
 	xStep := 1.0
 	if dx < 0 {
 		xStep = -1.0
@@ -67,19 +66,19 @@ func isInBounds(val, bl, bm float64) bool {
 	return false
 }
 
-func getPointsForBox(length int) (ps []*GC.Vector) {
-	ps = make([]*GC.Vector, 0)
+func getPointsForBox(length int) (ps []*Vector) {
+	ps = make([]*Vector, 0)
 	for x := 0; x < length; x++ {
-		ps = append(ps, &GC.Vector{float64(x), 0,0})
+		ps = append(ps, &Vector{float64(x), 0,0})
 	}
 	for y := 0; y < length; y++ {
-		ps = append(ps, &GC.Vector{0, float64(y),0})
+		ps = append(ps, &Vector{0, float64(y),0})
 	}
 	for x := 0; x < length; x++ {
-		ps = append(ps, &GC.Vector{float64(x), float64(length),0})
+		ps = append(ps, &Vector{float64(x), float64(length),0})
 	}
 	for y := 0; y < length; y++ {
-		ps = append(ps, &GC.Vector{float64(length), float64(y),0})
+		ps = append(ps, &Vector{float64(length), float64(y),0})
 	}
 	return
 }

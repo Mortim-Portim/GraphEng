@@ -1,4 +1,4 @@
-package GC
+package GE
 
 import (
 	"math"

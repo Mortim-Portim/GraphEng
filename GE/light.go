@@ -2,7 +2,6 @@ package GE
 
 import (
 	"math"
-	"marvin/GraphEng/GC"
 )
 const LIGHT_DIS_FACTOR = 20
 const LIGHT_EXTINCTION_LEVEL = 10
@@ -10,7 +9,7 @@ const LIGHT_EXTINCTION_POWER = 3
 
 type Light struct {
 	Location *Point
-	direction *GC.Vector
+	direction *Vector
 	angle, accuracy float64
 	LightMat *Matrix
 	
@@ -22,7 +21,7 @@ type Light struct {
 	radiusNeedsUpdate bool
 }
 
-func GetLightSource(loc *Point, direction *GC.Vector, angle, accuracy float64, maxI int16, extRate float64) (l *Light) {
+func GetLightSource(loc *Point, direction *Vector, angle, accuracy float64, maxI int16, extRate float64) (l *Light) {
 	l = &Light{Location:loc, maximumIntesity:maxI, extinctionRate:extRate, direction:direction, angle:angle, accuracy:accuracy}
 	l.CalcRadius()
 	return

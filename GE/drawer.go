@@ -2,7 +2,6 @@ package GE
 
 import (
 	"image/color"
-	"marvin/GraphEng/GC"
 	"github.com/hajimehoshi/ebiten"
 	"github.com/hajimehoshi/ebiten/vector"
 )
@@ -13,7 +12,7 @@ Points are a slice of vectors, that can be drawn as a polygon using a specific c
 This is currently only used to draw simple forms such as a Circle
 **/
 
-type Points []*GC.Vector
+type Points []*Vector
 func (ps *Points) Fill(screen *ebiten.Image, col color.Color) {
 	var path vector.Path
 	for i,p := range(*ps) {
@@ -30,13 +29,13 @@ func (ps *Points) Fill(screen *ebiten.Image, col color.Color) {
 }
 
 func GetLineOfPoints(x1,y1, x2,y2, thickness float64) *Points {
-	ps := make([]*GC.Vector, 4)
+	ps := make([]*Vector, 4)
 	
-	loc := &GC.Vector{x1, y1, 0}
-	dir := &GC.Vector{x2-x1, y2-y1, 0}
+	loc := &Vector{x1, y1, 0}
+	dir := &Vector{x2-x1, y2-y1, 0}
 	
-	right := dir.CrossProduct(&GC.Vector{0,0,1}).Normalize().Mul(thickness)
-	left := dir.CrossProduct(&GC.Vector{0,0,-1}).Normalize().Mul(thickness)
+	right := dir.CrossProduct(&Vector{0,0,1}).Normalize().Mul(thickness)
+	left := dir.CrossProduct(&Vector{0,0,-1}).Normalize().Mul(thickness)
 	
 	ps[0] = loc.Add(right)
 	ps[3] = loc.Add(left)

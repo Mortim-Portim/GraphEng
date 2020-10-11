@@ -9,7 +9,6 @@ import (
 	"github.com/hajimehoshi/ebiten/inpututil"
 	"golang.org/x/image/font"
 	"image/color"
-	"marvin/GraphEng/GC"
 	"strings"
 	"math"
 	"time"
@@ -225,16 +224,16 @@ func genVertices(X,Y,R float64, num int) *Points {
 	centerY := Y
 	r       := R
 
-	vs := make([]*GC.Vector,0)
+	vs := make([]*Vector,0)
 	for i := 0; i <= num; i++ {
 		rate := float64(i) / float64(num)
-		vs = append(vs, &GC.Vector{
+		vs = append(vs, &Vector{
 			X:float64(r*math.Cos(2*math.Pi*rate)) + centerX,
 			Y:float64(r*math.Sin(2*math.Pi*rate)) + centerY,
 			Z:0})
 	}
 
-	vs = append(vs, &GC.Vector{
+	vs = append(vs, &Vector{
 		X:centerX,
 		Y:centerY,
 		Z:0})

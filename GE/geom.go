@@ -3,14 +3,13 @@ package GE
 import (
 	"fmt"
 	"math"
-	"marvin/GraphEng/GC"
 )
 
 type Point struct {
 	X,Y float64
 }
-func (p *Point) ToVec() *GC.Vector {
-	return &GC.Vector{p.X, p.Y, 0}
+func (p *Point) ToVec() *Vector {
+	return &Vector{p.X, p.Y, 0}
 }
 func (p *Point) Equals(p2 *Point) bool {
 	if p.X == p2.X && p.Y == p2.Y {

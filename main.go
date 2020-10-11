@@ -4,7 +4,6 @@ import (
 	"github.com/hajimehoshi/ebiten/ebitenutil"
 	"github.com/hajimehoshi/ebiten"
 	"marvin/GraphEng/GE"
-	"marvin/GraphEng/GC"
 	"marvin/GraphEng/res"
 	"fmt"
 	"time"
@@ -251,7 +250,7 @@ func main() {
 	
 	//----------------------------------------------------------------------------------------------------------------------------------------------
 	//Add a light source to the world
-	light := GE.GetLightSource(&GE.Point{14,14}, &GC.Vector{-1,-1,0}, 90, 0.01, 255, 0.01)
+	light := GE.GetLightSource(&GE.Point{14,14}, &GE.Vector{-1,-1,0}, 90, 0.01, 255, 0.01)
 	light.SetRadius(20)
 	
 	wrld.Lights = append(wrld.Lights, light)

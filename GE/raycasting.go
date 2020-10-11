@@ -1,30 +1,30 @@
 package GE
 
 import (
-	//"fmt"
 	"math"
 )
 
 func (l *Light) ApplyRaycasting(collMat *Matrix, factor float64) {
-	rad := l.GetRadius()
-	CollMat := collMat.SubMatrix(int(l.Location.X-rad), int(l.Location.Y-rad), int(l.Location.X+rad), int(l.Location.Y+rad))
-	length := rad*2+1
-	l.LightMat = GetMatrix(int(length), int(length), 0)
-	dira := l.direction.GetRotationZ()
-	pnts := getPointsForBox(int(length))
-	mina := dira-l.angle/2
-	maxa := dira+l.angle/2
-	
-	
-	for _,op := range(pnts) {
-		pnt := &Vector{rad, rad, 0}
-		a := op.Sub(pnt).GetRotationZ(); aI1 := a-360; aI2 := a+360
+	if !l.static || l.LightMat == nil {
+		rad := l.GetRadius()
+		CollMat := collMat.SubMatrix(int(l.Location.X-rad), int(l.Location.Y-rad), int(l.Location.X+rad), int(l.Location.Y+rad))
+		length := rad*2+1
+		l.LightMat = GetMatrix(int(length), int(length), 0)
+		dira := l.direction.GetRotationZ()
+		pnts := getPointsForBox(int(length))
+		mina := dira-l.angle/2
+		maxa := dira+l.angle/2
 		
-		if isInBounds(a, mina, maxa) || isInBounds(aI1, mina, maxa) || isInBounds(aI2, mina, maxa) {
-			dx := float64(int(op.X-pnt.X))
-			dy := float64(int(op.Y-pnt.Y))
+		for _,op := range(pnts) {
+			pnt := &Vector{rad, rad, 0}
+			a := op.Sub(pnt).GetRotationZ(); aI1 := a-360; aI2 := a+360
 			
-			l.iterateOverLine(dx,dy,rad,factor,pnt,CollMat)
+			if isInBounds(a, mina, maxa) || isInBounds(aI1, mina, maxa) || isInBounds(aI2, mina, maxa) {
+				dx := float64(int(op.X-pnt.X))
+				dy := float64(int(op.Y-pnt.Y))
+				
+				l.iterateOverLine(dx,dy,rad,factor,pnt,CollMat)
+			}
 		}
 	}
 }

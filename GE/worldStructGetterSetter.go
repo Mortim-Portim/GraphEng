@@ -1,7 +1,7 @@
 package GE
 
 import (
-	
+	//"fmt"
 )
 
 //sets the Middle of the View
@@ -10,8 +10,15 @@ func (p *WorldStructure) SetMiddle(xP, yP int) {
 	p.middleY = yP
 	x,y := p.middleX-(p.xTiles-1)/2, p.middleY-(p.yTiles-1)/2
 	p.TileMat.SetFocus(x,y, x+p.xTiles, y+p.yTiles)
-	p.LightIdxMat.SetFocus(x,y, x+p.xTiles, y+p.yTiles)
+	p.LIdxMat.SetFocus(x,y, x+p.xTiles, y+p.yTiles)
+	
+	//fmt.Println(x,":",y," : ", x+p.xTiles, ":", y+p.yTiles)
+	//fmt.Println("Tiles:\n", p.TileMat.Print())
+	//fmt.Println("LIdx:\n", p.LIdxMat.Print())
+	p.ObjMat.ResetFocus()
+	//fmt.Println("ObjMat:\n", p.ObjMat.Print())
 	p.ObjMat.SetFocus(x,y, x+p.xTiles, y+p.yTiles)
+	//fmt.Println("ObjMat:\n", p.ObjMat.Print())
 }
 //moves the view by dx and dy
 func (p *WorldStructure) Move(dx,dy int) {
@@ -34,6 +41,8 @@ func (p *WorldStructure) SetDisplayWH(x,y int) {
 	p.drawer = &ImageObj{}
 	p.drawer.W = p.tileS
 	p.drawer.H = p.tileS
+	p.CurrentLightMat = GetMatrix(x,y, 0)
+	p.SetMiddle(p.Middle())
 }
 //returns the middle of the view
 func (p *WorldStructure) Middle() (int, int) {

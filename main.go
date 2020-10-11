@@ -170,10 +170,12 @@ func (g *TestGame) Update(screen *ebiten.Image) error {
 			g.wrld.Move(0,1)
 		}
 	}
+	
+	
+	
 	x,y := g.wrld.Middle()
 	g.wrld.Objects[0].SetToXY(float64(x),float64(y))
 	g.wrld.UpdateObjMat()
-	
 	//g.wrld.Lights[0].ApplyRaycasting(g.wrld.LightMat, g.wrld.ObjMat, 1)
 	
 	g.wrld.DrawBack(screen)
@@ -250,21 +252,26 @@ func main() {
 	
 	//----------------------------------------------------------------------------------------------------------------------------------------------
 	//Add a light source to the world
-	light := GE.GetLightSource(&GE.Point{14,14}, &GE.Vector{-1,-1,0}, 90, 0.01, 255, 0.01)
+	light := GE.GetLightSource(&GE.Point{14,14}, &GE.Vector{-1,-1,0}, 90, 0.01, 255, 0.01, true)
 	light.SetRadius(20)
 	
 	wrld.Lights = append(wrld.Lights, light)
-	wrld.UpdateLightMat(0)
+	wrld.UpdateLIdxMat()
 	
-	startCalc := time.Now()
-	light.ApplyRaycasting(wrld.ObjMat, 1)
-	endCalc := time.Now()
-	fmt.Println("Calculating Raycasting took: ", endCalc.Sub(startCalc))
-	fmt.Println(light.LightMat.Print())
-	
-	//----------------------------------------------------------------------------------------------------------------------------------------------
 	//Sets the start point
 	wrld.SetMiddle(14,14)
+	
+	fmt.Println(wrld.LIdxMat.Print())
+	wrld.LightLevel = 100
+		
+	startCalc := time.Now()
+	wrld.UpdateLights()
+	wrld.DrawLights()
+	endCalc := time.Now()
+	fmt.Println("Calculating Raycasting took: ", endCalc.Sub(startCalc))
+	fmt.Println(wrld.CurrentLightMat.Print())
+	
+	//----------------------------------------------------------------------------------------------------------------------------------------------
 	//Saves the compressed world
 	startComp := time.Now()
 	errS := wrld.Save("./res/wrld.txt")

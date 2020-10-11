@@ -2,6 +2,7 @@ package GE
 
 import (
 	"github.com/hajimehoshi/ebiten"
+	//"fmt"
 )
 
 /**
@@ -38,9 +39,11 @@ func (o *StructureObj) SetToXY(x,y float64) {
 
 //Draws the objects hitbox if it can collide
 func (o *StructureObj) DrawCollisionMatrix(mat *Matrix, value int16) {
+	//fmt.Println(o.HitBox.Print())
 	if o.Collides {
-		mat.Fill(int(o.HitBox.Min().X), int(o.HitBox.Min().Y), int(o.HitBox.Max().X), int(o.HitBox.Max().Y), value)
+		mat.FillAbs(int(o.HitBox.Min().X), int(o.HitBox.Min().Y), int(o.HitBox.Max().X), int(o.HitBox.Max().Y), value)
 	}
+	//fmt.Println(mat.Print())
 }
 
 //Draws the StructureObj

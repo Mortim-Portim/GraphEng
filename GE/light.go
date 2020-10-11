@@ -12,6 +12,7 @@ type Light struct {
 	direction *Vector
 	angle, accuracy float64
 	LightMat *Matrix
+	static bool
 	
 	//0-255
 	maximumIntesity int16
@@ -21,14 +22,20 @@ type Light struct {
 	radiusNeedsUpdate bool
 }
 
-func GetLightSource(loc *Point, direction *Vector, angle, accuracy float64, maxI int16, extRate float64) (l *Light) {
-	l = &Light{Location:loc, maximumIntesity:maxI, extinctionRate:extRate, direction:direction, angle:angle, accuracy:accuracy}
+func GetLightSource(loc *Point, direction *Vector, angle, accuracy float64, maxI int16, extRate float64, static bool) (l *Light) {
+	l = &Light{Location:loc, maximumIntesity:maxI, extinctionRate:extRate, direction:direction, angle:angle, accuracy:accuracy, static:static}
 	l.CalcRadius()
 	return
 }
 func (l *Light) Move(dx, dy float64) {
 	l.Location.X += dx
 	l.Location.Y += dy
+}
+func (l *Light) GetAtAbs(x,y int) int16 {
+	rad := l.GetRadius()
+	xp := x-int(l.Location.X+rad)
+	yp := y-int(l.Location.Y+rad)
+	return l.LightMat.GetAbs(xp,yp)
 }
 func (l *Light) applyOnMatrix(mat *Matrix, factor float64) {
 	rad := l.GetRadius()

@@ -148,6 +148,14 @@ func (m *Matrix) Fill(x1,y1,x2,y2 int, v int16) {
 		}
 	}
 }
+//Fills a Rectangle with a value
+func (m *Matrix) FillAbs(x1,y1,x2,y2 int, v int16) {
+	for x := x1; x <= x2; x++ {
+		for y := y1; y <= y2; y++ {
+			m.SetAbs(x,y,v)
+		}
+	}
+}
 //Adds a value to a Rectangle
 func (m *Matrix) AddToRect(x1,y1,x2,y2 int, v int16) {
 	for x := x1; x <= x2; x++ {
@@ -210,7 +218,7 @@ func (m *Matrix) SubMatrix(x1,y1,x2,y2 int) (newM *Matrix) {
 func (m *Matrix) Print() string {
 	out := ""
 	for y := 0; y < m.H(); y++ {
-		for x := 0; x < m.H(); x++ {
+		for x := 0; x < m.W(); x++ {
 			valStr := fmt.Sprintf("%v", m.Get(x,y))
 			for i := 0; i < 4-len(valStr); i++ {
 				out += " "

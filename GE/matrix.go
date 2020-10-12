@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io/ioutil"
 	"math/big"
+	cmp "marvin/GraphEng/Compression"
 )
 
 /**
@@ -234,31 +235,31 @@ func (m *Matrix) Print() string {
 }
 //Converts a Matrix to a []byte slice
 func (m *Matrix) ToBytes() []byte {
-	b := Int16sToBytes(m.list)
-	b =	AppendInt16ToBytes(int16(m.focus.Min().X), b)
-	b = AppendInt16ToBytes(int16(m.focus.Min().Y), b)
-	b = AppendInt16ToBytes(int16(m.focus.Max().X), b)
-	b = AppendInt16ToBytes(int16(m.focus.Max().Y), b)
+	b := cmp.Int16sToBytes(m.list)
+	b =	cmp.AppendInt16ToBytes(int16(m.focus.Min().X), b)
+	b = cmp.AppendInt16ToBytes(int16(m.focus.Min().Y), b)
+	b = cmp.AppendInt16ToBytes(int16(m.focus.Max().X), b)
+	b = cmp.AppendInt16ToBytes(int16(m.focus.Max().Y), b)
 	
-	b = append(b, BigIntToBytes(m.x)...)
-	b = append(b, BigIntToBytes(m.y)...)
+	b = append(b, cmp.BigIntToBytes(m.x)...)
+	b = append(b, cmp.BigIntToBytes(m.y)...)
 	return b
 }
 //Loads a Matrix from a []byte slice
 func (m *Matrix) FromBytes(bs []byte) {
-	is := BytesToInt16s(bs[:len(bs)-16])
+	is := cmp.BytesToInt16s(bs[:len(bs)-16])
 	m.list = is[:len(is)-4]
-	m.x = BytesToBigInt(bs[len(bs)-16:len(bs)-8])
-	m.y = BytesToBigInt(bs[len(bs)-8:len(bs)])
+	m.x = cmp.BytesToBigInt(bs[len(bs)-16:len(bs)-8])
+	m.y = cmp.BytesToBigInt(bs[len(bs)-8:len(bs)])
 	m.focus = GetRectangle(float64(is[len(is)-4]), float64(is[len(is)-3]), float64(is[len(is)-2]), float64(is[len(is)-1]))
 }
 //Compresses a Matrix to a []byte slice
 func (m *Matrix) Compress() ([]byte, error) {
-	return CompressBytes(m.ToBytes())
+	return cmp.CompressBytes(m.ToBytes())
 }
 //Decompresses a []byte slice, that was compressed by m.Compress()
 func (m *Matrix) Decompress(bs []byte) error {
-	content, err := DecompressBytes(bs)
+	content, err := cmp.DecompressBytes(bs)
 	if err != nil {
 		return err
 	}

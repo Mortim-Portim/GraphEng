@@ -1,4 +1,4 @@
-package GE
+package Compression
 
 import (
 	"bytes"

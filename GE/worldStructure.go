@@ -1,6 +1,7 @@
 package GE
 
 import (
+	cmp "marvin/GraphEng/Compression"
 	"github.com/hajimehoshi/ebiten"
 	"math"
 )
@@ -171,18 +172,18 @@ func (p *WorldStructure) Collides(x,y int) bool {
 func (p *WorldStructure) ObjectsToBytes() (bs []byte) {
 	bss := make([][]byte, 0)
 	for _,obj := range(p.Objects) {
-		bss = append(bss, CompressAll([][]byte{[]byte(obj.Name)}, Float64ToBytes(obj.HitBox.Min().X), Float64ToBytes(obj.HitBox.Min().Y)))
+		bss = append(bss, cmp.CompressAll([][]byte{[]byte(obj.Name)}, cmp.Float64ToBytes(obj.HitBox.Min().X), cmp.Float64ToBytes(obj.HitBox.Min().Y)))
 	}
-	bs = CompressAll(bss)
+	bs = cmp.CompressAll(bss)
 	return
 }
 func (p *WorldStructure) BytesToObjects(bsss []byte) {
-	bss := DecompressAll(bsss, []int{})
+	bss := cmp.DecompressAll(bsss, []int{})
 	p.Objects = make([]*StructureObj, 0)
 	for _,bs := range(bss) {
-		b := DecompressAll(bs, []int{8,8})
-		x := BytesToFloat64(b[0])
-		y := BytesToFloat64(b[1])
+		b := cmp.DecompressAll(bs, []int{8,8})
+		x := cmp.BytesToFloat64(b[0])
+		y := cmp.BytesToFloat64(b[1])
 		name := string(b[2])
 		obj := GetStructureObj(p.GetNamedStructure(name), x, y)
 		p.Objects = append(p.Objects, obj)
@@ -193,11 +194,11 @@ func (p *WorldStructure) LightsToBytes() (bs []byte) {
 	for _,l := range(p.Lights) {
 		bss = append(bss, l.ToBytes())
 	}
-	bs = CompressAll(bss)
+	bs = cmp.CompressAll(bss)
 	return
 }
 func (p *WorldStructure) BytesToLights(bs []byte) {
-	bss := DecompressAll(bs, []int{})
+	bss := cmp.DecompressAll(bs, []int{})
 	p.Lights = make([]*Light, len(bss))
 	for i,b := range(bss) {
 		p.Lights[i] = GetLightSourceFromBytes(b)

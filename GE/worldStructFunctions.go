@@ -2,6 +2,7 @@ package GE
 
 import (
 	"io/ioutil"
+	cmp "marvin/GraphEng/Compression"
 )
 
 //Converts the World into a []byte slice
@@ -12,16 +13,16 @@ func (p *WorldStructure) ToBytes() ([]byte, error) {
 	lghBs := p.LightsToBytes()
 	changing := append([][]byte{tilBs}, objBs,lghBs)
 	
-	mdxBs := Int64ToBytes(int64(p.middleX))
-	mdyBs := Int64ToBytes(int64(p.middleY))
-	minBs := Int16ToBytes(p.minLight)
-	maxBs := Int16ToBytes(p.maxLight)
-	delBs := Float64ToBytes(p.deltaB)
-	return CompressAll(changing, mdxBs, mdyBs, minBs, maxBs, delBs), nil
+	mdxBs := cmp.Int64ToBytes(int64(p.middleX))
+	mdyBs := cmp.Int64ToBytes(int64(p.middleY))
+	minBs := cmp.Int16ToBytes(p.minLight)
+	maxBs := cmp.Int16ToBytes(p.maxLight)
+	delBs := cmp.Float64ToBytes(p.deltaB)
+	return cmp.CompressAll(changing, mdxBs, mdyBs, minBs, maxBs, delBs), nil
 }
 //Converts a []byte slice into a WorldStructure
 func GetWorldStructureFromBytes(X,Y,W,H float64, data []byte, tile_path, struct_path string)  (*WorldStructure, error) {
-	bs := DecompressAll(data, []int{8,8,2,2,8})
+	bs := cmp.DecompressAll(data, []int{8,8,2,2,8})
 	tilMat := GetMatrix(0,0,0)
 	err1 := tilMat.Decompress(bs[5])
 	if err1 != nil {return nil, err1}
@@ -35,8 +36,8 @@ func GetWorldStructureFromBytes(X,Y,W,H float64, data []byte, tile_path, struct_
 	p.BytesToLights(bs[7])
 	p.UpdateLIdxMat()
 	
-	p.SetMiddle(int(BytesToInt64(bs[0])), int(BytesToInt64(bs[1])))
-	p.SetLightStats(BytesToInt16(bs[2]), BytesToInt16(bs[3]), BytesToFloat64(bs[4]))
+	p.SetMiddle(int(cmp.BytesToInt64(bs[0])), int(cmp.BytesToInt64(bs[1])))
+	p.SetLightStats(cmp.BytesToInt16(bs[2]), cmp.BytesToInt16(bs[3]), cmp.BytesToFloat64(bs[4]))
 	return p, nil
 }
 

@@ -3,6 +3,7 @@ package GE
 import (
 	"math"
 	"fmt"
+	cmp "marvin/GraphEng/Compression"
 )
 func GetVectorFromRot(a float64) (v *Vector) {
 	v = &Vector{}
@@ -146,12 +147,12 @@ func (v *Vector) GetInfos() string {
 }
 
 func (v *Vector) ToBytes() []byte {
-	return append(append(Float64ToBytes(v.X), Float64ToBytes(v.Y)...), Float64ToBytes(v.Z)...)
+	return append(append(cmp.Float64ToBytes(v.X), cmp.Float64ToBytes(v.Y)...), cmp.Float64ToBytes(v.Z)...)
 }
 func VectorFromBytes(bs []byte) (v *Vector) {
 	v = &Vector{}
-	v.X = BytesToFloat64(bs[:8])
-	v.Y = BytesToFloat64(bs[8:16])
-	v.Z = BytesToFloat64(bs[16:])
+	v.X = cmp.BytesToFloat64(bs[:8])
+	v.Y = cmp.BytesToFloat64(bs[8:16])
+	v.Z = cmp.BytesToFloat64(bs[16:])
 	return
 }

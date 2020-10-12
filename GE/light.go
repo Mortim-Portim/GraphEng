@@ -2,6 +2,7 @@ package GE
 
 import (
 	"math"
+	cmp "marvin/GraphEng/Compression"
 )
 const LIGHT_DIS_FACTOR = 20
 const LIGHT_EXTINCTION_LEVEL = 10
@@ -32,23 +33,23 @@ func (l *Light) ToBytes() (b []byte) {
 	bs := make([][]byte, 0)
 	bs = append(bs, l.Location.ToBytes())
 	bs = append(bs, l.direction.ToBytes())
-	bs = append(bs, Float64ToBytes(l.angle))
-	bs = append(bs, Float64ToBytes(l.accuracy))
-	bs = append(bs, Float64ToBytes(l.extinctionRate))
-	bs = append(bs, Int16ToBytes(l.maximumIntesity))
-	bs = append(bs, []byte{BoolToByte(l.static)})
-	b = CompressAll([][]byte{}, bs...)
+	bs = append(bs, cmp.Float64ToBytes(l.angle))
+	bs = append(bs, cmp.Float64ToBytes(l.accuracy))
+	bs = append(bs, cmp.Float64ToBytes(l.extinctionRate))
+	bs = append(bs, cmp.Int16ToBytes(l.maximumIntesity))
+	bs = append(bs, []byte{cmp.BoolToByte(l.static)})
+	b = cmp.CompressAll([][]byte{}, bs...)
 	return
 }
 func GetLightSourceFromBytes(b []byte) (l *Light) {
-	bs := DecompressAll(b, []int{16,24,8,8,8,2,1})
+	bs := cmp.DecompressAll(b, []int{16,24,8,8,8,2,1})
 	loc := PointFromBytes(bs[0])
 	dir := VectorFromBytes(bs[1])
-	ang := BytesToFloat64(bs[2])
-	acc := BytesToFloat64(bs[3])
-	ext := BytesToFloat64(bs[4])
-	maI := BytesToInt16(bs[5])
-	stt := ByteToBool(bs[6][0])
+	ang := cmp.BytesToFloat64(bs[2])
+	acc := cmp.BytesToFloat64(bs[3])
+	ext := cmp.BytesToFloat64(bs[4])
+	maI := cmp.BytesToInt16(bs[5])
+	stt := cmp.ByteToBool(bs[6][0])
 	l = GetLightSource(loc, dir, ang, acc, maI, ext, stt)
 	return
 }

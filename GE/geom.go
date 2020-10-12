@@ -3,6 +3,7 @@ package GE
 import (
 	"fmt"
 	"math"
+	cmp "marvin/GraphEng/Compression"
 )
 
 type Point struct {
@@ -33,12 +34,12 @@ func (p *Point) InBounds(r *Rectangle) bool {
 	return false
 }
 func (p *Point) ToBytes() []byte {
-	return append(Float64ToBytes(p.X), Float64ToBytes(p.Y)...)
+	return append(cmp.Float64ToBytes(p.X), cmp.Float64ToBytes(p.Y)...)
 }
 func PointFromBytes(bs []byte) (p *Point) {
 	p = &Point{}
-	p.X = BytesToFloat64(bs[:8])
-	p.Y = BytesToFloat64(bs[8:])
+	p.X = cmp.BytesToFloat64(bs[:8])
+	p.Y = cmp.BytesToFloat64(bs[8:])
 	return
 }
 

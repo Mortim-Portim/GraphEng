@@ -7,6 +7,16 @@ import (
 	"encoding/binary"
 	"math/big"
 )
+func BoolToByte(b bool) byte {
+	if b {
+		return byte(0)
+	}else{
+		return byte(1)
+	}
+}
+func ByteToBool(b byte) (bool) {
+	return b == 0
+}
 func Float64ToBytes(f float64) []byte {
 	buf := new(bytes.Buffer)
 	err := binary.Write(buf, binary.LittleEndian, f)

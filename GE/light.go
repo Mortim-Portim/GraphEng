@@ -27,6 +27,35 @@ func GetLightSource(loc *Point, direction *Vector, angle, accuracy float64, maxI
 	l.CalcRadius()
 	return
 }
+func (l *Light) ToBytes() (bs []byte) {
+	bs = make([]byte, 0)
+	//16
+	bs = append(bs, l.Location.ToBytes()...)
+	//24
+	bs = append(bs, l.direction.ToBytes()...)
+	//8
+	bs = append(bs, Float64ToBytes(l.angle)...)
+	//8
+	bs = append(bs, Float64ToBytes(l.accuracy)...)
+	//8
+	bs = append(bs, Float64ToBytes(l.extinctionRate)...)
+	//2
+	bs = append(bs, Int16ToBytes(l.maximumIntesity)...)
+	//1
+	bs = append(bs, BoolToByte(l.static))
+	return
+}
+func GetLightSourceFromBytes(bs []byte) (l *Light) {
+	loc := PointFromBytes(bs[0:16])
+	dir := VectorFromBytes(bs[16:40])
+	ang := BytesToFloat64(bs[40:48])
+	acc := BytesToFloat64(bs[48:56])
+	ext := BytesToFloat64(bs[56:64])
+	maI := BytesToInt16(bs[64:66])
+	stt := ByteToBool(bs[len(bs)-1])
+	l = GetLightSource(loc, dir, ang, acc, maI, ext, stt)
+	return
+}
 func (l *Light) Move(dx, dy float64) {
 	l.Location.X += dx
 	l.Location.Y += dy

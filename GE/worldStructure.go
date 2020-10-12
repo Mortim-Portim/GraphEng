@@ -17,10 +17,15 @@ func GetWorldStructure(X, Y, W, H float64, WTiles, HTiles int) (p *WorldStructur
 
 /**
 Saved:
-Objects
-Lights
-TileMat
 
+Objects
+
+Lights
+
+TileMat
+middleX, middleY
+minLight, maxLight
+deltaB
 **/
 type WorldStructure struct {
 	//Tiles and Structures should be the same on all devices

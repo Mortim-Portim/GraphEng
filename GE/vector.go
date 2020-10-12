@@ -144,3 +144,14 @@ func (v *Vector) Copy() *Vector {
 func (v *Vector) GetInfos() string {
 	return fmt.Sprintf("[%0.3f, %0.3f, %0.3f]", v.X, v.Y, v.Z)
 }
+
+func (v *Vector) ToBytes() []byte {
+	return append(append(Float64ToBytes(v.X), Float64ToBytes(v.Y)...), Float64ToBytes(v.Z)...)
+}
+func VectorFromBytes(bs []byte) (v *Vector) {
+	v = &Vector{}
+	v.X = BytesToFloat64(bs[:8])
+	v.Y = BytesToFloat64(bs[8:16])
+	v.Z = BytesToFloat64(bs[16:])
+	return
+}

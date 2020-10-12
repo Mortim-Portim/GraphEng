@@ -31,7 +31,7 @@ func (l *Light) Move(dx, dy float64) {
 	l.Location.X += dx
 	l.Location.Y += dy
 }
-func (l *Light) GetAtAbs(x,y int) int16 {
+func (l *Light) GetAtAbs(x,y int) (int16, error) {
 	rad := l.GetRadius()
 	xp := x-int(l.Location.X-math.Ceil(rad))
 	yp := y-int(l.Location.Y-math.Ceil(rad))

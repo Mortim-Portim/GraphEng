@@ -22,7 +22,6 @@ Lights
 TileMat
 
 **/
-const NON_COLLIDING_IDX = 0
 type WorldStructure struct {
 	//Tiles and Structures should be the same on all devices
 	Tiles  			[]*Tile
@@ -60,7 +59,7 @@ func (p *WorldStructure) DrawBack(screen *ebiten.Image) {
 			tile_idx,_ := p.TileMat.Get(x, y)
 			p.drawer.X, p.drawer.Y = float64(x)*p.tileS + p.xStart, float64(y)*p.tileS + p.yStart
 			if int(tile_idx) >= 0 && int(tile_idx) < len(p.Tiles) {
-				lv, err := p.CurrentLightMat.Get(x, y)
+				lv, _ := p.CurrentLightMat.Get(x, y)
 				p.Tiles[tile_idx].Draw(screen, p.drawer, p.frame, lv)
 			}
 		}
@@ -70,7 +69,7 @@ func (p *WorldStructure) DrawBack(screen *ebiten.Image) {
 		for y := 0; y < p.ObjMat.H(); y++ {
 			mvi,err := p.ObjMat.Get(x, y)
 			idx := int(math.Abs(float64(mvi)))
-			if idx != NON_COLLIDING_IDX && err == nil {
+			if idx != 0 && err == nil {
 				idx -= 1
 				obj := p.Objects[idx]
 				if obj.Background && !containsI(drawnObjs, int(idx)){
@@ -88,7 +87,7 @@ func (p *WorldStructure) DrawFront(screen *ebiten.Image) {
 		for y := 0; y < p.ObjMat.H(); y++ {
 			mvi,err := p.ObjMat.Get(x, y)
 			idx := int(math.Abs(float64(mvi)))
-			if idx != NON_COLLIDING_IDX && err == nil {
+			if idx != 0 && err == nil {
 				idx -= 1
 				obj := p.Objects[idx]
 				if !obj.Background && !containsI(drawnObjs, int(idx)){
@@ -136,15 +135,15 @@ func (p *WorldStructure) DrawLights(update bool) {
 func (p *WorldStructure) GetLightValueForPoint(x,y int, ls []*Light, standard int16) (v int16) {
 	v = standard
 	for _,l := range(ls) {
-		lv := l.GetAtAbs(x,y)
-		if lv >= 0 {
+		lv,err := l.GetAtAbs(x,y)
+		if err == nil {
 			v += lv
 		}
 	}
 	return
 }
 func (p *WorldStructure) UpdateObjMat() {
-	p.ObjMat = GetMatrix(p.TileMat.WAbs(),p.TileMat.HAbs(),NON_COLLIDING_IDX)
+	p.ObjMat = GetMatrix(p.TileMat.WAbs(),p.TileMat.HAbs(),0)
 	for i,obj := range(p.Objects) {
 		obj.DrawCollisionMatrix(p.ObjMat, int16(i+1))
 	}
@@ -152,7 +151,7 @@ func (p *WorldStructure) UpdateObjMat() {
 }
 func (p *WorldStructure) Collides(x,y int) bool {
 	v, err := p.ObjMat.Get(x,y)
-	if v == NON_COLLIDING_IDX && err == nil {
+	if v <= 0 && err == nil {
 		return false
 	}
 	return true

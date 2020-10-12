@@ -47,12 +47,13 @@ func (l *Light) iterateOverLine(dx, dy, rad, radReal, factor float64, pnt *Vecto
 	colliding := false
 	for pnt.X >= 0 && pnt.Y >= 0 && pnt.X <= 2*rad+1 && pnt.Y <= 2*rad+1 {
 		rx, ry := int(math.Round(pnt.X)), int(math.Round(pnt.Y))
-		if val := CollMat.Get(rx,ry); val != NON_COLLIDING_IDX && val > 0 {
+		if val,err := CollMat.Get(rx,ry); val > 0 || err != nil {
 			colliding = true
 		}else if colliding {
 			break
 		}
-		if l.LightMat.Get(rx,ry) == 0 {
+		lv,_ := l.LightMat.Get(rx,ry)
+		if lv == 0 {
 			val := int16(l.getValueAtXYdif(int(float64(rx)-rad),int(float64(ry)-rad))*factor)
 			l.LightMat.Set(rx,ry, val)
 		}

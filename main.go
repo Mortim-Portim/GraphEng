@@ -1,12 +1,15 @@
 package main
 
 import (
-	"github.com/hajimehoshi/ebiten/ebitenutil"
 	"github.com/hajimehoshi/ebiten"
 	"marvin/GraphEng/GE"
 	"marvin/GraphEng/res"
+	
 	"fmt"
 	"time"
+	"github.com/hajimehoshi/ebiten/ebitenutil"
+	
+	//"image/color"
 )
 const (
 	screenWidth  = 1920
@@ -42,7 +45,7 @@ func StartGame(g ebiten.Game) {
 // | |__| \__ \  __/ |     _| |_| | | | ||  __/ |  | || (_| | (_|  __/ 
 //  \____/|___/\___|_|    |_____|_| |_|\__\___|_|  |_| \__,_|\___\___|
 
-import "image/color"
+
 //TestGame implements ebiten.Game, USE FOR TESTING ONLY
 type TestGame struct {
 	Tbv *GE.TabView
@@ -248,17 +251,17 @@ func main() {
 	//----------------------------------------------------------------------------------------------------------------------------------------------
 	//Add a light source to the world
 	light1 := GE.GetLightSource(&GE.Point{12,8}, &GE.Vector{0,-1,0}, 360, 0.01, 400, 0.01, false)
-	/**
-	light2 := GE.GetLightSource(&GE.Point{8,6}, &GE.Vector{0,-1,0}, 360, 0.01, 400, 0.01, false)
-	light3 := GE.GetLightSource(&GE.Point{2,7}, &GE.Vector{0,-1,0}, 360, 0.01, 400, 0.01, false)
-	light4 := GE.GetLightSource(&GE.Point{20,9}, &GE.Vector{0,-1,0}, 360, 0.01, 400, 0.01, false)
-	light5 := GE.GetLightSource(&GE.Point{4,2}, &GE.Vector{0,-1,0}, 360, 0.01, 400, 0.01, false)
-	light6 := GE.GetLightSource(&GE.Point{17,4}, &GE.Vector{0,-1,0}, 360, 0.01, 400, 0.01, false)
-	light7 := GE.GetLightSource(&GE.Point{8,16}, &GE.Vector{0,-1,0}, 360, 0.01, 400, 0.01, false)
-	light8 := GE.GetLightSource(&GE.Point{21,10}, &GE.Vector{0,-1,0}, 360, 0.01, 400, 0.01, false)
-	light9 := GE.GetLightSource(&GE.Point{20,32}, &GE.Vector{0,-1,0}, 360, 0.01, 400, 0.01, false)
-	light10 := GE.GetLightSource(&GE.Point{23,16}, &GE.Vector{0,-1,0}, 360, 0.01, 400, 0.01, false)
-	**/
+	
+//	light2 := GE.GetLightSource(&GE.Point{8,6}, &GE.Vector{0,-1,0}, 360, 0.01, 400, 0.01, false)
+//	light3 := GE.GetLightSource(&GE.Point{2,7}, &GE.Vector{0,-1,0}, 360, 0.01, 400, 0.01, false)
+//	light4 := GE.GetLightSource(&GE.Point{20,9}, &GE.Vector{0,-1,0}, 360, 0.01, 400, 0.01, false)
+//	light5 := GE.GetLightSource(&GE.Point{4,2}, &GE.Vector{0,-1,0}, 360, 0.01, 400, 0.01, false)
+//	light6 := GE.GetLightSource(&GE.Point{17,4}, &GE.Vector{0,-1,0}, 360, 0.01, 400, 0.01, false)
+//	light7 := GE.GetLightSource(&GE.Point{8,16}, &GE.Vector{0,-1,0}, 360, 0.01, 400, 0.01, false)
+//	light8 := GE.GetLightSource(&GE.Point{21,10}, &GE.Vector{0,-1,0}, 360, 0.01, 400, 0.01, false)
+//	light9 := GE.GetLightSource(&GE.Point{20,32}, &GE.Vector{0,-1,0}, 360, 0.01, 400, 0.01, false)
+//	light10 := GE.GetLightSource(&GE.Point{23,16}, &GE.Vector{0,-1,0}, 360, 0.01, 400, 0.01, false)
+	
 	
 	wrld.Lights = append(wrld.Lights, light1)//, light2, light3, light4, light5, light6, light7, light8, light9, light10)
 	wrld.UpdateLIdxMat()

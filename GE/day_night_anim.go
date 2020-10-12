@@ -3,7 +3,6 @@ package GE
 import (
 	"github.com/hajimehoshi/ebiten"
 	"image"
-	"fmt"
 )
 
 type DayNightAnim struct {
@@ -30,7 +29,6 @@ func (a *DayNightAnim) Update(frame int) {
 		a.DayNightImg.SetNight(a.spriteSheet.SubImage(image.Rect(a.spriteWidth*a.current, a.spriteHeight/2, a.spriteWidth*(a.current+1), a.spriteHeight)).(*ebiten.Image))
 		
 	}else if a.UpdatePeriod == 0 && (a.DayNightImg.day.Img == nil || a.DayNightImg.night.Img == nil) {
-		fmt.Println("Updated")
 		a.DayNightImg.SetDay(a.spriteSheet.SubImage(image.Rect(a.spriteWidth*a.current, 0, a.spriteWidth*(a.current+1), a.spriteHeight/2)).(*ebiten.Image))
 		a.DayNightImg.SetNight(a.spriteSheet.SubImage(image.Rect(a.spriteWidth*a.current, a.spriteHeight/2, a.spriteWidth*(a.current+1), a.spriteHeight)).(*ebiten.Image))
 	}

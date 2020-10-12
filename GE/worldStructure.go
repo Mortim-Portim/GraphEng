@@ -35,7 +35,7 @@ type WorldStructure struct {
 	
 	//The standard light level
 	lightLevel, minLight, maxLight int16
-	deltaB float64
+	deltaB, currentD float64
 	//TileMat stores indexes of tiles, LightMat stores the lightlevel, ObjMat stores indexes of Objects
 	TileMat, LIdxMat, CurrentLightMat, ObjMat *Matrix
 	
@@ -57,11 +57,13 @@ type WorldStructure struct {
 func (p *WorldStructure) DrawBack(screen *ebiten.Image) {
 	for x := 0; x < p.TileMat.W(); x++ {
 		for y := 0; y < p.TileMat.H(); y++ {
-			tile_idx,_ := p.TileMat.Get(x, y)
-			p.drawer.X, p.drawer.Y = float64(x)*p.tileS + p.xStart, float64(y)*p.tileS + p.yStart
-			if int(tile_idx) >= 0 && int(tile_idx) < len(p.Tiles) {
-				lv, _ := p.CurrentLightMat.Get(x, y)
-				p.Tiles[tile_idx].Draw(screen, p.drawer, p.frame, lv)
+			tile_idx,err := p.TileMat.Get(x, y)
+			if err == nil {
+				p.drawer.X, p.drawer.Y = float64(x)*p.tileS + p.xStart, float64(y)*p.tileS + p.yStart
+				if int(tile_idx) >= 0 && int(tile_idx) < len(p.Tiles) {
+					lv, _ := p.CurrentLightMat.Get(x, y)
+					p.Tiles[tile_idx].Draw(screen, p.drawer, p.frame, lv)
+				}
 			}
 		}
 	}

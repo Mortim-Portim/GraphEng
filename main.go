@@ -176,6 +176,7 @@ func (g *TestGame) Update(screen *ebiten.Image) error {
 	x,y := g.wrld.Middle()
 	g.wrld.Objects[0].SetToXY(float64(x),float64(y))
 	g.wrld.UpdateObjMat()
+	
 	g.wrld.UpdateLightLevel(1)
 	g.wrld.DrawLights(false)
 	
@@ -241,15 +242,15 @@ func main() {
 		fmt.Println(o.Name)
 	}
 	wrld.Tiles = tiles
-	wrld.AddStruct(objs[1])
-	wrld.AddStruct(objs[0])
-	wrld.AddStruct(objs[2])
-	house := GE.GetStructureObj(objs[0].Clone(), 10,10)
-	tree := GE.GetStructureObj(objs[2].Clone(), 6,10)
-	player := GE.GetStructureObj(objs[1].Clone(), 12,12)
+	wrld.AddStruct(objs...)
+	house := GE.GetStructureObj(wrld.GetNamedStructure("house1"), 10,10)
+	tree := GE.GetStructureObj(wrld.GetNamedStructure("tree2"), 6,10)
+	treebig := GE.GetStructureObj(wrld.GetNamedStructure("tree2big"), 14,10)
+	player := GE.GetStructureObj(wrld.GetNamedStructure("jump"), 12,12)
 	wrld.AddStructObj(player)
 	wrld.AddStructObj(house)
 	wrld.AddStructObj(tree)
+	wrld.AddStructObj(treebig)
 	wrld.UpdateObjMat()
 	
 	bs := wrld.ObjectsToBytes()
@@ -275,7 +276,7 @@ func main() {
 	wrld.UpdateLIdxMat()
 	//Sets the start point
 	wrld.SetMiddle(14,14)
-	wrld.SetLightStats(10,255, 1)
+	wrld.SetLightStats(10,255, 0.3)
 	
 	//----------------------------------------------------------------------------------------------------------------------------------------------
 	//Saves the compressed world

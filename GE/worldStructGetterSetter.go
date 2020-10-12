@@ -1,7 +1,7 @@
 package GE
 
 import (
-	//"fmt"
+	"math"
 )
 
 //sets the Middle of the View
@@ -68,18 +68,18 @@ func (p *WorldStructure) AddTile(img *Tile) {
 	p.Tiles = append(p.Tiles, img)
 }
 //Adds a StructureObj to the list of the worlds Structures
-func (p *WorldStructure) AddStruct(obj *Structure) {
+func (p *WorldStructure) AddStruct(obj ...*Structure) {
 	if p.Structures == nil {
 		p.Structures = make([]*Structure, 0)
 	}
-	p.Structures = append(p.Structures, obj)
+	p.Structures = append(p.Structures, obj...)
 }
 //Adds a StructureObj to the list of the worlds Objs
-func (p *WorldStructure) AddStructObj(obj *StructureObj) {
+func (p *WorldStructure) AddStructObj(obj ...*StructureObj) {
 	if p.Objects == nil {
 		p.Objects = make([]*StructureObj, 0)
 	}
-	p.Objects = append(p.Objects, obj)
+	p.Objects = append(p.Objects, obj...)
 }
 
 func (p *WorldStructure) SetLightLevel(newL int16) {
@@ -94,7 +94,11 @@ func (p *WorldStructure) SetLightLevel(newL int16) {
 	}
 }
 func (p *WorldStructure) UpdateLightLevel(ticks float64) {
-	p.SetLightLevel(p.GetLightLevel()+int16(p.deltaB*ticks))
+	p.currentD += p.deltaB*ticks
+	if math.Abs(p.currentD) >= 1 {
+		p.SetLightLevel(p.GetLightLevel()+int16(p.currentD))
+		p.currentD = 0
+	}
 }
 func (p *WorldStructure) GetLightLevel() int16 {
 	return p.lightLevel
@@ -105,5 +109,6 @@ func (p *WorldStructure) SetLightStats(min, max int16, lightChange float64) {
 	p.maxLight = max
 	p.lightLevel = max
 	p.deltaB = -lightChange
+	p.currentD = 0
 	p.DrawLights(true)
 }

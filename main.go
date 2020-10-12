@@ -172,20 +172,12 @@ func (g *TestGame) Update(screen *ebiten.Image) error {
 	}
 	_,dy := ebiten.Wheel()
 	g.wrld.Lights[0].SetMaximumIntesity(g.wrld.Lights[0].GetMaximumIntesity()+int16(dy*3))
-	//g.wrld.Lights[0].SetRadius(20)
-	//fmt.Println(g.wrld.Lights[0].GetMaximumIntesity(), ":", g.wrld.Lights[0].GetRadius())
 	
 	x,y := g.wrld.Middle()
-	fmt.Println(x,":",y)
 	g.wrld.Objects[0].SetToXY(float64(x),float64(y))
 	g.wrld.UpdateObjMat()
-	
-	fmt.Println(g.wrld.ObjMat.Print())
-	
-	//startCalc := time.Now()
+	g.wrld.UpdateLightLevel(1)
 	g.wrld.DrawLights(false)
-	//endCalc := time.Now()
-	//fmt.Println("Calculating Raycasting took: ", endCalc.Sub(startCalc))
 	
 	g.wrld.DrawBack(screen)
 	g.wrld.DrawFront(screen)
@@ -283,8 +275,7 @@ func main() {
 	wrld.UpdateLIdxMat()
 	//Sets the start point
 	wrld.SetMiddle(14,14)
-	wrld.LightLevel = 15
-	wrld.DrawLights(true)
+	wrld.SetLightStats(10,255, 1)
 	
 	//----------------------------------------------------------------------------------------------------------------------------------------------
 	//Saves the compressed world

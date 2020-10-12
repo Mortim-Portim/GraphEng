@@ -34,7 +34,8 @@ type WorldStructure struct {
 	Lights			[]*Light
 	
 	//The standard light level
-	LightLevel uint8
+	lightLevel, minLight, maxLight int16
+	deltaB float64
 	//TileMat stores indexes of tiles, LightMat stores the lightlevel, ObjMat stores indexes of Objects
 	TileMat, LIdxMat, CurrentLightMat, ObjMat *Matrix
 	
@@ -128,7 +129,7 @@ func (p *WorldStructure) DrawLights(update bool) {
 	pnt := p.TileMat.Focus().Min()
 	for x := 0; x < p.TileMat.W(); x++ {
 		for y := 0; y < p.TileMat.H(); y++ {
-			p.CurrentLightMat.SetAbs(x,y, p.GetLightValueForPoint(x+int(pnt.X), y+int(pnt.Y), ls, int16(p.LightLevel)))
+			p.CurrentLightMat.SetAbs(x,y, p.GetLightValueForPoint(x+int(pnt.X), y+int(pnt.Y), ls, int16(p.lightLevel)))
 		}
 	}
 }
@@ -138,6 +139,10 @@ func (p *WorldStructure) GetLightValueForPoint(x,y int, ls []*Light, standard in
 		lv,err := l.GetAtAbs(x,y)
 		if err == nil {
 			v += lv
+		}
+		if v > p.maxLight {
+			v = p.maxLight
+			return
 		}
 	}
 	return

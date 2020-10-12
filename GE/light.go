@@ -27,32 +27,28 @@ func GetLightSource(loc *Point, direction *Vector, angle, accuracy float64, maxI
 	l.CalcRadius()
 	return
 }
-func (l *Light) ToBytes() (bs []byte) {
-	bs = make([]byte, 0)
-	//16
-	bs = append(bs, l.Location.ToBytes()...)
-	//24
-	bs = append(bs, l.direction.ToBytes()...)
-	//8
-	bs = append(bs, Float64ToBytes(l.angle)...)
-	//8
-	bs = append(bs, Float64ToBytes(l.accuracy)...)
-	//8
-	bs = append(bs, Float64ToBytes(l.extinctionRate)...)
-	//2
-	bs = append(bs, Int16ToBytes(l.maximumIntesity)...)
-	//1
-	bs = append(bs, BoolToByte(l.static))
+
+func (l *Light) ToBytes() (b []byte) {
+	bs := make([][]byte, 0)
+	bs = append(bs, l.Location.ToBytes())
+	bs = append(bs, l.direction.ToBytes())
+	bs = append(bs, Float64ToBytes(l.angle))
+	bs = append(bs, Float64ToBytes(l.accuracy))
+	bs = append(bs, Float64ToBytes(l.extinctionRate))
+	bs = append(bs, Int16ToBytes(l.maximumIntesity))
+	bs = append(bs, []byte{BoolToByte(l.static)})
+	b = CompressAll([][]byte{}, bs...)
 	return
 }
-func GetLightSourceFromBytes(bs []byte) (l *Light) {
-	loc := PointFromBytes(bs[0:16])
-	dir := VectorFromBytes(bs[16:40])
-	ang := BytesToFloat64(bs[40:48])
-	acc := BytesToFloat64(bs[48:56])
-	ext := BytesToFloat64(bs[56:64])
-	maI := BytesToInt16(bs[64:66])
-	stt := ByteToBool(bs[len(bs)-1])
+func GetLightSourceFromBytes(b []byte) (l *Light) {
+	bs := DecompressAll(b, []int{16,24,8,8,8,2,1})
+	loc := PointFromBytes(bs[0])
+	dir := VectorFromBytes(bs[1])
+	ang := BytesToFloat64(bs[2])
+	acc := BytesToFloat64(bs[3])
+	ext := BytesToFloat64(bs[4])
+	maI := BytesToInt16(bs[5])
+	stt := ByteToBool(bs[6][0])
 	l = GetLightSource(loc, dir, ang, acc, maI, ext, stt)
 	return
 }

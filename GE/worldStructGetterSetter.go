@@ -110,5 +110,5 @@ func (p *WorldStructure) SetLightStats(min, max int16, lightChange float64) {
 	p.lightLevel = max
 	p.deltaB = -lightChange
 	p.currentD = 0
-	p.DrawLights(true)
+	p.UpdateLights(p.Lights)
 }

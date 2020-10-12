@@ -9,18 +9,19 @@ import (
 	"time"
 )
 const (
-	screenWidth  = 1700
-	screenHeight = 900
+	screenWidth  = 1920
+	screenHeight = 1080
 	FPS = 30
 	TestText = "Licht ist eine Form der elektromagnetischen Strahlung. Im engeren Sinne sind vom gesamten elektromagnetischen Spektrum nur die Anteile gemeint, die für das menschliche Auge sichtbar sind. Im weiteren Sinne werden auch elektromagnetische Wellen kürzerer Wellenlänge (Ultraviolett) und größerer Wellenlänge (Infrarot) dazu gezählt.\nDie physikalischen Eigenschaften des Lichts werden durch verschiedene Modelle beschrieben: In der Strahlenoptik wird die geradlinige Ausbreitung des Lichts durch „Lichtstrahlen“ veranschaulicht; in der Wellenoptik wird die Wellennatur des Lichts betont, wodurch auch Beugungs- und Interferenzerscheinungen erklärt werden können. In der Quantenphysik schließlich wird das Licht als ein Strom von Quantenobjekten, den Photonen (veranschaulichend auch „Lichtteilchen“ genannt), beschrieben. Eine vollständige Beschreibung des Lichts bietet die Quantenelektrodynamik. Im Vakuum breitet sich Licht mit der konstanten Lichtgeschwindigkeit von 299.792.458 m/s aus. Trifft Licht auf Materie, so kann es gestreut, reflektiert, gebrochen und verlangsamt oder absorbiert werden.\nLicht ist der für das menschliche Auge adäquate Sinnesreiz. Dabei wird die Intensität des Lichts als Helligkeit wahrgenommen, die spektrale Zusammensetzung als Farbe."
 )
 func StartGame(g ebiten.Game) {
-	ebiten.SetWindowSize(screenWidth, screenHeight)
-	ebiten.SetWindowTitle("GameEngine Test")
-	//ebiten.SetFullscreen(true)
-	//ebiten.SetCursorMode(ebiten.CursorModeCaptured)
+	//ebiten.SetWindowSize(screenWidth, screenHeight)
+	ebiten.SetWindowTitle("GraphEng Test")
+	ebiten.SetFullscreen(true)
 	ebiten.SetVsyncEnabled(true)
+	ebiten.SetRunnableOnUnfocused(true)
 	ebiten.SetMaxTPS(FPS)
+	//ebiten.SetCursorMode(ebiten.CursorModeCaptured)
 	if err := ebiten.RunGame(g); err != nil {
 		panic(err)
 	}
@@ -171,7 +172,10 @@ func (g *TestGame) Update(screen *ebiten.Image) error {
 		}
 	}
 	_,dy := ebiten.Wheel()
-	g.wrld.Lights[0].SetMaximumIntesity(g.wrld.Lights[0].GetMaximumIntesity()+int16(dy*3))
+	if dy != 0 {
+		g.wrld.Lights[0].SetMaximumIntesity(g.wrld.Lights[0].GetMaximumIntesity()+int16(dy*10))
+		g.wrld.UpdateLights(g.wrld.Lights[0:1])
+	}
 	
 	x,y := g.wrld.Middle()
 	g.wrld.Objects[0].SetToXY(float64(x),float64(y))
@@ -199,12 +203,12 @@ func main() {
 	GE.StandardFont = GE.ParseFontFromBytes(res.MONO_TTF)
 	GE.SetLogFile("./res/log.txt")
 	
-	
+	XT := 16; YT := 9
 	
 	
 	//----------------------------------------------------------------------------------------------------------------------------------------------
 	//Creates the index Matrix
-	wmatI := GE.GetMatrix(30, 30, 0)
+	wmatI := GE.GetMatrix(300, 300, 0)
 	//Saves the matrix in a compressed form to the file system
 	err1 := wmatI.Save("./res/wmatI.txt")
 	if err1 != nil {
@@ -219,50 +223,34 @@ func main() {
 
 	//----------------------------------------------------------------------------------------------------------------------------------------------
 	//Creates a WorldStructure object
-	wrld := GE.GetWorldStructure(0, 0, 1700, 900, 17, 9)
+	wrld := GE.GetWorldStructure(0, 0, screenWidth, screenHeight, XT, YT)
 	wrld.TileMat = wmatI
 	//Creates a raster
 	wrld.GetFrame(2, 90)
 	
 	//----------------------------------------------------------------------------------------------------------------------------------------------
-	//loads all tiles
-	tiles, errT := GE.ReadTiles("./res/tiles/")
-	if errT != nil {
-		panic(errT)
-	}
-	for _,t := range(tiles) {
-		fmt.Println(t.Name)
-	}
-	//loads all objs
-	objs, errO := GE.ReadStructures("./res/structObjs/")
-	if errO != nil {
-		panic(errO)
-	}
-	for _,o := range(objs) {
-		fmt.Println(o.Name)
-	}
-	wrld.Tiles = tiles
-	wrld.AddStruct(objs...)
-	house := GE.GetStructureObj(wrld.GetNamedStructure("house1"), 10,10)
-	tree := GE.GetStructureObj(wrld.GetNamedStructure("tree2"), 6,10)
-	treebig := GE.GetStructureObj(wrld.GetNamedStructure("tree2big"), 14,10)
-	player := GE.GetStructureObj(wrld.GetNamedStructure("jump"), 12,12)
-	wrld.AddStructObj(player)
-	wrld.AddStructObj(house)
-	wrld.AddStructObj(tree)
-	wrld.AddStructObj(treebig)
+	errtl := wrld.LoadTiles("./res/tiles/")
+	if errtl != nil {panic(errtl)}
+	errol := wrld.LoadStructureObjs("./res/structObjs/")
+	if errol != nil {panic(errol)}
+	
+	wrld.AddNamedStructureObj("jump", 		12, 12)
+	wrld.AddNamedStructureObj("house1", 	10, 10)
+	wrld.AddNamedStructureObj("tree2", 		 6, 10)
+	wrld.AddNamedStructureObj("tree2big", 	14, 10)
+	
 	wrld.UpdateObjMat()
 	
-	bs := wrld.ObjectsToBytes()
-	fmt.Printf("Objects are %v bytes\n", len(bs))
-	wrld.BytesToObjects(bs)
+	obs := wrld.ObjectsToBytes()
+	fmt.Printf("Objects are %v bytes\n", len(obs))
+	wrld.BytesToObjects(obs)
 	
 	//----------------------------------------------------------------------------------------------------------------------------------------------
 	//Add a light source to the world
 	light1 := GE.GetLightSource(&GE.Point{12,8}, &GE.Vector{0,-1,0}, 360, 0.01, 400, 0.01, false)
+	/**
 	light2 := GE.GetLightSource(&GE.Point{8,6}, &GE.Vector{0,-1,0}, 360, 0.01, 400, 0.01, false)
 	light3 := GE.GetLightSource(&GE.Point{2,7}, &GE.Vector{0,-1,0}, 360, 0.01, 400, 0.01, false)
-	/**
 	light4 := GE.GetLightSource(&GE.Point{20,9}, &GE.Vector{0,-1,0}, 360, 0.01, 400, 0.01, false)
 	light5 := GE.GetLightSource(&GE.Point{4,2}, &GE.Vector{0,-1,0}, 360, 0.01, 400, 0.01, false)
 	light6 := GE.GetLightSource(&GE.Point{17,4}, &GE.Vector{0,-1,0}, 360, 0.01, 400, 0.01, false)
@@ -272,11 +260,19 @@ func main() {
 	light10 := GE.GetLightSource(&GE.Point{23,16}, &GE.Vector{0,-1,0}, 360, 0.01, 400, 0.01, false)
 	**/
 	
-	wrld.Lights = append(wrld.Lights, light1, light2, light3)//, light4, light5, light6, light7, light8, light9, light10)
+	wrld.Lights = append(wrld.Lights, light1)//, light2, light3, light4, light5, light6, light7, light8, light9, light10)
 	wrld.UpdateLIdxMat()
+	
+	
+	lbs := wrld.LightsToBytes()
+	fmt.Printf("Lights are %v bytes\n", len(lbs))
+	wrld.BytesToLights(lbs)
+	
+	
 	//Sets the start point
 	wrld.SetMiddle(14,14)
 	wrld.SetLightStats(10,255, 0.3)
+	wrld.SetLightLevel(15)
 	
 	//----------------------------------------------------------------------------------------------------------------------------------------------
 	//Saves the compressed world
@@ -291,7 +287,7 @@ func main() {
 	
 	//loads the compressed world
 	startDeComp := time.Now()
-	errL := wrld.Load("./res/wrld.txt")
+	newWrld, errL := GE.LoadWorldStructure(0,0,screenWidth,screenHeight, "./res/wrld.txt", "./res/tiles/", "./res/structObjs/")
 	if errL != nil {
 		GE.ShitImDying(errL)
 	}
@@ -299,7 +295,7 @@ func main() {
 	endDeComp := time.Now()
 	fmt.Println("Loading wrld took: ", endDeComp.Sub(startDeComp))
 	
-	g := &TestGame{wrld, 0}	
+	g := &TestGame{newWrld, 0}	
 
 	StartGame(g)
 }

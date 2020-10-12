@@ -19,10 +19,9 @@ func GetWorldStructure(X, Y, W, H float64, WTiles, HTiles int) (p *WorldStructur
 Saved:
 
 Objects
-
 Lights
-
 TileMat
+
 middleX, middleY
 minLight, maxLight
 deltaB
@@ -168,6 +167,15 @@ func (p *WorldStructure) Collides(x,y int) bool {
 	}
 	return true
 }
+
+func (p *WorldStructure) ObjectsToBytes() (bs []byte) {
+	bss := make([][]byte, 0)
+	for _,obj := range(p.Objects) {
+		bss = append(bss, CompressAll([][]byte{[]byte(obj.Name)}, Float64ToBytes(obj.HitBox.Min().X), Float64ToBytes(obj.HitBox.Min().Y)))
+	}
+	bs = CompressAll(bss)
+	return
+}
 func (p *WorldStructure) BytesToObjects(bsss []byte) {
 	bss := DecompressAll(bsss, []int{})
 	p.Objects = make([]*StructureObj, 0)
@@ -180,15 +188,23 @@ func (p *WorldStructure) BytesToObjects(bsss []byte) {
 		p.Objects = append(p.Objects, obj)
 	}
 }
-func (p *WorldStructure) ObjectsToBytes() (bs []byte) {
+func (p *WorldStructure) LightsToBytes() (bs []byte) {
 	bss := make([][]byte, 0)
-	for _,obj := range(p.Objects) {
-		bss = append(bss, CompressAll([][]byte{[]byte(obj.Name)}, Float64ToBytes(obj.HitBox.Min().X), Float64ToBytes(obj.HitBox.Min().Y)))
+	for _,l := range(p.Lights) {
+		bss = append(bss, l.ToBytes())
 	}
 	bs = CompressAll(bss)
 	return
 }
-
+func (p *WorldStructure) BytesToLights(bs []byte) {
+	bss := DecompressAll(bs, []int{})
+	p.Lights = make([]*Light, len(bss))
+	for i,b := range(bss) {
+		p.Lights[i] = GetLightSourceFromBytes(b)
+	}
+	p.UpdateLIdxMat()
+	p.UpdateLights(p.Lights)
+}
 func (p *WorldStructure) GetNamedStructure(name string) (s *Structure) {
 	for _,st := range(p.Structures) {
 		if st.Name == name {

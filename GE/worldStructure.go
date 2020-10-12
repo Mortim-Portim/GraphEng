@@ -57,22 +57,25 @@ type WorldStructure struct {
 func (p *WorldStructure) DrawBack(screen *ebiten.Image) {
 	for x := 0; x < p.TileMat.W(); x++ {
 		for y := 0; y < p.TileMat.H(); y++ {
-			tile_idx := p.TileMat.Get(x, y)
+			tile_idx,_ := p.TileMat.Get(x, y)
 			p.drawer.X, p.drawer.Y = float64(x)*p.tileS + p.xStart, float64(y)*p.tileS + p.yStart
 			if int(tile_idx) >= 0 && int(tile_idx) < len(p.Tiles) {
-				p.Tiles[tile_idx].Draw(screen, p.drawer, p.frame, p.CurrentLightMat.Get(x, y))
+				lv, err := p.CurrentLightMat.Get(x, y)
+				p.Tiles[tile_idx].Draw(screen, p.drawer, p.frame, lv)
 			}
 		}
 	}
 	drawnObjs := make([]int,0)
 	for x := 0; x < p.ObjMat.W(); x++ {
 		for y := 0; y < p.ObjMat.H(); y++ {
-			idx := int(math.Abs(float64(p.ObjMat.Get(x, y))))
-			if idx != NON_COLLIDING_IDX {
+			mvi,err := p.ObjMat.Get(x, y)
+			idx := int(math.Abs(float64(mvi)))
+			if idx != NON_COLLIDING_IDX && err == nil {
 				idx -= 1
 				obj := p.Objects[idx]
 				if obj.Background && !containsI(drawnObjs, int(idx)){
-					obj.DrawStructObj(screen, p.ObjMat.Focus().Min(), p.tileS, p.xStart, p.yStart, p.CurrentLightMat.GetAbs(x, y))
+					lv,_ := p.CurrentLightMat.GetAbs(x, y)
+					obj.DrawStructObj(screen, p.ObjMat.Focus().Min(), p.tileS, p.xStart, p.yStart, lv)
 					drawnObjs = append(drawnObjs, int(idx))
 				}
 			}
@@ -83,12 +86,14 @@ func (p *WorldStructure) DrawFront(screen *ebiten.Image) {
 	drawnObjs := make([]int,0)
 	for x := 0; x < p.ObjMat.W(); x++ {
 		for y := 0; y < p.ObjMat.H(); y++ {
-			idx := int(math.Abs(float64(p.ObjMat.Get(x, y))))
-			if idx != NON_COLLIDING_IDX {
+			mvi,err := p.ObjMat.Get(x, y)
+			idx := int(math.Abs(float64(mvi)))
+			if idx != NON_COLLIDING_IDX && err == nil {
 				idx -= 1
 				obj := p.Objects[idx]
 				if !obj.Background && !containsI(drawnObjs, int(idx)){
-					obj.DrawStructObj(screen, p.ObjMat.Focus().Min(), p.tileS, p.xStart, p.yStart, p.CurrentLightMat.GetAbs(x,y))
+					lv,_ := p.CurrentLightMat.GetAbs(x,y)
+					obj.DrawStructObj(screen, p.ObjMat.Focus().Min(), p.tileS, p.xStart, p.yStart, lv)
 					drawnObjs = append(drawnObjs, int(idx))
 				}
 			}
@@ -112,8 +117,8 @@ func (p *WorldStructure) DrawLights(update bool) {
 	ls := make([]*Light, 0)
 	for x := -LIGHT_COMP_RADIUS; x < p.CurrentLightMat.W()+LIGHT_COMP_RADIUS; x++ {
 		for y := -LIGHT_COMP_RADIUS; y < p.CurrentLightMat.H()+LIGHT_COMP_RADIUS; y++ {
-			idx := int(p.LIdxMat.Get(x,y))
-			if idx >= 0 && idx < len(p.Lights) {
+			idx,err := p.LIdxMat.Get(x,y)
+			if int(idx) >= 0 && int(idx) < len(p.Lights) && err == nil {
 				ls = append(ls, p.Lights[idx])
 			}
 		}
@@ -146,7 +151,8 @@ func (p *WorldStructure) UpdateObjMat() {
 	p.TileMat.CopyFocus(p.ObjMat)
 }
 func (p *WorldStructure) Collides(x,y int) bool {
-	if p.ObjMat.Get(x,y) == NON_COLLIDING_IDX {
+	v, err := p.ObjMat.Get(x,y)
+	if v == NON_COLLIDING_IDX && err == nil {
 		return false
 	}
 	return true

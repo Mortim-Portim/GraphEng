@@ -4,4 +4,4 @@ hitBoxWidth:    4
 hitBoxHeight:   3
 Collides:       true
 squareSize:     16
-Background:     true
+Background:     false

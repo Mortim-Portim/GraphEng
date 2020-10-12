@@ -2,6 +2,7 @@ package GE
 
 import (
 	"fmt"
+	"errors"
 	"io/ioutil"
 	"math/big"
 )
@@ -100,11 +101,11 @@ func (m *Matrix) Clone() *Matrix {
 	return &Matrix{m.x,m.y,m.list,m.focus}
 }
 //Returns the value of the matrix at the absolute x and y coordinates
-func (m *Matrix) GetAbs(x,y int) int16 {
+func (m *Matrix) GetAbs(x,y int) (int16, error) {
 	if x < 0 || y < 0 || x >= m.WAbs() || y >= m.HAbs() {
-		return -1
+		return 0, errors.New("Coordinates not on matrix")
 	}
-	return m.list[x+int(m.x.Int64())*y]
+	return m.list[x+int(m.x.Int64())*y], nil
 }
 //Sets the value of the matrix at the x and y coordinates
 func (m *Matrix) SetAbs(x, y int, v int16) {
@@ -114,14 +115,14 @@ func (m *Matrix) SetAbs(x, y int, v int16) {
 	m.list[(int(x))+int(m.x.Int64())*(int(y))] = v
 }
 //Returns the value of the focused matrix at the x and y coordinates
-func (m *Matrix) Get(x, y int) int16 {
+func (m *Matrix) Get(x, y int) (int16, error) {
 	xl,yl := int(m.focus.Min().X)+x, int(m.focus.Min().Y)+y
 	if xl < 0 || xl >= m.WAbs() || yl < 0 || yl >= m.HAbs() {
-		return -1
+		return 0, errors.New("Coordinates not on matrix")
 	}
 	
 	idx := int(x+int(m.focus.Min().X))+int(m.x.Int64())*int((y+int(m.focus.Min().Y)))
-	return m.list[idx]
+	return m.list[idx], nil
 }
 //Sets the value of the focused matrix at the x and y coordinates
 func (m *Matrix) Set(x, y int, v int16) {
@@ -133,11 +134,13 @@ func (m *Matrix) Set(x, y int, v int16) {
 }
 //Adds a value to the value of the focused matrix at the x and y coordinate
 func (m *Matrix) Add(x,y int, v int16) {
-	m.Set(x,y, int16(m.Get(x,y))+v)
+	ov, _ := m.Get(x,y)
+	m.Set(x,y, int16(ov)+v)
 }
 //Adds a value to the value of the focused matrix at the x and y coordinate
 func (m *Matrix) AddAbs(x,y int, v int16) {
-	m.SetAbs(x,y, int16(m.GetAbs(x,y))+v)
+	ov, _ := m.GetAbs(x,y)
+	m.SetAbs(x,y, int16(ov)+v)
 }
 //Fills a Rectangle with a value
 func (m *Matrix) Fill(x1,y1,x2,y2 int, v int16) {
@@ -218,7 +221,8 @@ func (m *Matrix) Print() string {
 	out := ""
 	for y := 0; y < m.H(); y++ {
 		for x := 0; x < m.W(); x++ {
-			valStr := fmt.Sprintf("%v", m.Get(x,y))
+			v, _ := m.Get(x,y)
+			valStr := fmt.Sprintf("%v", v)
 			for i := 0; i < 4-len(valStr); i++ {
 				out += " "
 			}

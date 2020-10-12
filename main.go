@@ -180,6 +180,8 @@ func (g *TestGame) Update(screen *ebiten.Image) error {
 	g.wrld.Objects[0].SetToXY(float64(x),float64(y))
 	g.wrld.UpdateObjMat()
 	
+	fmt.Println(g.wrld.ObjMat.Print())
+	
 	//startCalc := time.Now()
 	g.wrld.DrawLights(false)
 	//endCalc := time.Now()
@@ -281,7 +283,7 @@ func main() {
 	wrld.UpdateLIdxMat()
 	//Sets the start point
 	wrld.SetMiddle(14,14)
-	wrld.LightLevel = 0
+	wrld.LightLevel = 15
 	wrld.DrawLights(true)
 	
 	//----------------------------------------------------------------------------------------------------------------------------------------------

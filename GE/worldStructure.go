@@ -2,7 +2,7 @@ package GE
 
 import (
 	"github.com/hajimehoshi/ebiten"
-	//"fmt"
+	"math"
 )
 
 //Returns a WorldStructure object
@@ -15,8 +15,14 @@ func GetWorldStructure(X, Y, W, H float64, WTiles, HTiles int) (p *WorldStructur
 	return
 }
 
+/**
+Saved:
+Objects
+Lights
+TileMat
 
-const NON_COLLIDING_IDX = -1
+**/
+const NON_COLLIDING_IDX = 0
 type WorldStructure struct {
 	//Tiles and Structures should be the same on all devices
 	Tiles  			[]*Tile
@@ -61,12 +67,12 @@ func (p *WorldStructure) DrawBack(screen *ebiten.Image) {
 	drawnObjs := make([]int,0)
 	for x := 0; x < p.ObjMat.W(); x++ {
 		for y := 0; y < p.ObjMat.H(); y++ {
-			idx := p.ObjMat.Get(x, y)
-			if idx >= 0 {
+			idx := int(math.Abs(float64(p.ObjMat.Get(x, y))))
+			if idx != NON_COLLIDING_IDX {
+				idx -= 1
 				obj := p.Objects[idx]
 				if obj.Background && !containsI(drawnObjs, int(idx)){
-					pnt := obj.HitBox.Min()
-					obj.DrawStructObj(screen, p.ObjMat.Focus().Min(), p.tileS, p.xStart, p.yStart, p.CurrentLightMat.GetAbs(int(pnt.X), int(pnt.Y)))
+					obj.DrawStructObj(screen, p.ObjMat.Focus().Min(), p.tileS, p.xStart, p.yStart, p.CurrentLightMat.GetAbs(x, y))
 					drawnObjs = append(drawnObjs, int(idx))
 				}
 			}
@@ -77,12 +83,12 @@ func (p *WorldStructure) DrawFront(screen *ebiten.Image) {
 	drawnObjs := make([]int,0)
 	for x := 0; x < p.ObjMat.W(); x++ {
 		for y := 0; y < p.ObjMat.H(); y++ {
-			idx := p.ObjMat.Get(x, y)
-			if idx >= 0 {
+			idx := int(math.Abs(float64(p.ObjMat.Get(x, y))))
+			if idx != NON_COLLIDING_IDX {
+				idx -= 1
 				obj := p.Objects[idx]
 				if !obj.Background && !containsI(drawnObjs, int(idx)){
-					pnt := obj.HitBox.Min()
-					obj.DrawStructObj(screen, p.ObjMat.Focus().Min(), p.tileS, p.xStart, p.yStart, p.CurrentLightMat.GetAbs(int(pnt.X), int(pnt.Y)))
+					obj.DrawStructObj(screen, p.ObjMat.Focus().Min(), p.tileS, p.xStart, p.yStart, p.CurrentLightMat.GetAbs(x,y))
 					drawnObjs = append(drawnObjs, int(idx))
 				}
 			}
@@ -93,18 +99,16 @@ func (p *WorldStructure) UpdateLIdxMat() {
 	p.LIdxMat = GetMatrix(p.TileMat.WAbs(), p.TileMat.HAbs(), -1)
 	for i,l := range(p.Lights) {
 		p.LIdxMat.SetAbs(int(l.Location.X), int(l.Location.Y), int16(i))
-		//fmt.Println("Setting Light to Point: ", l.Location.Print())
 	}
-	//fmt.Println(p.LIdxMat.Print())
 }
-func (p *WorldStructure) UpdateLights() {
-	for _,l := range(p.Lights) {
+func (p *WorldStructure) UpdateLights(ls []*Light) {
+	for _,l := range(ls) {
 		l.ApplyRaycasting(p.ObjMat, 1)
 	}
 }
 
 const LIGHT_COMP_RADIUS = 20
-func (p *WorldStructure) DrawLights() {
+func (p *WorldStructure) DrawLights(update bool) {
 	ls := make([]*Light, 0)
 	for x := -LIGHT_COMP_RADIUS; x < p.CurrentLightMat.W()+LIGHT_COMP_RADIUS; x++ {
 		for y := -LIGHT_COMP_RADIUS; y < p.CurrentLightMat.H()+LIGHT_COMP_RADIUS; y++ {
@@ -114,9 +118,10 @@ func (p *WorldStructure) DrawLights() {
 			}
 		}
 	}
-	//fmt.Println(ls)
+	if update {
+		p.UpdateLights(ls)
+	}
 	pnt := p.TileMat.Focus().Min()
-	//fmt.Println(pnt.Print())
 	for x := 0; x < p.TileMat.W(); x++ {
 		for y := 0; y < p.TileMat.H(); y++ {
 			p.CurrentLightMat.SetAbs(x,y, p.GetLightValueForPoint(x+int(pnt.X), y+int(pnt.Y), ls, int16(p.LightLevel)))
@@ -136,7 +141,7 @@ func (p *WorldStructure) GetLightValueForPoint(x,y int, ls []*Light, standard in
 func (p *WorldStructure) UpdateObjMat() {
 	p.ObjMat = GetMatrix(p.TileMat.WAbs(),p.TileMat.HAbs(),NON_COLLIDING_IDX)
 	for i,obj := range(p.Objects) {
-		obj.DrawCollisionMatrix(p.ObjMat, int16(i))
+		obj.DrawCollisionMatrix(p.ObjMat, int16(i+1))
 	}
 	p.TileMat.CopyFocus(p.ObjMat)
 }
@@ -145,4 +150,34 @@ func (p *WorldStructure) Collides(x,y int) bool {
 		return false
 	}
 	return true
+}
+func (p *WorldStructure) BytesToObjects(bsss []byte) {
+	bss := DecompressAll(bsss, []int{})
+	p.Objects = make([]*StructureObj, 0)
+	for _,bs := range(bss) {
+		b := DecompressAll(bs, []int{8,8})
+		x := BytesToFloat64(b[0])
+		y := BytesToFloat64(b[1])
+		name := string(b[2])
+		obj := GetStructureObj(p.GetNamedStructure(name), x, y)
+		p.Objects = append(p.Objects, obj)
+	}
+}
+func (p *WorldStructure) ObjectsToBytes() (bs []byte) {
+	bss := make([][]byte, 0)
+	for _,obj := range(p.Objects) {
+		bss = append(bss, CompressAll([][]byte{[]byte(obj.Name)}, Float64ToBytes(obj.HitBox.Min().X), Float64ToBytes(obj.HitBox.Min().Y)))
+	}
+	bs = CompressAll(bss)
+	return
+}
+
+func (p *WorldStructure) GetNamedStructure(name string) (s *Structure) {
+	for _,st := range(p.Structures) {
+		if st.Name == name {
+			s = st
+			break
+		}
+	}
+	return
 }

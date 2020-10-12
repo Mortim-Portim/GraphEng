@@ -7,6 +7,33 @@ import (
 	"encoding/binary"
 	"math/big"
 )
+func Float64ToBytes(f float64) []byte {
+	buf := new(bytes.Buffer)
+	err := binary.Write(buf, binary.LittleEndian, f)
+	if err != nil {panic(err)}
+	return buf.Bytes()
+}
+func BytesToFloat64(bs []byte) (f float64) {
+	buf := new(bytes.Buffer)
+	_, err := buf.Write(bs)
+	if err != nil {panic(err)}
+	err2 := binary.Read(buf, binary.LittleEndian, &f)
+	if err2 != nil {panic(err2)}
+	return
+}
+//Converts an int64 into a [8]byte array
+func Int64ToBytes(i int64) (b []byte) {
+	bi := &big.Int{}; bi.SetInt64(i)
+	b = make([]byte, 8)
+	bi.FillBytes(b)
+	return
+}
+//Converts a [8]byte array into an int64
+func BytesToInt64(b []byte) (int64) {
+	i := &big.Int{}
+	i.SetBytes(b)
+	return i.Int64()
+}
 //converts an int64 into a [8]byte array
 func BigIntToBytes(i *big.Int) (b []byte) {
 	b = make([]byte, 8)

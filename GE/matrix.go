@@ -101,11 +101,10 @@ func (m *Matrix) Clone() *Matrix {
 }
 //Returns the value of the matrix at the absolute x and y coordinates
 func (m *Matrix) GetAbs(x,y int) int16 {
-	idx := x+int(m.x.Int64())*y
-	if idx < 0 || idx >= len(m.list) {
+	if x < 0 || y < 0 || x >= m.WAbs() || y >= m.HAbs() {
 		return -1
 	}
-	return m.list[idx]
+	return m.list[x+int(m.x.Int64())*y]
 }
 //Sets the value of the matrix at the x and y coordinates
 func (m *Matrix) SetAbs(x, y int, v int16) {

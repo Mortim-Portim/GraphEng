@@ -32,6 +32,15 @@ func (p *Point) InBounds(r *Rectangle) bool {
 	}
 	return false
 }
+func (p *Point) ToBytes() []byte {
+	return append(Float64ToBytes(p.X), Float64ToBytes(p.Y)...)
+}
+func PointFromBytes(bs []byte) (p *Point) {
+	p = &Point{}
+	p.X = BytesToFloat64(bs[:8])
+	p.Y = BytesToFloat64(bs[8:])
+	return
+}
 
 /**
 Rectangle represents two Points spanning a rectangle:
@@ -109,6 +118,17 @@ func (r *Rectangle) Overlaps(r2 *Rectangle) bool {
 }
 func (r *Rectangle) DistanceTo(p *Point) float64 {
 	return p.DistanceTo(r.GetMiddle())
+}
+
+func (r *Rectangle) ToBytes() []byte {
+	return append(r.min.ToBytes(), r.max.ToBytes()...)
+}
+func RectangleFromBytes(bs []byte) (r *Rectangle) {
+	r = &Rectangle{}
+	r.min = PointFromBytes(bs[:16])
+	r.max = PointFromBytes(bs[16:])
+	r.updateBounds()
+	return
 }
 
 /**

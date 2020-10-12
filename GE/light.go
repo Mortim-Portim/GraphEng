@@ -33,8 +33,8 @@ func (l *Light) Move(dx, dy float64) {
 }
 func (l *Light) GetAtAbs(x,y int) int16 {
 	rad := l.GetRadius()
-	xp := x-int(l.Location.X+rad)
-	yp := y-int(l.Location.Y+rad)
+	xp := x-int(l.Location.X-math.Ceil(rad))
+	yp := y-int(l.Location.Y-math.Ceil(rad))
 	return l.LightMat.GetAbs(xp,yp)
 }
 func (l *Light) applyOnMatrix(mat *Matrix, factor float64) {
@@ -65,7 +65,7 @@ func (l *Light) getValueAtRadius(r float64) float64 {
 	return 0
 }
 
-func (l *Light) SetRadius(r float64) {
+func (l *Light) SetRadiusByMaxI(r float64) {
 	l.extinctionRate = ((math.Pow(float64(l.maximumIntesity)/LIGHT_EXTINCTION_LEVEL, 1.0/LIGHT_EXTINCTION_POWER)-1)/(r*LIGHT_DIS_FACTOR))
 	l.radiusNeedsUpdate = true
 }

@@ -32,7 +32,7 @@ func GetStructFromParams(img *ebiten.Image, p *Params) (s *Structure) {
 	if p.GetS("Background") != "false" {
 		Background = true
 	}
-	s = GetStructure(anim, p.Get("hitBoxWidth"),p.Get("hitBoxHeight"), int(p.Get("squareSize")), collides, Background)
+	s = GetStructure(anim, p.Get("hitBoxWidth")-1,p.Get("hitBoxHeight")-1, int(p.Get("squareSize")), collides, Background)
 	return
 }
 //Returns a StructureObj

@@ -170,15 +170,23 @@ func (g *TestGame) Update(screen *ebiten.Image) error {
 			g.wrld.Move(0,1)
 		}
 	}
-	
-	
+	_,dy := ebiten.Wheel()
+	g.wrld.Lights[0].SetMaximumIntesity(g.wrld.Lights[0].GetMaximumIntesity()+int16(dy*3))
+	//g.wrld.Lights[0].SetRadius(20)
+	//fmt.Println(g.wrld.Lights[0].GetMaximumIntesity(), ":", g.wrld.Lights[0].GetRadius())
 	
 	x,y := g.wrld.Middle()
+	fmt.Println(x,":",y)
 	g.wrld.Objects[0].SetToXY(float64(x),float64(y))
 	g.wrld.UpdateObjMat()
-	//g.wrld.Lights[0].ApplyRaycasting(g.wrld.LightMat, g.wrld.ObjMat, 1)
+	
+	//startCalc := time.Now()
+	g.wrld.DrawLights(false)
+	//endCalc := time.Now()
+	//fmt.Println("Calculating Raycasting took: ", endCalc.Sub(startCalc))
 	
 	g.wrld.DrawBack(screen)
+	g.wrld.DrawFront(screen)
 	g.frame ++
 	
 	msg := fmt.Sprintf(`TPS: %0.2f`, ebiten.CurrentTPS())
@@ -197,12 +205,8 @@ func main() {
 	GE.SetLogFile("./res/log.txt")
 	
 	
-//	vec := &GC.Vector{0,-1,0}
-//	for a := 0; a < 360; a++ {
-//		vec.RotateAbsZ(float64(a))
-//		fmt.Println(a,":",vec.GetRotationZ(),":",vec.GetInfos())
-//	}
-
+	
+	
 	//----------------------------------------------------------------------------------------------------------------------------------------------
 	//Creates the index Matrix
 	wmatI := GE.GetMatrix(30, 30, 0)
@@ -243,33 +247,42 @@ func main() {
 		fmt.Println(o.Name)
 	}
 	wrld.Tiles = tiles
+	wrld.AddStruct(objs[1])
 	wrld.AddStruct(objs[0])
-	player := GE.GetStructureObj(objs[0].Clone(), 12,12)
-	//playerS := GE.GetStructureObj(objs[0].Clone(), 12,12)
+	wrld.AddStruct(objs[2])
+	house := GE.GetStructureObj(objs[0].Clone(), 10,10)
+	tree := GE.GetStructureObj(objs[2].Clone(), 6,10)
+	player := GE.GetStructureObj(objs[1].Clone(), 12,12)
 	wrld.AddStructObj(player)
-	//wrld.AddStructObj(playerS)
+	wrld.AddStructObj(house)
+	wrld.AddStructObj(tree)
 	wrld.UpdateObjMat()
+	
+	bs := wrld.ObjectsToBytes()
+	fmt.Printf("Objects are %v bytes\n", len(bs))
+	wrld.BytesToObjects(bs)
 	
 	//----------------------------------------------------------------------------------------------------------------------------------------------
 	//Add a light source to the world
-	light := GE.GetLightSource(&GE.Point{14,14}, &GE.Vector{-1,-1,0}, 90, 0.01, 255, 0.01, true)
-	light.SetRadius(20)
+	light1 := GE.GetLightSource(&GE.Point{12,8}, &GE.Vector{0,-1,0}, 360, 0.01, 400, 0.01, false)
+	light2 := GE.GetLightSource(&GE.Point{8,6}, &GE.Vector{0,-1,0}, 360, 0.01, 400, 0.01, false)
+	light3 := GE.GetLightSource(&GE.Point{2,7}, &GE.Vector{0,-1,0}, 360, 0.01, 400, 0.01, false)
+	/**
+	light4 := GE.GetLightSource(&GE.Point{20,9}, &GE.Vector{0,-1,0}, 360, 0.01, 400, 0.01, false)
+	light5 := GE.GetLightSource(&GE.Point{4,2}, &GE.Vector{0,-1,0}, 360, 0.01, 400, 0.01, false)
+	light6 := GE.GetLightSource(&GE.Point{17,4}, &GE.Vector{0,-1,0}, 360, 0.01, 400, 0.01, false)
+	light7 := GE.GetLightSource(&GE.Point{8,16}, &GE.Vector{0,-1,0}, 360, 0.01, 400, 0.01, false)
+	light8 := GE.GetLightSource(&GE.Point{21,10}, &GE.Vector{0,-1,0}, 360, 0.01, 400, 0.01, false)
+	light9 := GE.GetLightSource(&GE.Point{20,32}, &GE.Vector{0,-1,0}, 360, 0.01, 400, 0.01, false)
+	light10 := GE.GetLightSource(&GE.Point{23,16}, &GE.Vector{0,-1,0}, 360, 0.01, 400, 0.01, false)
+	**/
 	
-	wrld.Lights = append(wrld.Lights, light)
+	wrld.Lights = append(wrld.Lights, light1, light2, light3)//, light4, light5, light6, light7, light8, light9, light10)
 	wrld.UpdateLIdxMat()
-	
 	//Sets the start point
 	wrld.SetMiddle(14,14)
-	
-	fmt.Println(wrld.LIdxMat.Print())
-	wrld.LightLevel = 100
-		
-	startCalc := time.Now()
-	wrld.UpdateLights()
-	wrld.DrawLights()
-	endCalc := time.Now()
-	fmt.Println("Calculating Raycasting took: ", endCalc.Sub(startCalc))
-	fmt.Println(wrld.CurrentLightMat.Print())
+	wrld.LightLevel = 0
+	wrld.DrawLights(true)
 	
 	//----------------------------------------------------------------------------------------------------------------------------------------------
 	//Saves the compressed world

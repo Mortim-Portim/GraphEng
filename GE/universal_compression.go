@@ -4,6 +4,7 @@ import (
 	"math/big"
 )
 
+
 func CompressAll(changing [][]byte, static ...[]byte) (comp []byte) {
 	comp = make([]byte, 0)
 	for _,bs := range(static) {
@@ -18,6 +19,7 @@ func CompressAll(changing [][]byte, static ...[]byte) (comp []byte) {
 	return
 }
 
+//static 0-n, changing 0-n
 func DecompressAll(comp []byte, length []int) (BS [][]byte) {
 	comp,_ = DecompressBytes(comp)
 	BS = make([][]byte, 0)

@@ -1,7 +1,7 @@
 spriteWidth:    16
 updatePeriod:   5
-hitBoxWidth:    0
-hitBoxHeight:   0
-Collides:       true
+hitBoxWidth:    1
+hitBoxHeight:   1
+Collides:       false
 squareSize:     16
-Background:     true
+Background:     false

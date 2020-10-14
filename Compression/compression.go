@@ -96,6 +96,9 @@ func AppendInt16ToBytes(i int16, bs []byte) []byte {
 
 //Compresses a []byte slice using gzip
 func CompressBytes(bs []byte) ([]byte, error) {
+	if len(bs) <= 0 {
+		return bs, nil
+	}
 	var b bytes.Buffer
 	w, err0 := gzip.NewWriterLevel(&b, gzip.DefaultCompression)
 	if err0 != nil {
@@ -113,6 +116,9 @@ func CompressBytes(bs []byte) ([]byte, error) {
 }
 //Decompresses a []byte slice using gzip
 func DecompressBytes(bs []byte) ([]byte, error) {
+	if len(bs) <= 0 {
+		return bs, nil
+	}
 	var b bytes.Buffer
 	_, err1 := b.Write(bs)
 	if err1 != nil {

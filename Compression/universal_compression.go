@@ -6,6 +6,9 @@ import (
 
 func Merge(changing [][]byte, static ...[]byte) (merged []byte) {
 	merged = make([]byte, 0)
+	if len(changing) <= 0 && len(static) <= 0 {
+		return
+	}
 	for _,bs := range(static) {
 		merged = append(merged, bs...)
 	}
@@ -17,6 +20,9 @@ func Merge(changing [][]byte, static ...[]byte) (merged []byte) {
 }
 func Demerge(comp []byte, length []int) (BS [][]byte) {
 	BS = make([][]byte, 0)
+	if len(comp) <= 0 && len(length) <= 0 {
+		return
+	}
 	currIdx := 0
 	for _,l := range(length) {
 		BS = append(BS, comp[currIdx:currIdx+l])
@@ -35,7 +41,8 @@ func Demerge(comp []byte, length []int) (BS [][]byte) {
 	return
 }
 func CompressAll(changing [][]byte, static ...[]byte) (comp []byte) {
-	comp,_ = CompressBytes(Merge(changing, static...))
+	comp = Merge(changing, static...)
+	comp,_ = CompressBytes(comp)
 	return
 }
 

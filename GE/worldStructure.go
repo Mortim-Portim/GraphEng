@@ -58,10 +58,11 @@ type WorldStructure struct {
 	xStart, yStart, tileS float64
 }
 
+//Draw the top first
 //Draws The World Ground Tiles and the Objects form the layer which is currently in the middle of the screen
 func (p *WorldStructure) DrawBack(screen *ebiten.Image) {
-	for x := 0; x < p.TileMat.W(); x++ {
-		for y := 0; y < p.TileMat.H(); y++ {
+	for y := 0; y < p.TileMat.H(); y++ {
+		for x := 0; x < p.TileMat.W(); x++ {
 			tile_idx,err := p.TileMat.Get(x, y)
 			if err == nil {
 				p.drawer.X, p.drawer.Y = float64(x)*p.tileS + p.xStart, float64(y)*p.tileS + p.yStart
@@ -73,8 +74,8 @@ func (p *WorldStructure) DrawBack(screen *ebiten.Image) {
 		}
 	}
 	drawnObjs := make([]int,0)
-	for x := 0; x < p.ObjMat.W(); x++ {
-		for y := 0; y < p.ObjMat.H(); y++ {
+	for y := 0; y < p.ObjMat.H(); y++ {
+		for x := 0; x < p.ObjMat.W(); x++ {
 			mvi,err := p.ObjMat.Get(x, y)
 			idx := int(math.Abs(float64(mvi)))
 			if idx != 0 && err == nil {
@@ -91,8 +92,8 @@ func (p *WorldStructure) DrawBack(screen *ebiten.Image) {
 }
 func (p *WorldStructure) DrawFront(screen *ebiten.Image) {
 	drawnObjs := make([]int,0)
-	for x := 0; x < p.ObjMat.W(); x++ {
-		for y := 0; y < p.ObjMat.H(); y++ {
+	for y := 0; y < p.ObjMat.H(); y++ {
+		for x := 0; x < p.ObjMat.W(); x++ {
 			mvi,err := p.ObjMat.Get(x, y)
 			idx := int(math.Abs(float64(mvi)))
 			if idx != 0 && err == nil {

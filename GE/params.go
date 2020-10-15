@@ -6,6 +6,7 @@ import (
 	"bufio"
 	"strings"
 	"strconv"
+	"errors"
 	"image/color"
 )
 
@@ -55,6 +56,38 @@ func InitParams(p *Params) {
 	EditText_Back_Col = 		&color.RGBA{uint8(p.Get("EditText_Back_Col_R")),uint8(p.Get("EditText_Back_Col_G")),uint8(p.Get("EditText_Back_Col_B")),uint8(p.Get("EditText_Back_Col_A"))}
 	TabBack_Col = 				&color.RGBA{uint8(p.Get("TabBack_Col_R")),uint8(p.Get("TabBack_Col_G")),uint8(p.Get("TabBack_Col_B")),uint8(p.Get("TabBack_Col_A"))}
 	TabText_Col = 				&color.RGBA{uint8(p.Get("TabText_Col_R")),uint8(p.Get("TabText_Col_G")),uint8(p.Get("TabText_Col_B")),uint8(p.Get("TabText_Col_A"))}
+}
+
+type List struct {
+	strs []string
+}
+func (l *List) LoadFromFile(path string) error {
+	f, err := os.Open(path)
+	CheckErr(err)
+	scanner := bufio.NewScanner(f)
+	l.strs = make([]string, 0)
+    for scanner.Scan() {
+    	l.strs = append(l.strs, scanner.Text())
+    	
+    }
+	return nil
+}
+func (l *List) GetSlice() []string {
+	return l.strs
+}
+func (l *List) Get(idx int) (string, error) {
+	if idx >= 0 && idx < len(l.strs) {
+		return l.strs[idx], nil
+	}
+	return "", errors.New(fmt.Sprintf("Index %v out of range with slice of length %v", idx, len(l.strs)))
+}
+func (l *List) Print() (out string) {
+	out = ""
+	for i,str := range(l.strs) {
+		out += fmt.Sprintf("%v: %s\n", i, str)
+	}
+	out = out[:len(out)-2]
+	return
 }
 
 //stores a string an if possible a float64 value for each key

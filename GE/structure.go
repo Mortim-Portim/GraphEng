@@ -2,7 +2,6 @@ package GE
 
 import (
 	"github.com/hajimehoshi/ebiten"
-	"io/ioutil"
 )
 
 type Structure struct {
@@ -47,20 +46,22 @@ func (s *Structure) Clone() *Structure {
 /**
 Reads a slice of Structures from a folder like this:
 folder
+----> index.txt
 ----> obj1.png
 ----> obj1.txt
 ----> obj2.png
 ----> obj2.txt
 **/
 func ReadStructures(folderPath string) ([]*Structure, error) {
-	files, err1 := ioutil.ReadDir(folderPath)
-    if err1 != nil {
-    	return nil, err1
-    }
-	ts := make([]*Structure, 0)
+	if folderPath[len(folderPath)-1:] != "/" {
+		folderPath += "/"
+	}
+	idxList := &List{}; idxList.LoadFromFile(folderPath+INDEXFILENAME)
+	slc := idxList.GetSlice()
+	
+	ts := make([]*Structure, len(slc))
 	names := make([]string, 0)
-    for _, f := range files {
-            name := f.Name()[:len(f.Name())-4]
+    for i,name := range(slc) {
 	        if !containsS(names, name) {
 				names = append(names, name)
 				img, err := LoadEbitenImg(folderPath+name+".png")
@@ -74,7 +75,7 @@ func ReadStructures(folderPath string) ([]*Structure, error) {
 				}
 				obj := GetStructFromParams(img, p)
 				obj.Name = name
-				ts = append(ts, obj)
+				ts[i] = obj
             }
     }
     return ts, nil

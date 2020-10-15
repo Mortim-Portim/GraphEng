@@ -67,8 +67,10 @@ func (l *List) LoadFromFile(path string) error {
 	scanner := bufio.NewScanner(f)
 	l.strs = make([]string, 0)
     for scanner.Scan() {
-    	l.strs = append(l.strs, scanner.Text())
-    	
+    	line := scanner.Text()
+    	if len(strings.ReplaceAll(line, " ", "")) > 0 {
+	    	l.strs = append(l.strs, line)
+    	}
     }
 	return nil
 }

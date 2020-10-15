@@ -45,12 +45,17 @@ func (s *Structure) Clone() *Structure {
 }
 /**
 Reads a slice of Structures from a folder like this:
-folder
-----> index.txt
-----> obj1.png
-----> obj1.txt
-----> obj2.png
-----> obj2.txt
+
+#index.txt:
+obj1
+obj2
+
+folderPath
+	----> index.txt
+	----> obj1.png
+	----> obj1.txt
+	----> obj2.png
+	----> obj2.txt
 **/
 func ReadStructures(folderPath string) ([]*Structure, error) {
 	if folderPath[len(folderPath)-1:] != "/" {

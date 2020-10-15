@@ -7,6 +7,10 @@ import (
 const INDEXFILENAME = "#index.txt"
 
 /**
+#index.txt:
+tree
+house
+
 
 folderPath
 	--> index.txt

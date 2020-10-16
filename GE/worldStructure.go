@@ -163,7 +163,7 @@ func (p *WorldStructure) UpdateObjMat() {
 	p.TileMat.CopyFocus(p.ObjMat)
 }
 func (p *WorldStructure) Collides(x,y int) bool {
-	v, err := p.ObjMat.Get(x,y)
+	v, err := p.ObjMat.GetAbs(x,y)
 	if v <= 0 && err == nil {
 		return false
 	}

@@ -5,3 +5,4 @@ hitBoxHeight:   1
 Collides:       false
 squareSize:     16
 Background:     false
+understandable: false

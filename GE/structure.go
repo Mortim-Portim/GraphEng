@@ -2,14 +2,17 @@ package GE
 
 import (
 	"github.com/hajimehoshi/ebiten"
+	"image"
+	"fmt"
 )
 
 type Structure struct {
-	*DayNightAnim
 	squareSize int
 	Collides, Background bool
 	HitboxW,HitboxH float64
 	Name string
+	understandable, IsUnderstood bool
+	NUA, UA *DayNightAnim
 }
 /**
 Params.txt:
@@ -20,28 +23,50 @@ hitBoxHeight:	[1-NaN]
 Collides:		[true/false]
 squareSize:		[1-NaN]
 Background:		[true/false]
+understandable: [true/false]
 **/
 func GetStructFromParams(img *ebiten.Image, p *Params) (s *Structure) {
-	anim := GetDayNightAnim(1,1,1,1, int(p.Get("spriteWidth")), int(p.Get("updatePeriod")), img)
-	collides := false
-	if p.GetS("Collides") != "false" {
-		collides = true
+	collides := p.GetBool("Collides", false)
+	Background := p.GetBool("Background", false)
+	understandable := p.GetBool("understandable", false)
+	spW := int(p.Get("spriteWidth"))
+	uP := int(p.Get("updatePeriod"))
+	var anim *DayNightAnim
+	var u_Img *DayNightAnim
+	if understandable {
+		w, h := img.Size()
+		ui := img.SubImage(image.Rect(0,	0, w, h/2)).(*ebiten.Image)
+		bi := img.SubImage(image.Rect(0,  h/2, w,   h)).(*ebiten.Image)
+		
+		w2,h2 := ui.Size()
+		uiday := ui.SubImage(image.Rect(0,	0, w2, h2/2)).(*ebiten.Image)
+		w3, h3 := uiday.Size()
+		
+		fmt.Printf("%v:%v, %v:%v, %v:%v\n", w,h, w2,h2, w3,h3)
+		
+		anim = GetDayNightAnim(1,1,1,1, spW, uP, ui)
+		u_Img = GetDayNightAnim(1,1,1,1, spW, uP, bi)
+	}else{
+		anim = GetDayNightAnim(1,1,1,1, spW, uP, img)
+		u_Img = nil
 	}
-	Background := false
-	if p.GetS("Background") != "false" {
-		Background = true
-	}
-	s = GetStructure(anim, p.Get("hitBoxWidth")-1,p.Get("hitBoxHeight")-1, int(p.Get("squareSize")), collides, Background)
+	
+	s = GetStructure(anim, u_Img, p.Get("hitBoxWidth")-1,p.Get("hitBoxHeight")-1, int(p.Get("squareSize")), collides, Background, understandable)
 	return
 }
 //Returns a StructureObj
-func GetStructure(anim *DayNightAnim, HitboxW,HitboxH float64, squareSize int, Collides, Background bool) (o *Structure) {
-	o = &Structure{DayNightAnim:anim, HitboxW:HitboxW ,HitboxH:HitboxH, squareSize:squareSize, Collides:Collides, Background:Background}
-	o.Update(0)
+func GetStructure(NUA, UA *DayNightAnim, HitboxW,HitboxH float64, squareSize int, Collides, Background, understandable bool) (o *Structure) {
+	o = &Structure{NUA:NUA, UA:UA, HitboxW:HitboxW ,HitboxH:HitboxH, squareSize:squareSize, Collides:Collides, Background:Background, understandable:understandable}
+	if NUA != nil {
+		o.NUA.Update(0)
+	}
+	if UA != nil {
+		o.UA.Update(0)
+	}
 	return
 }
 func (s *Structure) Clone() *Structure {
-	return &Structure{DayNightAnim:s.DayNightAnim.Clone(), squareSize:s.squareSize, Collides:s.Collides, Background:s.Background, HitboxW:s.HitboxW, HitboxH:s.HitboxH, Name:s.Name}
+	return &Structure{NUA:s.NUA.Clone(), UA:s.UA.Clone(), squareSize:s.squareSize, Collides:s.Collides, Background:s.Background, HitboxW:s.HitboxW, HitboxH:s.HitboxH, Name:s.Name}
 }
 /**
 Reads a slice of Structures from a folder like this:

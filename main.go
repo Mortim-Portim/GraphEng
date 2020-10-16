@@ -12,15 +12,15 @@ import (
 	//"image/color"
 )
 const (
-	screenWidth  = 1920
-	screenHeight = 1080
+	screenWidth  = 1600
+	screenHeight = 900
 	FPS = 30
 	TestText = "Licht ist eine Form der elektromagnetischen Strahlung. Im engeren Sinne sind vom gesamten elektromagnetischen Spektrum nur die Anteile gemeint, die für das menschliche Auge sichtbar sind. Im weiteren Sinne werden auch elektromagnetische Wellen kürzerer Wellenlänge (Ultraviolett) und größerer Wellenlänge (Infrarot) dazu gezählt.\nDie physikalischen Eigenschaften des Lichts werden durch verschiedene Modelle beschrieben: In der Strahlenoptik wird die geradlinige Ausbreitung des Lichts durch „Lichtstrahlen“ veranschaulicht; in der Wellenoptik wird die Wellennatur des Lichts betont, wodurch auch Beugungs- und Interferenzerscheinungen erklärt werden können. In der Quantenphysik schließlich wird das Licht als ein Strom von Quantenobjekten, den Photonen (veranschaulichend auch „Lichtteilchen“ genannt), beschrieben. Eine vollständige Beschreibung des Lichts bietet die Quantenelektrodynamik. Im Vakuum breitet sich Licht mit der konstanten Lichtgeschwindigkeit von 299.792.458 m/s aus. Trifft Licht auf Materie, so kann es gestreut, reflektiert, gebrochen und verlangsamt oder absorbiert werden.\nLicht ist der für das menschliche Auge adäquate Sinnesreiz. Dabei wird die Intensität des Lichts als Helligkeit wahrgenommen, die spektrale Zusammensetzung als Farbe."
 )
 func StartGame(g ebiten.Game) {
-	//ebiten.SetWindowSize(screenWidth, screenHeight)
+	ebiten.SetWindowSize(screenWidth, screenHeight)
 	ebiten.SetWindowTitle("GraphEng Test")
-	ebiten.SetFullscreen(true)
+	//ebiten.SetFullscreen(true)
 	ebiten.SetVsyncEnabled(true)
 	ebiten.SetRunnableOnUnfocused(true)
 	ebiten.SetMaxTPS(FPS)
@@ -184,12 +184,36 @@ func (g *TestGame) Update(screen *ebiten.Image) error {
 	g.wrld.Objects[0].SetToXY(float64(x),float64(y))
 	g.wrld.UpdateObjMat()
 	
+	collides := g.wrld.Collides(x,y)
+	if collides {
+		for _,strct := range(g.wrld.Structures) {
+			strct.IsUnderstood = true
+		}
+	}else{
+		for _,strct := range(g.wrld.Structures) {
+			strct.IsUnderstood = false
+		}
+	}
+	//fmt.Println(collides)
+	
 	g.wrld.UpdateLightLevel(1)
 	g.wrld.DrawLights(false)
 	
 	g.wrld.DrawBack(screen)
 	g.wrld.DrawFront(screen)
 	g.frame ++
+	
+	for i,strct := range(g.wrld.Structures) {
+		if strct.UA != nil {
+			io := strct.UA.GetNightIO()
+			io.X = float64(i)*100
+			io.Y = 0
+			io.W = 100
+			io.H = 100
+			io.DrawImageObj(screen)
+			fmt.Println("Drawing ", i)
+		}
+	}
 	
 	msg := fmt.Sprintf(`TPS: %0.2f`, ebiten.CurrentTPS())
 	ebitenutil.DebugPrint(screen, msg)
@@ -250,17 +274,17 @@ func main() {
 	
 	//----------------------------------------------------------------------------------------------------------------------------------------------
 	//Add a light source to the world
-	light1 := GE.GetLightSource(&GE.Point{12,8}, &GE.Vector{0,-1,0}, 360, 0.01, 400, 0.01, false)
+	light1 := GE.GetLightSource(&GE.Point{12,8}, &GE.Vector{0,-1,0}, 360, 400, 0.01, false)
 	
-//	light2 := GE.GetLightSource(&GE.Point{8,6}, &GE.Vector{0,-1,0}, 360, 0.01, 400, 0.01, false)
-//	light3 := GE.GetLightSource(&GE.Point{2,7}, &GE.Vector{0,-1,0}, 360, 0.01, 400, 0.01, false)
-//	light4 := GE.GetLightSource(&GE.Point{20,9}, &GE.Vector{0,-1,0}, 360, 0.01, 400, 0.01, false)
-//	light5 := GE.GetLightSource(&GE.Point{4,2}, &GE.Vector{0,-1,0}, 360, 0.01, 400, 0.01, false)
-//	light6 := GE.GetLightSource(&GE.Point{17,4}, &GE.Vector{0,-1,0}, 360, 0.01, 400, 0.01, false)
-//	light7 := GE.GetLightSource(&GE.Point{8,16}, &GE.Vector{0,-1,0}, 360, 0.01, 400, 0.01, false)
-//	light8 := GE.GetLightSource(&GE.Point{21,10}, &GE.Vector{0,-1,0}, 360, 0.01, 400, 0.01, false)
-//	light9 := GE.GetLightSource(&GE.Point{20,32}, &GE.Vector{0,-1,0}, 360, 0.01, 400, 0.01, false)
-//	light10 := GE.GetLightSource(&GE.Point{23,16}, &GE.Vector{0,-1,0}, 360, 0.01, 400, 0.01, false)
+//	light2 := GE.GetLightSource(&GE.Point{8,6}, &GE.Vector{0,-1,0}, 360, 400, 0.01, false)
+//	light3 := GE.GetLightSource(&GE.Point{2,7}, &GE.Vector{0,-1,0}, 360, 400, 0.01, false)
+//	light4 := GE.GetLightSource(&GE.Point{20,9}, &GE.Vector{0,-1,0}, 360, 400, 0.01, false)
+//	light5 := GE.GetLightSource(&GE.Point{4,2}, &GE.Vector{0,-1,0}, 360, 400, 0.01, false)
+//	light6 := GE.GetLightSource(&GE.Point{17,4}, &GE.Vector{0,-1,0}, 360, 400, 0.01, false)
+//	light7 := GE.GetLightSource(&GE.Point{8,16}, &GE.Vector{0,-1,0}, 360, 400, 0.01, false)
+//	light8 := GE.GetLightSource(&GE.Point{21,10}, &GE.Vector{0,-1,0}, 360, 400, 0.01, false)
+//	light9 := GE.GetLightSource(&GE.Point{20,32}, &GE.Vector{0,-1,0}, 360, 400, 0.01, false)
+//	light10 := GE.GetLightSource(&GE.Point{23,16}, &GE.Vector{0,-1,0}, 360, 400, 0.01, false)
 	
 	
 	wrld.Lights = append(wrld.Lights, light1)//, light2, light3, light4, light5, light6, light7, light8, light9, light10)

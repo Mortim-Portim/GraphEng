@@ -139,3 +139,12 @@ func (obj *DayNightImg) GetDay() (i *ebiten.Image) {
 func (obj *DayNightImg) GetNight() (i *ebiten.Image) {
 	return obj.night.Img
 }
+
+
+
+func (obj *DayNightImg) GetDayIO() (i *ImageObj) {
+	return obj.day
+}
+func (obj *DayNightImg) GetNightIO() (i *ImageObj) {
+	return obj.night
+}

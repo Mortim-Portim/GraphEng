@@ -11,7 +11,7 @@ const LIGHT_EXTINCTION_POWER = 3
 type Light struct {
 	Location *Point
 	direction *Vector
-	angle, accuracy float64
+	angle float64
 	LightMat *Matrix
 	static bool
 	
@@ -23,8 +23,8 @@ type Light struct {
 	radiusNeedsUpdate bool
 }
 
-func GetLightSource(loc *Point, direction *Vector, angle, accuracy float64, maxI int16, extRate float64, static bool) (l *Light) {
-	l = &Light{Location:loc, maximumIntesity:maxI, extinctionRate:extRate, direction:direction, angle:angle, accuracy:accuracy, static:static}
+func GetLightSource(loc *Point, direction *Vector, angle float64, maxI int16, extRate float64, static bool) (l *Light) {
+	l = &Light{Location:loc, maximumIntesity:maxI, extinctionRate:extRate, direction:direction, angle:angle, static:static}
 	l.CalcRadius()
 	return
 }
@@ -34,7 +34,6 @@ func (l *Light) ToBytes() (b []byte) {
 	bs = append(bs, l.Location.ToBytes())
 	bs = append(bs, l.direction.ToBytes())
 	bs = append(bs, cmp.Float64ToBytes(l.angle))
-	bs = append(bs, cmp.Float64ToBytes(l.accuracy))
 	bs = append(bs, cmp.Float64ToBytes(l.extinctionRate))
 	bs = append(bs, cmp.Int16ToBytes(l.maximumIntesity))
 	bs = append(bs, []byte{cmp.BoolToByte(l.static)})
@@ -42,15 +41,15 @@ func (l *Light) ToBytes() (b []byte) {
 	return
 }
 func GetLightSourceFromBytes(b []byte) (l *Light) {
-	bs := cmp.DecompressAll(b, []int{16,24,8,8,8,2,1})
+	bs := cmp.DecompressAll(b, []int{16,24,8,8,2,1})
 	loc := PointFromBytes(bs[0])
 	dir := VectorFromBytes(bs[1])
 	ang := cmp.BytesToFloat64(bs[2])
-	acc := cmp.BytesToFloat64(bs[3])
-	ext := cmp.BytesToFloat64(bs[4])
-	maI := cmp.BytesToInt16(bs[5])
-	stt := cmp.ByteToBool(bs[6][0])
-	l = GetLightSource(loc, dir, ang, acc, maI, ext, stt)
+	//acc := cmp.BytesToFloat64(bs[3])
+	ext := cmp.BytesToFloat64(bs[3])
+	maI := cmp.BytesToInt16(bs[4])
+	stt := cmp.ByteToBool(bs[5][0])
+	l = GetLightSource(loc, dir, ang, maI, ext, stt)
 	return
 }
 func (l *Light) Move(dx, dy float64) {

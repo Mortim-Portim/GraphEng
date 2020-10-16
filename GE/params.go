@@ -126,6 +126,17 @@ func (p *Params) GetS(key string) (string) {
 	}
 	return ""
 }
+//returns the boolean value
+func (p *Params) GetBool(key string, standard bool) bool {
+	val := strings.ToLower(p.GetS(key))
+	if val == "false" || val == "0" {
+		return false
+	}
+	if val == "true" || val == "1" {
+		return true
+	}
+	return standard
+}
 //returns the string value for the key
 func (p *Params) Get(key string) (float64) {
 	if val, ok := p.p[key]; ok {

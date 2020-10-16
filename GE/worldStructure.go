@@ -10,7 +10,7 @@ import (
 func GetWorldStructure(X, Y, W, H float64, WTiles, HTiles int) (p *WorldStructure) {
 	p = &WorldStructure{X:X,Y:Y,W:W,H:H}
 	p.TileMat = GetMatrix(WTiles, HTiles, 0)
-	p.LIdxMat = GetMatrix(WTiles, HTiles, 0)
+	p.LIdxMat = GetMatrix(WTiles, HTiles, -1)
 	p.ObjMat  = GetMatrix(WTiles, HTiles, 0)
 	p.SetDisplayWH(WTiles, HTiles)
 	return

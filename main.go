@@ -203,18 +203,6 @@ func (g *TestGame) Update(screen *ebiten.Image) error {
 	g.wrld.DrawFront(screen)
 	g.frame ++
 	
-	for i,strct := range(g.wrld.Structures) {
-		if strct.UA != nil {
-			io := strct.UA.GetNightIO()
-			io.X = float64(i)*100
-			io.Y = 0
-			io.W = 100
-			io.H = 100
-			io.DrawImageObj(screen)
-			fmt.Println("Drawing ", i)
-		}
-	}
-	
 	msg := fmt.Sprintf(`TPS: %0.2f`, ebiten.CurrentTPS())
 	ebitenutil.DebugPrint(screen, msg)
 	GE.LogToFile(msg+"\n")

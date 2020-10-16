@@ -2,7 +2,6 @@ package GE
 
 import (
 	"github.com/hajimehoshi/ebiten"
-	"fmt"
 )
 
 /**
@@ -54,10 +53,8 @@ func (o *StructureObj) DrawCollisionMatrix(mat *Matrix, value int16) {
 func (o *StructureObj) DrawStructObj(screen *ebiten.Image, leftTop *Point, sqSize, xStart, yStart float64, lightlevel int16) {
 	if !o.understandable || (o.understandable && !o.IsUnderstood) {
 		o.drawDNImg(o.NUA, screen, leftTop, sqSize, xStart, yStart, lightlevel)
-		fmt.Printf("%v: Not Understood: %s: %v\n", o.frame, o.Name, o.NUA)
 	}else{
 		o.drawDNImg(o.UA, screen, leftTop, sqSize, xStart, yStart, lightlevel)
-		fmt.Printf("%v:     Understood: %s: %v\n", o.frame, o.Name, o.UA)
 	}
 }
 

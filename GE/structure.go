@@ -3,7 +3,6 @@ package GE
 import (
 	"github.com/hajimehoshi/ebiten"
 	"image"
-	"fmt"
 )
 
 type Structure struct {
@@ -35,15 +34,8 @@ func GetStructFromParams(img *ebiten.Image, p *Params) (s *Structure) {
 	var u_Img *DayNightAnim
 	if understandable {
 		w, h := img.Size()
-		ui := img.SubImage(image.Rect(0,	0, w, h/2)).(*ebiten.Image)
-		bi := img.SubImage(image.Rect(0,  h/2, w,   h)).(*ebiten.Image)
-		
-		w2,h2 := ui.Size()
-		uiday := ui.SubImage(image.Rect(0,	0, w2, h2/2)).(*ebiten.Image)
-		w3, h3 := uiday.Size()
-		
-		fmt.Printf("%v:%v, %v:%v, %v:%v\n", w,h, w2,h2, w3,h3)
-		
+		ui := DeepCopyEbitenImage(img.SubImage(image.Rect(0,	0, w, h/2)).(*ebiten.Image))
+		bi := DeepCopyEbitenImage(img.SubImage(image.Rect(0,  h/2, w,   h)).(*ebiten.Image))
 		anim = GetDayNightAnim(1,1,1,1, spW, uP, ui)
 		u_Img = GetDayNightAnim(1,1,1,1, spW, uP, bi)
 	}else{

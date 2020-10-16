@@ -113,6 +113,7 @@ func (p *WorldStructure) UpdateLIdxMat() {
 	for i,l := range(p.Lights) {
 		p.LIdxMat.SetAbs(int(l.Location.X), int(l.Location.Y), int16(i))
 	}
+	p.TileMat.CopyFocus(p.LIdxMat)
 }
 func (p *WorldStructure) UpdateLights(ls []*Light) {
 	for _,l := range(ls) {

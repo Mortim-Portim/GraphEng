@@ -258,10 +258,13 @@ func CloseLogFile() {
 	LOGFILE.Close()
 }
 func ShitImDying(err error) {
-	help := fmt.Sprintf("ShitImDying: %v", err)
-	if LOGFILE != nil {
-		LogToFile(help)
+	if err != nil {
+		defer func(){
+			help := fmt.Sprintf("ShitImDying: %v\nStacktrace: %s", err, string(debug.Stack()))
+			if LOGFILE != nil {
+				LogToFile(help)
+			}
+		}()
+		panic(err)
 	}
-	panic(err)
-	debug.PrintStack()
 }

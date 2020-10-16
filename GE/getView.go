@@ -131,6 +131,17 @@ func GetAnimation(X, Y, W, H float64, spriteWidth, updatePeriod int, sprites *eb
 	return
 }
 
+//Returns an Animation
+func GetAnimationFromParams(p *Params, img *ebiten.Image) (anim *Animation) {
+	w,h := img.Size()
+	X := p.Get("X");Y := p.Get("Y");W := p.Get("W");H := p.Get("H")
+	spriteWidth := p.Get("spriteWidth")
+	updatePeriod := p.Get("updatePeriod")
+	anim = &Animation{ImageObj{X:X,Y:Y,W:W,H:H}, int(float64(w)/float64(spriteWidth)),0,int(spriteWidth),h,int(updatePeriod),img}
+	anim.Update(0)
+	return
+}
+
 //Returns an DayNightAnimation
 func GetDayNightAnim(X, Y, W, H float64, spriteWidth, updatePeriod int, sprites *ebiten.Image) (anim *DayNightAnim) {
 	w,h := sprites.Size()

@@ -101,7 +101,7 @@ type Params struct {
 //Loads params from a file
 func (p *Params) LoadFromFile(path string) error {
 	f, err := os.Open(path)
-	CheckErr(err)
+	if err != nil {return err}
 	scanner := bufio.NewScanner(f)
 	p.p = make(map[string]float64)
 	p.strs = make(map[string]string)

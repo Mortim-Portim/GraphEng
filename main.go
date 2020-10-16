@@ -274,10 +274,8 @@ func main() {
 //	light9 := GE.GetLightSource(&GE.Point{20,32}, &GE.Vector{0,-1,0}, 360, 400, 0.01, false)
 //	light10 := GE.GetLightSource(&GE.Point{23,16}, &GE.Vector{0,-1,0}, 360, 400, 0.01, false)
 	
-	
 	wrld.Lights = append(wrld.Lights, light1)//, light2, light3, light4, light5, light6, light7, light8, light9, light10)
 	wrld.UpdateLIdxMat()
-	
 	
 	lbs := wrld.LightsToBytes()
 	fmt.Printf("Lights are %v bytes\n", len(lbs))

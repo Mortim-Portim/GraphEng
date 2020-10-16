@@ -201,16 +201,16 @@ func DeepCopyEbitenImage(img *ebiten.Image) (img2 *ebiten.Image) {
 }
 
 //Loads all Icons from a path with a list of sizes and a fileformat ("./64.png")
-func InitIcons(path string, sizes []int, fileformat string) (error, []image.Image) {
+func InitIcons(path string, sizes []int, fileformat string) ([]image.Image, error) {
 	imgs := make([]image.Image, len(sizes))
 	for i,_ := range(imgs) {
 		err, img := LoadImg(fmt.Sprintf("%s/%v.%s", path, sizes[i], fileformat))
 		if err != nil {
-			return err, nil
+			return nil, err
 		}
 		imgs[i] = *img
 	}
-	return nil, imgs
+	return imgs, nil
 }
 func (obj *ImageObj) PanicIfNil() {
 	if obj.Img == nil {

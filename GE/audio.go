@@ -1,83 +1,44 @@
 package GE
 
 import (
-	"log"
-	"io/ioutil"
-    "errors"
+	"os"
+	//"github.com/hajimehoshi/ebiten"
 	"github.com/hajimehoshi/ebiten/audio"
-	"github.com/hajimehoshi/ebiten/audio/wav"
+	"github.com/hajimehoshi/ebiten/audio/mp3"
+	//"github.com/hajimehoshi/ebiten/ebitenutil"
 )
 
 //IMPORTANT: Call InitAudioContext() before creating a new Player
-
 const sampleRate = 48000
-
-var (
-	audioContext *audio.Context
-)
-
-type AudioPlayer struct {
-	audioPlayer  *audio.Player
-	seBytes      []byte
-	seCh         chan []byte
-}
+var audioContext *audio.Context
 
 func InitAudioContext() {
-	AudioContext, err := audio.NewContext(sampleRate)
-	if err != nil {
-		panic(err)
-	}
-	audioContext = AudioContext
+	audioContext,_ = audio.NewContext(sampleRate)
 }
+
+
+type AudioPlayer struct {
+	*audio.Player
+}
+
 //Creates a new audio player
 func NewPlayer(filename string) (*AudioPlayer, error) {
-    b, fErr := ioutil.ReadFile(filename)
-    if fErr != nil {
-        return nil, fErr
-    }
-	player := &AudioPlayer{
-		seCh:         make(chan []byte),
-	}
-    go func() {
-		s, err := wav.Decode(audioContext, audio.BytesReadSeekCloser(b))
-		if err != nil {
-			log.Fatal(err)
-			return
-		}
-		b, err := ioutil.ReadAll(s)
-		if err != nil {
-			log.Fatal(err)
-			return
-		}
-		player.seCh <- b
-	}()
-	return player, nil
-}
+	f, err := os.Open(filename)
+	if err != nil {return nil, err}
+	
+	d, err := mp3.Decode(audioContext, f)
+	if err != nil {return nil, err}
 
-func (p *AudioPlayer) Close() error {
-	return p.audioPlayer.Close()
+	// Create an audio.Player that has one stream.
+	p, err := audio.NewPlayer(audioContext, d)
+	if err != nil {return nil, err}
+	
+	ap := &AudioPlayer{Player:p}
+	return ap, nil
 }
-
-func (p *AudioPlayer) load() error {
-	select {
-	case p.seBytes = <-p.seCh:
-		close(p.seCh)
-		p.seCh = nil
-	default:
-	}
-
-	if p.seBytes == nil {
-		return errors.New("Wrong sample rate")
-	}
-    return nil
-}
-//Plays the Sound of an audioplayer
-func (p *AudioPlayer) Play() error {
-    err := p.load()
-    if err != nil {
-        return err
-    }
-	sePlayer, _ := audio.NewPlayerFromBytes(audioContext, p.seBytes)
-	sePlayer.Play()
+func (p *AudioPlayer) PlayFromBeginning(volume float64) error {
+	p.SetVolume(volume)
+	p.Rewind()
+	p.Play()
 	return nil
 }

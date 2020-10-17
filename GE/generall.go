@@ -45,8 +45,8 @@ func Init(FontPath string) {
 	}else{
 		StandardFont = ParseFontFromBytes(fonts.MPlus1pRegular_ttf)
 	}
-	rand.Seed(time.Now().UnixNano())
 	InitAudioContext()
+	rand.Seed(time.Now().UnixNano())
 	InitParams(nil)
 }
 //Parses a font from bytes

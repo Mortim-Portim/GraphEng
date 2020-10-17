@@ -3,13 +3,15 @@ package main
 import (
 	"github.com/hajimehoshi/ebiten"
 	"marvin/GraphEng/GE"
-	"marvin/GraphEng/res"
 	
+	//"marvin/GraphEng/res"
 	"fmt"
 	"time"
-	"github.com/hajimehoshi/ebiten/ebitenutil"
+	//"github.com/hajimehoshi/ebiten/ebitenutil"
 	
 	//"image/color"
+	
+	//cmp "marvin/GraphEng/Compression"
 )
 const (
 	screenWidth  = 1600
@@ -145,7 +147,7 @@ func main() {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
+/**
 // __          __        _     _    _____ _                   _                  
 // \ \        / /       | |   | |  / ____| |                 | |                 
 //  \ \  /\  / /__  _ __| | __| | | (___ | |_ _ __ _   _  ___| |_ _   _ _ __ ___ 
@@ -311,4 +313,61 @@ func main() {
 	g := &TestGame{newWrld, 0}	
 
 	StartGame(g)
+}
+**/
+
+
+
+
+func main() {
+	startComp := time.Now()
+	mat := GE.GetMatrix(45,45,0)
+	endComp := time.Now()
+	fmt.Printf("Initializing Matrix took %v microseconds\n", int(endComp.Sub(startComp).Microseconds()))
+	mat.FillAbs(0,0,10,20, 20)
+	mat.FillAbs(16,32,43,44, -20)
+	mat.FillAbs(7,10,32,14, 82)
+	fmt.Println(mat.Print())
+	
+	var timer int
+	its := 10000.0
+	for i := 0; i < int(its); i++ {
+		var value int16
+		var err error
+		startComp := time.Now()
+		for y := 0; y < mat.H(); y++ {
+			for x := 0; x < mat.W(); x++ {
+				value, err = mat.Get(x,y)
+				if err != nil {
+					panic(err)
+					panic(value)
+				}
+			}
+		}
+		endComp := time.Now()
+		timer += int(endComp.Sub(startComp).Microseconds())
+		
+	}
+	fmt.Printf("Iterating mat took: %v microseconds\n", float64(timer)/its)
+	
+	
+	
+	startComp2 := time.Now()
+	matL := make([][]int16, 45)
+	for i := 0; i < 45; i++ {
+		matL[i] = make([]int16, 45)
+	}
+	endComp2 := time.Now()
+	fmt.Printf("Initializing 2d Array took %v microseconds\n", int(endComp2.Sub(startComp2).Microseconds()))
+	
+	startComp3 := time.Now()
+	counter := 0
+	for x,_ := range(matL) {
+		for y,_ := range(matL) {
+			matL[x][y] = int16(counter)
+			counter ++
+		}
+	}
+	endComp3 := time.Now()
+	fmt.Printf("Iterating 2d Array took %v microseconds\n", int(endComp3.Sub(startComp3).Microseconds()))
 }

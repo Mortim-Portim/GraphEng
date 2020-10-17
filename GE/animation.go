@@ -38,11 +38,11 @@ func (a *Animation) Stop(screen *ebiten.Image, data interface{}) {}
 func (a *Animation) Update(frame int) {
 	if a.UpdatePeriod > 0 && frame%a.UpdatePeriod == 0 {
 		a.current ++
-		if a.current >= a.sprites {
+		if a.current >= a.sprites || frame == 0 {
 			a.current = 0
 		}
 		a.Img = a.spriteSheet.SubImage(image.Rect(a.spriteWidth*a.current, 0, a.spriteWidth*(a.current+1), a.spriteHeight)).(*ebiten.Image)
-	}else if a.UpdatePeriod == 0 && a.Img == nil{
+	}else if a.UpdatePeriod == 0 && a.Img == nil {
 		a.Img = a.spriteSheet.SubImage(image.Rect(a.spriteWidth*a.current, 0, a.spriteWidth*(a.current+1), a.spriteHeight)).(*ebiten.Image)
 	}
 }

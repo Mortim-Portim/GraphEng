@@ -87,6 +87,33 @@ func BytesToInt16s(bs []byte) (is []int16) {
 	}
 	return
 }
+//Converts a 2d slice of ints into a []byte slice
+func Int16s2DToBytes(is [][]int16) (bs []byte) {
+	bs = make([]byte, 0)
+	bs = append(bs, Int64ToBytes(int64(len(is[0])))...)
+	
+	for _,il := range(is) {
+		bs = append(bs, Int16sToBytes(il)...)
+	}
+	
+	return
+}
+//Converts a []byte slice into a 2d slice of ints
+func BytesToInt16s2D(bs []byte) (is [][]int16) {
+	is = make([][]int16, 0)
+	xl := int(BytesToInt64(bs[:8]))*2
+	bs = bs[8:]
+	
+	for true {
+		bts := bs[:xl]
+		is = append(is, BytesToInt16s(bts))
+		if xl >= len(bs) {
+			break
+		}
+		bs = bs[xl:]
+	}
+	return
+}
 //Appends an int16 to a []byte slice
 func AppendInt16ToBytes(i int16, bs []byte) []byte {
 	ib := Int16ToBytes(i)

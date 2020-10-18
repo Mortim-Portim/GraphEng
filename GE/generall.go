@@ -241,6 +241,27 @@ func genVertices(X,Y,R float64, num int) *Points {
 	return &ps
 }
 
+func OSReadDir(root string) ([]string, error) {
+	if root[len(root)-1:] != "/" {
+		root += "/"
+	}
+    var files []string
+    f, err := os.Open(root)
+    if err != nil {
+        return files, err
+    }
+    fileInfo, err := f.Readdir(-1)
+    f.Close()
+    if err != nil {
+        return files, err
+    }
+
+    for _, file := range fileInfo {
+        files = append(files, file.Name())
+    }
+    return files, nil
+}
+
 var LOGFILE *os.File
 func SetLogFile(path string) {
 	f, err := os.OpenFile(path, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)

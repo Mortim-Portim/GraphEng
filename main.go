@@ -5,7 +5,7 @@ import (
 	"marvin/GraphEng/GE"
 	
 	//"marvin/GraphEng/res"
-	//"fmt"
+	"fmt"
 	"time"
 	//"github.com/hajimehoshi/ebiten/ebitenutil"
 	
@@ -326,16 +326,26 @@ func main() {
 	GE.Init("")
 	
 	go func(){
-		time.Sleep(time.Second)
-		sounds, err := GE.LoadSounds("./res/audio")
-		if err != nil {panic(err)}
-		sounds.PS("main")
-		time.Sleep(time.Second*2)
-		sounds.FadeTo("battle", 4)
-		time.Sleep(time.Second*6)
-		sounds.PS("main")
-		time.Sleep(time.Second*2)
-		sounds.PR(time.Now().UnixNano())
+		st, err := GE.LoadSoundTrack("./res/audio/Soundtrack")
+		GE.ShitImDying(err)
+		st.Play("main")
+		fmt.Println("Playing Main")
+		
+		time.Sleep(time.Second*3)
+		st.Play("ork")
+		fmt.Println("Playing Ork")
+		
+		time.Sleep(time.Second*3)
+		st.Pause()
+		fmt.Println("Pausing")
+		
+		time.Sleep(time.Second*3)
+		st.Resume()
+		fmt.Println("Resuming")
+		
+		time.Sleep(time.Second*3)
+		st.FadeOut()
+		fmt.Println("Fading out")
 	}()
 	StartGame(&TestGame{})
 }

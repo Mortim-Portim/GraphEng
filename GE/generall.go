@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 	"github.com/hajimehoshi/ebiten"
 	"github.com/hajimehoshi/ebiten/text"
-	"github.com/hajimehoshi/ebiten/examples/resources/fonts"
+	"marvin/GraphEng/res"
 	"github.com/golang/freetype/truetype" 
 	"github.com/hajimehoshi/ebiten/inpututil"
 	"golang.org/x/image/font"
@@ -43,7 +43,7 @@ func Init(FontPath string) {
 	if len(FontPath) > 0 {
 		StandardFont = ParseFont(FontPath)
 	}else{
-		StandardFont = ParseFontFromBytes(fonts.MPlus1pRegular_ttf)
+		StandardFont = ParseFontFromBytes(res.VT323)
 	}
 	InitAudioContext()
 	rand.Seed(time.Now().UnixNano())

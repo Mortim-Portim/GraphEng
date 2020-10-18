@@ -9,37 +9,48 @@ import (
 	//"github.com/hajimehoshi/ebiten/audio"
 )
 
-func StandardFader(percent float64)(float64){return percent}
+func FadeIn(percent float64)(float64){return percent}
+func FadeOut(percent float64)(float64){return 1.0-percent}
 
 type Sounds struct {
 	sounds map[string]*AudioPlayer
 	currentPlayer string
 }
-func (s *Sounds) ChangeTo(milliseconds, iterations int, new_file string, volumefader func(percent float64)(volume float64)) {
-	delay := float64(milliseconds)/float64(iterations)
-	old_file := s.currentPlayer; s.currentPlayer = new_file
-	s.sounds[new_file].PlayFromBeginning(0.0)
-	s.sounds[old_file].SetVolume(1.0)
-	go func() {
-		for i := 0; i < iterations; i++ {
-			percent := float64(i+1)/float64(iterations)
-			volume := volumefader(percent)
-			
-			s.sounds[old_file].SetVolume(1.0-volume)
-			s.sounds[new_file].SetVolume(volume)
-			time.Sleep(time.Duration(int(float64(time.Millisecond)*delay)))
-		}
-		s.sounds[old_file].Pause()
+func (s *Sounds) PlayInfinite() {
+	p, ok := s.sounds[s.currentPlayer]
+	if ok {
+		p.Repeat()
+	}
+}
+func (s *Sounds) FadeToSound(s2 *Sounds, new_file string, seconds float64) {
+	oldP, ok := s.sounds[s.currentPlayer]
+	if !ok {
+		oldP = nil
+	}
+	newP, ok := s2.sounds[new_file]
+	if !ok || newP == oldP {
+		newP = nil
+	}else{
+		s2.currentPlayer = new_file
+	}
+	millis := seconds*1000.0
+	FadePlayer(oldP, newP, int(millis), int(millis/2.0), FadeIn, FadeOut, true)
+}
+func (s *Sounds) FadeOut(seconds float64) {
+	millis := seconds*1000.0
+	s.ChangeTo(int(millis), int(millis/2.0), "", nil, FadeOut, false)
+	go func(){
+		time.Sleep(time.Duration(float64(time.Millisecond)*millis))
+		s.PauseAll()
 	}()
 }
-
 func (s *Sounds) FadeTo(new_file string, seconds float64) {
 	millis := seconds*1000.0
-	s.ChangeTo(int(millis), int(millis/2.0), new_file, StandardFader)
+	s.ChangeTo(int(millis), int(millis/2.0), new_file, FadeIn, FadeOut, true)
 }
-func (s *Sounds) FadeToR(seed int, seconds float64) {
+func (s *Sounds) FadeToR(seed int64, seconds float64) {
 	millis := seconds*1000.0
-	s.ChangeTo(int(millis), int(millis/2.0), s.GetRandomSound(seed), StandardFader)
+	s.ChangeTo(int(millis), int(millis/2.0), s.GetRandomSound(seed), FadeIn, FadeOut, true)
 }
 
 //loads all audio files in a folder
@@ -76,12 +87,18 @@ func (s *Sounds) PS(file string) {
 	}
 }
 //Plays a random audio file
-func (s *Sounds) PR(seed int) {
+func (s *Sounds) PR(seed int64) {
 	s.PS(s.GetRandomSound(seed))
 }
-
-func (s *Sounds) GetRandomSound(seed int) string {
-	rand.Seed(int64(seed))
+func (s *Sounds) PauseAll() {
+	for _,p := range(s.sounds) {
+		if p.IsPlaying() {
+			p.Pause()
+		}
+	}
+}
+func (s *Sounds) GetRandomSound(seed int64) string {
+	rand.Seed(seed)
 	idx := rand.Intn(len(s.sounds))
 	counter := 0
 	for f,_ := range(s.sounds) {
@@ -91,4 +108,47 @@ func (s *Sounds) GetRandomSound(seed int) string {
 		counter ++
 	}
 	return ""
+}
+
+func (s *Sounds) ChangeTo(milliseconds, iterations int, new_file string, volumefaderNew, volumefaderOld  func(percent float64)(volume float64), changeToNew bool) {
+	oldP, ok := s.sounds[s.currentPlayer]
+	if !ok {
+		oldP = nil
+	}
+	newP, ok := s.sounds[new_file]
+	if !ok || newP == oldP {
+		newP = nil
+	}else{
+		s.currentPlayer = new_file
+	}
+	FadePlayer(oldP, newP, milliseconds, iterations, volumefaderNew, volumefaderOld, changeToNew)
+}
+
+func FadePlayer(oldP, newP *AudioPlayer, milliseconds, iterations int, volumefaderNew, volumefaderOld  func(percent float64)(volume float64), changeToNew bool) {
+	delay := float64(milliseconds)/float64(iterations)
+	if newP != nil {
+		newP.PlayFromBeginning(0.0)
+	}
+	if oldP != nil {
+		oldP.SetVolume(1.0)
+	}
+	go func() {
+		for i := 0; i < iterations; i++ {
+			percent := float64(i+1)/float64(iterations)
+			if oldP != nil {
+				oldP.SetVolume(volumefaderOld(percent))
+			}
+			if newP != nil {
+				newP.SetVolume(volumefaderNew(percent))
+			}
+			time.Sleep(time.Duration(int(float64(time.Millisecond)*delay)))
+		}
+		if changeToNew {
+			if oldP != nil {
+				oldP.Pause()
+			}
+		}else if newP != nil {
+			newP.Pause()
+		}
+	}()
 }

@@ -335,7 +335,7 @@ func main() {
 		time.Sleep(time.Second*6)
 		sounds.PS("main")
 		time.Sleep(time.Second*2)
-		sounds.PR(time.Now().Nanosecond())
+		sounds.PR(time.Now().UnixNano())
 	}()
 	StartGame(&TestGame{})
 }

@@ -2,6 +2,7 @@ package GE
 
 import (
 	"os"
+	"time"
 	//"github.com/hajimehoshi/ebiten"
 	"github.com/hajimehoshi/ebiten/audio"
 	"github.com/hajimehoshi/ebiten/audio/mp3"
@@ -19,6 +20,8 @@ func InitAudioContext() {
 
 type AudioPlayer struct {
 	*audio.Player
+	repeating bool
+	total time.Duration
 }
 
 //Creates a new audio player
@@ -33,7 +36,7 @@ func NewPlayer(filename string) (*AudioPlayer, error) {
 	p, err := audio.NewPlayer(audioContext, d)
 	if err != nil {return nil, err}
 	
-	ap := &AudioPlayer{Player:p}
+	ap := &AudioPlayer{Player:p, total:time.Second * time.Duration(d.Length()) / 4 / sampleRate}
 	return ap, nil
 }
 func (p *AudioPlayer) PlayFromBeginning(volume float64) error {
@@ -41,4 +44,23 @@ func (p *AudioPlayer) PlayFromBeginning(volume float64) error {
 	p.Rewind()
 	p.Play()
 	return nil
+}
+func (p *AudioPlayer) Pause() {
+	p.repeating = false
+	p.Player.Pause()
+}
+func (p *AudioPlayer) Repeat() {
+	if !p.repeating {
+		p.repeating = true
+		go func(){
+			for p.repeating {
+				remaining := p.total - p.Current()
+				time.Sleep(remaining+time.Millisecond)
+				if p.repeating {
+					p.Rewind()
+					p.Play()
+				}
+			}
+		}()
+	}
 }

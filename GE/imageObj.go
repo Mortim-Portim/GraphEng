@@ -14,11 +14,13 @@ import (
 	"errors"
 )
 //Loads the Image in Original Resolution
-func LoadImgObj(path string, width, height, x, y, angle float64) *ImageObj {
-	_, img := LoadImg(path)
+func LoadImgObj(path string, width, height, x, y, angle float64) (*ImageObj, error) {
+	err, img := LoadImg(path)
+	if err != nil {return nil, err}
 	//scaledImg := resize.Resize(uint(width), uint(height), *img, resize.NearestNeighbor)
-	eimg,_ := ImgToEbitenImg(img)
-	return &ImageObj{eimg, img, width, height, x, y, angle}
+	eimg, err := ImgToEbitenImg(img)
+	if err != nil {return nil, err}
+	return &ImageObj{eimg, img, width, height, x, y, angle}, nil
 }
 //Stores the original, ebiten image and dimensions
 type ImageObj struct {

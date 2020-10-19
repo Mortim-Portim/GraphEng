@@ -187,8 +187,11 @@ func (p *WorldStructure) BytesToObjects(bsss []byte) {
 		x := cmp.BytesToFloat64(b[0])
 		y := cmp.BytesToFloat64(b[1])
 		name := string(b[2])
-		obj := GetStructureObj(p.GetNamedStructure(name), x, y)
-		p.Objects = append(p.Objects, obj)
+		strct := p.GetNamedStructure(name)
+		if strct != nil {
+			obj := GetStructureObj(strct, x, y)
+			p.Objects = append(p.Objects, obj)
+		}
 	}
 }
 func (p *WorldStructure) LightsToBytes() (bs []byte) {

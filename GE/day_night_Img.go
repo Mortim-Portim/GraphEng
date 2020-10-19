@@ -17,11 +17,13 @@ func (i *DayNightImg) Size() (w int, h int) {
 func (i *DayNightImg) Clone() *DayNightImg {
 	return &DayNightImg{i.day.Copy(), i.night.Copy()}
 }
-func LoadDayImg(day_path string, width, height, x, y, angle float64) (img *DayNightImg) {
-	img = &DayNightImg{}
-	img.day = LoadImgObj(day_path, width, height, x, y, angle)
-	img.night = img.day
-	return
+func LoadDayImg(day_path string, width, height, x, y, angle float64) (*DayNightImg, error) {
+	img := &DayNightImg{}
+	di, err := LoadImgObj(day_path, width, height, x, y, angle)
+	if err != nil {return nil, err}
+	img.day = di
+	img.night = di
+	return img, nil
 }
 func LoadDayNightImg(path string, width, height, x, y, angle float64) (img *DayNightImg) {
 	img = &DayNightImg{}

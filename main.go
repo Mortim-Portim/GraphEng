@@ -4,12 +4,12 @@ import (
 	"github.com/hajimehoshi/ebiten"
 	"marvin/GraphEng/GE"
 	
-	//"marvin/GraphEng/res"
-	"fmt"
-	"time"
+	"marvin/GraphEng/res"
+	//"fmt"
+	//"time"
 	//"github.com/hajimehoshi/ebiten/ebitenutil"
 	
-	//"image/color"
+	"image/color"
 	
 	//cmp "marvin/GraphEng/Compression"
 )
@@ -39,7 +39,7 @@ func StartGame(g ebiten.Game) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-/**
+
 //  _    _                 _____       _             __                
 // | |  | |               |_   _|     | |           / _|               
 // | |  | |___  ___ _ __    | |  _ __ | |_ ___ _ __| |_ __ _  ___ ___  
@@ -139,7 +139,7 @@ func main() {
 
 	StartGame(g)
 }
-**/
+
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -316,6 +316,7 @@ func main() {
 }
 **/
 
+/**
 type TestGame struct {}
 func (g *TestGame) Update(screen *ebiten.Image) error {return nil}
 func (g *TestGame) Layout(outsideWidth, outsideHeight int) (int, int) {
@@ -349,3 +350,4 @@ func main() {
 	}()
 	StartGame(&TestGame{})
 }
+**/

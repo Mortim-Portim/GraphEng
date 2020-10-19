@@ -147,11 +147,9 @@ func FadePlayer(oldP, newP *AudioPlayer, milliseconds, iterations int, volumefad
 			percent := float64(i+1)/float64(iterations)
 			if oldP != nil {
 				oldP.SetVolume(volumefaderOld(percent))
-				fmt.Println("oldP: ", oldP.Volume())
 			}
 			if newP != nil {
 				newP.SetVolume(volumefaderNew(percent))
-				fmt.Println("newP: ", newP.Volume())
 			}
 			time.Sleep(time.Duration(int(float64(time.Millisecond)*delay)))
 		}

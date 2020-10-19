@@ -34,6 +34,24 @@ type KeyLi struct {
 	JustChanged []int
 	
 	SettingKey int
+	
+	EventListeners map[int][]func(l *KeyLi, state bool)
+}
+func (l *KeyLi) MappKey(key ebiten.Key) int {
+	id := GetKeyID(key)
+	l.mapper[id] = id
+	return id
+}
+//Registers a listener for an event of a single key
+func (l *KeyLi) RegisterKeyEventListener(keyID int, listener func(*KeyLi, bool)) {
+	if _,ok := l.mapper[keyID]; !ok {
+		l.mapper[keyID] = keyID
+	}
+	_, ok := l.EventListeners[l.mapper[keyID]]
+	if !ok {
+		l.EventListeners[l.mapper[keyID]] = make([]func(l *KeyLi, state bool), 0)
+	}
+	l.EventListeners[l.mapper[keyID]] = append(l.EventListeners[l.mapper[keyID]], listener)
 }
 //Resets the configurations
 func (l *KeyLi) Reset() {
@@ -41,9 +59,10 @@ func (l *KeyLi) Reset() {
 	l.keyStates = make(map[int]bool)
 	l.JustChanged = make([]int, 0)
 	l.SettingKey = -1
+	l.EventListeners = make(map[int][]func(l *KeyLi, state bool))
 }
 //Update only the Keys that are used
-func (l *KeyLi) UpdateMapped(screen *ebiten.Image, frame int) error {
+func (l *KeyLi) UpdateMapped() error {
 	l.JustChanged = make([]int, 0)
 	for _,ID := range(l.mapper) {
 		l.UpdateKeyState(ID)
@@ -69,6 +88,14 @@ func (l *KeyLi) UpdateKeyState(KeyID int) {
 	}
 	if lastKeyState != l.keyStates[KeyID] && !containsI(l.JustChanged, KeyID) {
 		l.JustChanged = append(l.JustChanged, KeyID)
+		
+		listeners, ok := l.EventListeners[KeyID]
+		if ok {
+			for _,listener := range(listeners) {
+				listener(l, l.keyStates[KeyID])
+			}
+		}
+		
 		if l.SettingKey >= 0 {
 			l.mapper[l.SettingKey] = KeyID
 			l.SettingKey = -1
@@ -105,7 +132,7 @@ func (l *KeyLi) SaveConfig(path string) {
 //Loads the Keyboardmapper from a file
 func (l *KeyLi) LoadConfig(path string) {
 	mapper := LoadMapper(fmt.Sprintf("%s/Keyboardmapper.txt", path))
-	if mapper != nil {
+	if mapper != nil && len(mapper) > 0 {
 		l.mapper = mapper
 	}
 }
@@ -128,4 +155,13 @@ func SaveMapper(path string, mapper map[int]int) {
 	CheckErr(err)
 	err2 := ioutil.WriteFile(path, bytes, 0644)
     CheckErr(err2)
+}
+//Returns the KeyID of an specified ebiten key
+func GetKeyID(key ebiten.Key) int {
+	for i,k := range(AllKeys) {
+		if int(k) == int(key) {
+			return i
+		}
+	}
+	return -1
 }

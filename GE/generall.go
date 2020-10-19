@@ -18,7 +18,7 @@ import (
 	"fmt"
 )
 
-const allLetters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz/."
+const allLetters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz/.:"
 const StandardFontSize = 64
 var StandardFont *truetype.Font
 

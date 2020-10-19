@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"errors"
 	"image/color"
+	"io/ioutil"
 )
 
 /**
@@ -117,6 +118,16 @@ func (p *Params) LoadFromFile(path string) error {
     		}
     	}
     }
+	return nil
+}
+//Saves params to a file
+func (p *Params) SaveToFile(path string) error {
+	data := ""
+	for key,val := range(p.strs) {
+		data += fmt.Sprintf("%s:%s\n", key, val)
+	}
+	data = data[:len(data)-2]
+	ioutil.WriteFile(path, []byte(data), 0644)
 	return nil
 }
 //returns the string value for the key

@@ -12,17 +12,17 @@ func GetWorldStructure(X, Y, W, H float64, WTiles, HTiles int) (p *WorldStructur
 	p.TileMat = GetMatrix(WTiles, HTiles, 0)
 	p.LIdxMat = GetMatrix(WTiles, HTiles, -1)
 	p.ObjMat  = GetMatrix(WTiles, HTiles, 0)
+	p.Add_Drawables = GetDrawables()
+	p.SO_Drawables = GetDrawables()
 	p.SetDisplayWH(WTiles, HTiles)
 	return
 }
 
 /**
 Saved:
-
 Objects
 Lights
 TileMat
-
 middleX, middleY
 minLight, maxLight
 deltaB
@@ -37,6 +37,10 @@ type WorldStructure struct {
 	
 	//Represent Pointer to light sources
 	Lights			[]*Light
+	
+	//Represent basic Drawables, that can be drawn by their location on the map
+	Add_Drawables	*Drawables
+	SO_Drawables	*Drawables
 	
 	//The standard light level
 	lightLevel, minLight, maxLight int16
@@ -58,21 +62,25 @@ type WorldStructure struct {
 	xStart, yStart, tileS float64
 }
 
+//Draws the tiles first and then SO_Drawables
+func (p *WorldStructure) Draw(screen *ebiten.Image) {
+	p.drawTiles(screen)
+	
+	for _,dwa := range(*p.SO_Drawables) {
+		x := dwa.GetX(); y := dwa.GetY()
+		lv, _ := p.CurrentLightMat.Get(int(x), int(y)-1)
+		X := (x)*p.tileS + p.xStart
+		Y := (y)*p.tileS + p.yStart
+		dwa.Draw(screen, X, Y, lv, p.tileS)
+		//fmt.Printf("Drawing %v at x:%v, y:%v, X:%v, Y:%v, lv:%v\n", dwa, x, y, X, Y, lv)
+	}
+}
+
+//!DEPRECATED!
 //Draw the top first
 //Draws The World Ground Tiles and the Objects form the layer which is currently in the middle of the screen
 func (p *WorldStructure) DrawBack(screen *ebiten.Image) {
-	for y := 0; y < p.TileMat.H(); y++ {
-		for x := 0; x < p.TileMat.W(); x++ {
-			tile_idx,err := p.TileMat.Get(x, y)
-			if err == nil {
-				p.drawer.X, p.drawer.Y = float64(x)*p.tileS + p.xStart, float64(y)*p.tileS + p.yStart
-				if int(tile_idx) >= 0 && int(tile_idx) < len(p.Tiles) {
-					lv, _ := p.CurrentLightMat.Get(x, y)
-					p.Tiles[tile_idx].Draw(screen, p.drawer, p.frame, lv)
-				}
-			}
-		}
-	}
+	p.drawTiles(screen)
 	drawnObjs := make([]int,0)
 	for y := 0; y < p.ObjMat.H(); y++ {
 		for x := 0; x < p.ObjMat.W(); x++ {
@@ -90,6 +98,7 @@ func (p *WorldStructure) DrawBack(screen *ebiten.Image) {
 		}
 	}
 }
+//!DEPRECATED!
 func (p *WorldStructure) DrawFront(screen *ebiten.Image) {
 	drawnObjs := make([]int,0)
 	for y := 0; y < p.ObjMat.H(); y++ {
@@ -108,6 +117,23 @@ func (p *WorldStructure) DrawFront(screen *ebiten.Image) {
 		}
 	}
 }
+
+func (p *WorldStructure) drawTiles(screen *ebiten.Image) {
+	for y := 0; y < p.TileMat.H(); y++ {
+		for x := 0; x < p.TileMat.W(); x++ {
+			tile_idx,err := p.TileMat.Get(x, y)
+			if err == nil {
+				p.drawer.X, p.drawer.Y = float64(x)*p.tileS + p.xStart, float64(y)*p.tileS + p.yStart
+				if int(tile_idx) >= 0 && int(tile_idx) < len(p.Tiles) {
+					lv, _ := p.CurrentLightMat.Get(x, y)
+					p.Tiles[tile_idx].Draw(screen, p.drawer, p.frame, lv)
+				}
+			}
+		}
+	}
+}
+
+//ONLY use when adding or removing lights
 func (p *WorldStructure) UpdateLIdxMat() {
 	p.LIdxMat = GetMatrix(p.TileMat.WAbs(), p.TileMat.HAbs(), -1)
 	for i,l := range(p.Lights) {
@@ -115,12 +141,14 @@ func (p *WorldStructure) UpdateLIdxMat() {
 	}
 	p.TileMat.CopyFocus(p.LIdxMat)
 }
+//ONLY use when changing objects or lights in order to reaplly raycasting
 func (p *WorldStructure) UpdateLights(ls []*Light) {
 	for _,l := range(ls) {
 		l.ApplyRaycasting(p.ObjMat, 1)
 	}
 }
 
+//ONLY use when moving the world before drawing tiles or objects
 const LIGHT_COMP_RADIUS = 20
 func (p *WorldStructure) DrawLights(update bool) {
 	ls := make([]*Light, 0)
@@ -156,6 +184,7 @@ func (p *WorldStructure) GetLightValueForPoint(x,y int, ls []*Light, standard in
 	}
 	return
 }
+//ONLY use when changing an objects location or hitbox
 func (p *WorldStructure) UpdateObjMat() {
 	p.ObjMat = GetMatrix(p.TileMat.WAbs(),p.TileMat.HAbs(),0)
 	for i,obj := range(p.Objects) {
@@ -163,6 +192,27 @@ func (p *WorldStructure) UpdateObjMat() {
 	}
 	p.TileMat.CopyFocus(p.ObjMat)
 }
+//ONLY use after moving the world to a different position
+func (p *WorldStructure) UpdateObjDrawables() {
+	p.SO_Drawables = p.Add_Drawables
+	drawnObjs := make([]int,0)
+	for y := 0; y < p.ObjMat.H(); y++ {
+		for x := 0; x < p.ObjMat.W(); x++ {
+			mvi,err := p.ObjMat.Get(x, y)
+			idx := int(math.Abs(float64(mvi)))
+			if idx != 0 && err == nil {
+				idx -= 1
+				obj := p.Objects[idx]
+				if !containsI(drawnObjs, int(idx)){
+					p.SO_Drawables = p.SO_Drawables.AddStructureObjOfWorld(obj, p)
+					drawnObjs = append(drawnObjs, int(idx))
+				}
+			}
+		}
+	}
+	p.SO_Drawables.Sort()
+}
+//Checks if an object obstructs the point
 func (p *WorldStructure) Collides(x,y int) bool {
 	v, err := p.ObjMat.GetAbs(x,y)
 	if v <= 0 && err == nil {

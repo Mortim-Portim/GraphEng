@@ -9,7 +9,12 @@ import (
 type DayNightImg struct {
 	day, night *ImageObj
 }
-
+func (i *DayNightImg) Loc() (float64, float64) {
+	return i.day.X, i.day.Y
+}
+func (i *DayNightImg) Bds() (float64, float64) {
+	return i.day.W, i.day.H
+}
 func (i *DayNightImg) Size() (w int, h int) {
 	w,h = i.day.Img.Size()
 	return 

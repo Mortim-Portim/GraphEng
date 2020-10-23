@@ -31,6 +31,9 @@ type ImageObj struct {
 func (obj *ImageObj) SetMiddle(x,y float64) {
 	obj.X = x-obj.W/2; obj.Y = y-obj.H/2
 }
+func (obj *ImageObj) GetMiddle() (float64, float64) {
+	return obj.X+obj.W/2, obj.Y+obj.H/2
+}
 //Sets the middle of the Image to x
 func (obj *ImageObj) SetMiddleX(x float64) {
 	obj.X = x-obj.W/2

@@ -2,22 +2,24 @@ package GE
 
 import (
 	"math"
+	//"github.com/hajimehoshi/ebiten"
 )
+
 
 //sets the Middle of the View
 func (p *WorldStructure) SetMiddle(xP, yP int) {
-	p.middleX = xP
-	p.middleY = yP
-	x,y := p.middleX-(p.xTiles-1)/2, p.middleY-(p.yTiles-1)/2
-	p.TileMat.SetFocus(x,y, x+p.xTiles, y+p.yTiles)
-	p.LIdxMat.SetFocus(x,y, x+p.xTiles, y+p.yTiles)
-	p.ObjMat.SetFocus(x,y, x+p.xTiles, y+p.yTiles)
+	if xP != p.middleX || yP != p.middleY {
+		p.middleX = xP
+		p.middleY = yP
+		x,y := p.middleX-(p.xTiles-1)/2, p.middleY-(p.yTiles-1)/2
+		p.TileMat.SetFocus(x,y, x+p.xTiles, y+p.yTiles)
+		p.LIdxMat.SetFocus(x,y, x+p.xTiles, y+p.yTiles)
+		p.ObjMat.SetFocus(x,y, x+p.xTiles, y+p.yTiles)
+	}
 }
 //moves the view by dx and dy
 func (p *WorldStructure) Move(dx,dy int) {
-	p.middleX += dx
-	p.middleY += dy
-	p.SetMiddle(p.middleX, p.middleY)
+	p.SetMiddle(p.middleX+dx, p.middleY+dy)
 }
 //Sets the number of tiles to be displayed in X and Y direction
 func (p *WorldStructure) SetDisplayWH(x,y int) {

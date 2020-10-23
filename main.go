@@ -5,11 +5,11 @@ import (
 	"marvin/GraphEng/GE"
 	
 	"marvin/GraphEng/res"
-	//"fmt"
-	//"time"
-	//"github.com/hajimehoshi/ebiten/ebitenutil"
+	"fmt"
+	"time"
+	"github.com/hajimehoshi/ebiten/ebitenutil"
 	
-	"image/color"
+	//"image/color"
 	
 	//cmp "marvin/GraphEng/Compression"
 )
@@ -39,7 +39,7 @@ func StartGame(g ebiten.Game) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-
+/**
 //  _    _                 _____       _             __                
 // | |  | |               |_   _|     | |           / _|               
 // | |  | |___  ___ _ __    | |  _ __ | |_ ___ _ __| |_ __ _  ___ ___  
@@ -139,7 +139,7 @@ func main() {
 
 	StartGame(g)
 }
-
+**/
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -147,7 +147,7 @@ func main() {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/**
+
 // __          __        _     _    _____ _                   _                  
 // \ \        / /       | |   | |  / ____| |                 | |                 
 //  \ \  /\  / /__  _ __| | __| | | (___ | |_ _ __ _   _  ___| |_ _   _ _ __ ___ 
@@ -162,6 +162,7 @@ type TestGame struct {
 }
 func (g *TestGame) Init(screen *ebiten.Image) {}
 func (g *TestGame) Update(screen *ebiten.Image) error {
+	startComp := time.Now()
 	if g.frame%2 == 0 {
 		if ebiten.IsKeyPressed(ebiten.KeyLeft) {
 			g.wrld.Move(-1,0)
@@ -181,10 +182,11 @@ func (g *TestGame) Update(screen *ebiten.Image) error {
 		g.wrld.Lights[0].SetMaximumIntesity(g.wrld.Lights[0].GetMaximumIntesity()+int16(dy*10))
 		g.wrld.UpdateLights(g.wrld.Lights[0:1])
 	}
-	
+	//USE drawable to draw player
 	x,y := g.wrld.Middle()
 	g.wrld.Objects[0].SetToXY(float64(x),float64(y))
 	g.wrld.UpdateObjMat()
+	g.wrld.UpdateObjDrawables()
 	
 	collides := g.wrld.Collides(x,y)
 	if collides {
@@ -196,19 +198,21 @@ func (g *TestGame) Update(screen *ebiten.Image) error {
 			strct.IsUnderstood = false
 		}
 	}
-	//fmt.Println(collides)
 	
 	g.wrld.UpdateLightLevel(1)
 	g.wrld.DrawLights(false)
 	
+	/**
 	g.wrld.DrawBack(screen)
 	g.wrld.DrawFront(screen)
+	**/
+	g.wrld.Draw(screen)
+	
 	g.frame ++
 	
-	msg := fmt.Sprintf(`TPS: %0.2f`, ebiten.CurrentTPS())
+	msg := fmt.Sprintf(`TPS: %0.2f, Updating took: %v`, ebiten.CurrentTPS(), time.Now().Sub(startComp))
 	ebitenutil.DebugPrint(screen, msg)
 	GE.LogToFile(msg+"\n")
-	
 	return nil
 }
 func (g *TestGame) Layout(outsideWidth, outsideHeight int) (int, int) {
@@ -251,7 +255,6 @@ func main() {
 	errol := wrld.LoadStructureObjs("./res/structObjs/")
 	if errol != nil {panic(errol)}
 	
-	wrld.AddNamedStructureObj("jump", 		12, 12)
 	wrld.AddNamedStructureObj("house1", 	10, 10)
 	wrld.AddNamedStructureObj("tree2", 		 6, 10)
 	wrld.AddNamedStructureObj("tree2big", 	14, 10)
@@ -283,7 +286,6 @@ func main() {
 	fmt.Printf("Lights are %v bytes\n", len(lbs))
 	wrld.BytesToLights(lbs)
 	
-	
 	//Sets the start point
 	wrld.SetMiddle(14,14)
 	wrld.SetLightStats(10,255, 0.3)
@@ -292,7 +294,7 @@ func main() {
 	//----------------------------------------------------------------------------------------------------------------------------------------------
 	//Saves the compressed world
 	startComp := time.Now()
-	errS := wrld.Save("./res/wrld.txt")
+	errS := wrld.Save("./res/wrld.map")
 	if errS != nil {
 		panic(errS)
 	}
@@ -302,7 +304,7 @@ func main() {
 	
 	//loads the compressed world
 	startDeComp := time.Now()
-	newWrld, errL := GE.LoadWorldStructure(0,0,screenWidth,screenHeight, "./res/wrld.txt", "./res/tiles/", "./res/structObjs/")
+	newWrld, errL := GE.LoadWorldStructure(0,0,screenWidth,screenHeight, "./res/TestMap2.map", "./res/tiles/", "./res/structObjs/")
 	if errL != nil {
 		GE.ShitImDying(errL)
 	}
@@ -310,11 +312,16 @@ func main() {
 	endDeComp := time.Now()
 	fmt.Println("Loading wrld took: ", endDeComp.Sub(startDeComp))
 	
+	//Sets the start point
+	newWrld.SetMiddle(14,14)
+	newWrld.SetLightStats(10,255, 0.3)
+	newWrld.SetLightLevel(15)
+	
 	g := &TestGame{newWrld, 0}	
 
 	StartGame(g)
 }
-**/
+
 
 /**
 type TestGame struct {}

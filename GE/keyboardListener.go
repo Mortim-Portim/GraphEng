@@ -2,7 +2,7 @@ package GE
 
 import (
 	"github.com/hajimehoshi/ebiten"
-	"fmt"
+	//"fmt"
 	//"log"
 	//"math"
 	//"errors"
@@ -36,6 +36,10 @@ type KeyLi struct {
 	SettingKey int
 	
 	EventListeners map[int][]func(l *KeyLi, state bool)
+}
+func (l *KeyLi) MappIDToKey(id int, key ebiten.Key) {
+	oid := GetKeyID(key)
+	l.mapper[id] = oid
 }
 func (l *KeyLi) MappKey(key ebiten.Key) int {
 	id := GetKeyID(key)
@@ -127,11 +131,11 @@ func (l *KeyLi) GetMappedKeyState(ID int) (state, change bool) {
 }
 //Saves the Keyboardmapper to a file
 func (l *KeyLi) SaveConfig(path string) {
-	SaveMapper(fmt.Sprintf("%s/Keyboardmapper.txt", path), l.mapper)
+	SaveMapper(path, l.mapper)
 }
 //Loads the Keyboardmapper from a file
 func (l *KeyLi) LoadConfig(path string) {
-	mapper := LoadMapper(fmt.Sprintf("%s/Keyboardmapper.txt", path))
+	mapper := LoadMapper(path)
 	if mapper != nil && len(mapper) > 0 {
 		l.mapper = mapper
 	}

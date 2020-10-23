@@ -49,6 +49,22 @@ func (o *StructureObj) DrawCollisionMatrix(mat *Matrix, value int16) {
 	mat.FillAbs(int(o.HitBox.Min().X), int(o.HitBox.Min().Y), int(o.HitBox.Max().X), int(o.HitBox.Max().Y), value)
 }
 
+func (o *StructureObj) Draw(screen *ebiten.Image, lv int16, x, y, sqSize float64) {
+	if !o.understandable || (o.understandable && !o.IsUnderstood) {
+		o.drawImg(o.NUA, screen, lv, x, y, sqSize)
+	}else{
+		o.drawImg(o.UA, screen, lv, x, y, sqSize)
+	}
+}
+func (o *StructureObj) drawImg(img *DayNightAnim, screen *ebiten.Image, lv int16, oldx, oldy, sqSize float64) {
+	y := oldy+o.HitBox.Bounds().Y/2*sqSize-o.DrawBox.Bounds().Y*sqSize
+	x := oldx-o.DrawBox.Bounds().X/2*sqSize
+	img.SetParams(x,y, float64(o.DrawBox.Bounds().X)*sqSize, float64(o.DrawBox.Bounds().Y)*sqSize)
+	img.LightLevel = lv
+	img.DrawAnim(screen)
+	o.frame ++
+}
+//!DEPRECATED!
 //Draws the StructureObj
 func (o *StructureObj) DrawStructObj(screen *ebiten.Image, leftTop *Point, sqSize, xStart, yStart float64, lightlevel int16) {
 	if !o.understandable || (o.understandable && !o.IsUnderstood) {
@@ -57,7 +73,7 @@ func (o *StructureObj) DrawStructObj(screen *ebiten.Image, leftTop *Point, sqSiz
 		o.drawDNImg(o.UA, screen, leftTop, sqSize, xStart, yStart, lightlevel)
 	}
 }
-
+//!DEPRECATED!
 func (o *StructureObj) drawDNImg(img *DayNightAnim, screen *ebiten.Image, leftTop *Point, sqSize, xStart, yStart float64, lightlevel int16) {
 	img.Update(o.frame)
 	relPx, relPy := float64(o.DrawBox.Min().X-leftTop.X), float64(o.DrawBox.Min().Y-leftTop.Y)

@@ -50,8 +50,7 @@ func (t *Tile) Draw(screen *ebiten.Image, drawer, frame *ImageObj, lightlevel in
 	alpha := float64(lightlevel)/float64(255)
 	t.Img.Draw(screen, alpha)
 	if frame != nil {
-		frame.X = drawer.X
-		frame.Y = drawer.Y
+		drawer.CopyXYWHTo(frame)
 		frame.DrawImageObj(screen)
 	}
 }

@@ -7,7 +7,7 @@ import (
 
 
 //sets the Middle of the View
-func (p *WorldStructure) SetMiddle(xP, yP int) {
+func (p *WorldStructure) SetMiddle(xP, yP int, force bool) {
 	if xP != p.middleX || yP != p.middleY {
 		p.middleX = xP
 		p.middleY = yP
@@ -18,8 +18,8 @@ func (p *WorldStructure) SetMiddle(xP, yP int) {
 	}
 }
 //moves the view by dx and dy
-func (p *WorldStructure) Move(dx,dy int, update bool) {
-	p.SetMiddle(p.middleX+dx, p.middleY+dy)
+func (p *WorldStructure) Move(dx,dy int, update, force bool) {
+	p.SetMiddle(p.middleX+dx, p.middleY+dy, force)
 	if update && (dx != 0 || dy != 0) {
 		p.UpdateObjDrawables()
 	}
@@ -40,7 +40,8 @@ func (p *WorldStructure) SetDisplayWH(x,y int) {
 	p.drawer.W = p.tileS
 	p.drawer.H = p.tileS
 	p.CurrentLightMat = GetMatrix(x,y, 0)
-	p.SetMiddle(p.Middle())
+	mx, my := p.Middle()
+	p.SetMiddle(mx,my, true)
 }
 //returns the middle of the view
 func (p *WorldStructure) Middle() (int, int) {

@@ -37,7 +37,7 @@ func GetWorldStructureFromBytes(X,Y,W,H float64, data []byte, tile_path, struct_
 	p.BytesToLights(bs[7])
 	p.UpdateLIdxMat()
 	
-	p.SetMiddle(int(cmp.BytesToInt64(bs[0])), int(cmp.BytesToInt64(bs[1])))
+	p.SetMiddle(int(cmp.BytesToInt64(bs[0])), int(cmp.BytesToInt64(bs[1])), true)
 	p.SetLightStats(cmp.BytesToInt16(bs[2]), cmp.BytesToInt16(bs[3]), cmp.BytesToFloat64(bs[4]))
 	return p, nil
 }

@@ -165,16 +165,16 @@ func (g *TestGame) Update(screen *ebiten.Image) error {
 	startComp := time.Now()
 	if g.frame%2 == 0 {
 		if ebiten.IsKeyPressed(ebiten.KeyLeft) {
-			g.wrld.Move(-1,0,false)
+			g.wrld.Move(-1,0,false,false)
 		}
 		if ebiten.IsKeyPressed(ebiten.KeyRight) {
-			g.wrld.Move(1,0, false)
+			g.wrld.Move(1,0, false,false)
 		}
 		if ebiten.IsKeyPressed(ebiten.KeyUp) {
-			g.wrld.Move(0,-1, false)
+			g.wrld.Move(0,-1, false,false)
 		}
 		if ebiten.IsKeyPressed(ebiten.KeyDown) {
-			g.wrld.Move(0,1, false)
+			g.wrld.Move(0,1, false,false)
 		}
 	}
 	_,dy := ebiten.Wheel()
@@ -246,8 +246,6 @@ func main() {
 	//Creates a WorldStructure object
 	wrld := GE.GetWorldStructure(0, 0, screenWidth, screenHeight, XT, YT)
 	wrld.TileMat = wmatI
-	//Creates a raster
-	wrld.GetFrame(2, 90)
 	
 	//----------------------------------------------------------------------------------------------------------------------------------------------
 	errtl := wrld.LoadTiles("./res/tiles/")
@@ -287,7 +285,7 @@ func main() {
 	wrld.BytesToLights(lbs)
 	
 	//Sets the start point
-	wrld.SetMiddle(14,14)
+	wrld.SetMiddle(14,14,true)
 	wrld.SetLightStats(10,255, 0.3)
 	wrld.SetLightLevel(15)
 	
@@ -304,7 +302,7 @@ func main() {
 	
 	//loads the compressed world
 	startDeComp := time.Now()
-	newWrld, errL := GE.LoadWorldStructure(0,0,screenWidth,screenHeight, "./res/TestMap2.map", "./res/tiles/", "./res/structObjs/")
+	newWrld, errL := GE.LoadWorldStructure(0,0,screenWidth,screenHeight, "./res/TestMap3.map", "./res/tiles/", "./res/structObjs/")
 	if errL != nil {
 		GE.ShitImDying(errL)
 	}
@@ -313,9 +311,11 @@ func main() {
 	fmt.Println("Loading wrld took: ", endDeComp.Sub(startDeComp))
 	
 	//Sets the start point
-	newWrld.SetMiddle(14,14)
+	newWrld.SetMiddle(14,14,true)
 	newWrld.SetLightStats(10,255, 0.3)
 	newWrld.SetLightLevel(15)
+	//Creates a raster
+	newWrld.GetFrame(2, 90)
 	
 	g := &TestGame{newWrld, 0}	
 

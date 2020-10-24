@@ -68,7 +68,8 @@ func (p *WorldStructure) Draw(screen *ebiten.Image) {
 	
 	for _,dwa := range(*p.SO_Drawables) {
 		x := dwa.GetX(); y := dwa.GetY()
-		lv, _ := p.CurrentLightMat.Get(int(x), int(y)-1)
+		lv, err := p.CurrentLightMat.GetNearest(int(x), int(y-0.5))
+		if err != nil {ShitImDying(err)}
 		X := (x)*p.tileS + p.xStart
 		Y := (y)*p.tileS + p.yStart
 		dwa.Draw(screen, X, Y, lv, p.tileS)

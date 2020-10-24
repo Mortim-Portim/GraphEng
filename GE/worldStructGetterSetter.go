@@ -18,8 +18,11 @@ func (p *WorldStructure) SetMiddle(xP, yP int) {
 	}
 }
 //moves the view by dx and dy
-func (p *WorldStructure) Move(dx,dy int) {
+func (p *WorldStructure) Move(dx,dy int, update bool) {
 	p.SetMiddle(p.middleX+dx, p.middleY+dy)
+	if update && (dx != 0 || dy != 0) {
+		p.UpdateObjDrawables()
+	}
 }
 //Sets the number of tiles to be displayed in X and Y direction
 func (p *WorldStructure) SetDisplayWH(x,y int) {

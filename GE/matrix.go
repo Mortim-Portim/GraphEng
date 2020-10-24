@@ -104,7 +104,7 @@ func (m *Matrix) Clone() *Matrix {
 //Returns the value of the matrix at the absolute x and y coordinates
 func (m *Matrix) GetAbs(x,y int) (int16, error) {
 	if x < 0 || y < 0 || x >= m.WAbs() || y >= m.HAbs() {
-		return 0, errors.New("Coordinates not on matrix")
+		return 0, errors.New(fmt.Sprintf("Coordinates (%v:%v) not on matrix", x, y))
 	}
 	return m.list[x+int(m.x.Int64())*y], nil
 }
@@ -119,11 +119,54 @@ func (m *Matrix) SetAbs(x, y int, v int16) {
 func (m *Matrix) Get(x, y int) (int16, error) {
 	xl,yl := int(m.focus.Min().X)+x, int(m.focus.Min().Y)+y
 	if xl < 0 || xl >= m.WAbs() || yl < 0 || yl >= m.HAbs() {
-		return 0, errors.New("Coordinates not on matrix")
+		return 0, errors.New(fmt.Sprintf("Coordinates (%v:%v) not on matrix", x, y))
 	}
 	
 	idx := int(x+int(m.focus.Min().X))+int(m.x.Int64())*int((y+int(m.focus.Min().Y)))
 	return m.list[idx], nil
+}
+//Returns the nearest value of a border of the matrix to a point
+func (m *Matrix) GetNearest(x, y int) (int16, error) {
+	v,err := m.Get(x,y)
+	if err == nil {
+		return v,nil
+	}
+	X,Y, W,H := float64(x), float64(y), float64(m.WAbs()), float64(m.HAbs())
+	
+	//TopLeft
+	if X < 0 && Y < 0 {
+		return m.Get(0,0)
+	}
+	//TopRight
+	if X >= W && Y < 0 {
+		return m.Get(m.WAbs()-1,0)
+	}
+	//BottomLeft
+	if X < 0 && Y >= H {
+		return m.Get(0,m.HAbs()-1)
+	}
+	//BottomRight
+	if X >= W && Y >= H {
+		return m.Get(m.WAbs()-1, m.HAbs()-1)
+	}
+	
+	//Left
+	if X < 0 {
+		return m.Get(0,y)
+	}
+	//Right
+	if X >= W {
+		return m.Get(m.WAbs()-1,y)
+	}
+	//Top
+	if Y < 0 {
+		return m.Get(x,0)
+	}
+	//Bottom
+	if Y >= H {
+		return m.Get(x,m.HAbs()-1)
+	}
+	return 0, errors.New(fmt.Sprintf("Should not be reached: x:%v, y:%v, w:%v, h:%v", X,Y,W,H))
 }
 //Sets the value of the focused matrix at the x and y coordinates
 func (m *Matrix) Set(x, y int, v int16) {

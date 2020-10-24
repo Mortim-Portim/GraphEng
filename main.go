@@ -165,16 +165,16 @@ func (g *TestGame) Update(screen *ebiten.Image) error {
 	startComp := time.Now()
 	if g.frame%2 == 0 {
 		if ebiten.IsKeyPressed(ebiten.KeyLeft) {
-			g.wrld.Move(-1,0)
+			g.wrld.Move(-1,0,false)
 		}
 		if ebiten.IsKeyPressed(ebiten.KeyRight) {
-			g.wrld.Move(1,0)
+			g.wrld.Move(1,0, false)
 		}
 		if ebiten.IsKeyPressed(ebiten.KeyUp) {
-			g.wrld.Move(0,-1)
+			g.wrld.Move(0,-1, false)
 		}
 		if ebiten.IsKeyPressed(ebiten.KeyDown) {
-			g.wrld.Move(0,1)
+			g.wrld.Move(0,1, false)
 		}
 	}
 	_,dy := ebiten.Wheel()

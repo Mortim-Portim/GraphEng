@@ -5,13 +5,13 @@ import (
 )
 
 func (l *Light) ApplyRaycasting(collMat *Matrix, factor float64) {
-	if !l.static || l.LightMat == nil {
+	if (!l.static || l.Matrix() == nil) && l.matrixNeedsUpdate {
 		radReal := l.GetRadius()
 		rad := math.Ceil(radReal)
 		
-		CollMat := collMat.SubMatrix(int(l.Location.X-rad), int(l.Location.Y-rad), int(l.Location.X+rad), int(l.Location.Y+rad))
+		CollMat := collMat.SubMatrix(int(l.Loc().X-rad), int(l.Loc().Y-rad), int(l.Loc().X+rad), int(l.Loc().Y+rad))
 		length := rad*2+1
-		l.LightMat = GetMatrix(int(length), int(length), 0)
+		mat := GetMatrix(int(length), int(length), 0)
 		dira := l.direction.GetRotationZ()
 		pnts := getPointsForBox(int(length))
 		mina := dira-l.angle/2
@@ -25,13 +25,16 @@ func (l *Light) ApplyRaycasting(collMat *Matrix, factor float64) {
 				dx := op.X-pnt.X
 				dy := op.Y-pnt.Y
 				
-				l.iterateOverLine(dx,dy,rad,radReal,factor,pnt,CollMat)
+				l.iterateOverLine(dx,dy,rad,radReal,factor,pnt,CollMat, mat)
 			}
 		}
+		l.SetMatrix(mat)
+		l.matrixNeedsUpdate = false
+		l.changed = true
 	}
 }
 
-func (l *Light) iterateOverLine(dx, dy, rad, radReal, factor float64, pnt *Vector, CollMat *Matrix) {
+func (l *Light) iterateOverLine(dx, dy, rad, radReal, factor float64, pnt *Vector, CollMat, lightmat *Matrix) {
 	pnt.X -= 0.5
 	pnt.Y -= 0.5
 	xStep := 1.0
@@ -54,10 +57,10 @@ func (l *Light) iterateOverLine(dx, dy, rad, radReal, factor float64, pnt *Vecto
 		if colliding != 0 && colliding != int(val) {
 			break
 		}
-		lv,_ := l.LightMat.Get(rx,ry)
+		lv,_ := lightmat.Get(rx,ry)
 		if lv == 0 {
 			val := int16(l.getValueAtXYdif(int(float64(rx)-rad),int(float64(ry)-rad))*factor)
-			l.LightMat.Set(rx,ry, val)
+			lightmat.Set(rx,ry, val)
 		}
 		if math.Abs(dx) > math.Abs(dy) {
 			pnt.X += xStep

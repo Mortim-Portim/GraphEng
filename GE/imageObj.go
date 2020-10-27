@@ -3,8 +3,8 @@ package GE
 import (
 	"os"
 	"image"
-	_ "image/jpeg"
-	_ "image/png"
+	//_ "image/jpeg"
+	"image/png"
 	"github.com/hajimehoshi/ebiten"
 	"bytes"
 	"github.com/nfnt/resize"
@@ -197,6 +197,11 @@ func GetEmptyImage(w,h int) (img *ebiten.Image) {
 	img.Fill(color.RGBA{0,0,0,0})
 	return
 }
+func GetColoredImg(w,h int, col color.Color) (img *ebiten.Image) {
+	img, _ = ebiten.NewImage(w, h, ebiten.FilterDefault)
+	img.Fill(col)
+	return
+}
 func DeepCopyEbitenImage(img *ebiten.Image) (img2 *ebiten.Image) {
 	w,h := img.Size()
 	img2 = GetEmptyImage(w,h)
@@ -204,7 +209,22 @@ func DeepCopyEbitenImage(img *ebiten.Image) (img2 *ebiten.Image) {
 	img2.DrawImage(img, op)
 	return
 }
+//Takes time
+func SaveImage(path string, img image.Image) error {
+	outputFile, err := os.Create(path)
+    if err != nil {
+    	return err
+    }
+    png.Encode(outputFile, img)
 
+    // Don't forget to close files
+    outputFile.Close()
+    return nil
+}
+//Takes time
+func SaveEbitenImage(path string, img *ebiten.Image) error {
+	return SaveImage(path, (image.Image)(img))
+}
 //Loads all Icons from a path with a list of sizes and a fileformat ("./64.png")
 func InitIcons(path string, sizes []int, fileformat string) ([]image.Image, error) {
 	imgs := make([]image.Image, len(sizes))

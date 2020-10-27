@@ -131,7 +131,10 @@ func (m *Matrix) GetNearest(x, y int) (int16, error) {
 	if err == nil {
 		return v,nil
 	}
-	X,Y, W,H := float64(x), float64(y), float64(m.WAbs()), float64(m.HAbs())
+	if x >= 0 && x < m.W() && y >= 0 && y < m.H() {
+		return 0,nil
+	}
+	X,Y, W,H := float64(x), float64(y), float64(m.W()), float64(m.H())
 	
 	//TopLeft
 	if X < 0 && Y < 0 {
@@ -139,15 +142,15 @@ func (m *Matrix) GetNearest(x, y int) (int16, error) {
 	}
 	//TopRight
 	if X >= W && Y < 0 {
-		return m.Get(m.WAbs()-1,0)
+		return m.Get(m.W()-1,0)
 	}
 	//BottomLeft
 	if X < 0 && Y >= H {
-		return m.Get(0,m.HAbs()-1)
+		return m.Get(0,m.H()-1)
 	}
 	//BottomRight
 	if X >= W && Y >= H {
-		return m.Get(m.WAbs()-1, m.HAbs()-1)
+		return m.Get(m.W()-1, m.H()-1)
 	}
 	
 	//Left
@@ -156,7 +159,7 @@ func (m *Matrix) GetNearest(x, y int) (int16, error) {
 	}
 	//Right
 	if X >= W {
-		return m.Get(m.WAbs()-1,y)
+		return m.Get(m.W()-1,y)
 	}
 	//Top
 	if Y < 0 {
@@ -164,7 +167,7 @@ func (m *Matrix) GetNearest(x, y int) (int16, error) {
 	}
 	//Bottom
 	if Y >= H {
-		return m.Get(x,m.HAbs()-1)
+		return m.Get(x,m.H()-1)
 	}
 	return 0, errors.New(fmt.Sprintf("Should not be reached: x:%v, y:%v, w:%v, h:%v", X,Y,W,H))
 }

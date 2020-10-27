@@ -13,8 +13,9 @@ func (p *WorldStructure) SetMiddle(xP, yP int, force bool) {
 		p.middleY = yP
 		x,y := p.middleX-(p.xTiles-1)/2, p.middleY-(p.yTiles-1)/2
 		p.TileMat.SetFocus(x,y, x+p.xTiles, y+p.yTiles)
-		p.LIdxMat.SetFocus(x,y, x+p.xTiles, y+p.yTiles)
-		p.ObjMat.SetFocus(x,y, x+p.xTiles, y+p.yTiles)
+		p.TileMat.CopyFocus(p.LIdxMat)
+		p.TileMat.CopyFocus(p.LightMat)
+		p.TileMat.CopyFocus(p.ObjMat)
 	}
 }
 //moves the view by dx and dy
@@ -39,7 +40,6 @@ func (p *WorldStructure) SetDisplayWH(x,y int) {
 	p.drawer = &ImageObj{}
 	p.drawer.W = p.tileS
 	p.drawer.H = p.tileS
-	p.CurrentLightMat = GetMatrix(x,y, 0)
 	mx, my := p.Middle()
 	p.SetMiddle(mx,my, true)
 }
@@ -109,5 +109,4 @@ func (p *WorldStructure) SetLightStats(min, max int16, lightChange float64) {
 	p.lightLevel = max
 	p.deltaB = -lightChange
 	p.currentD = 0
-	p.UpdateLights(p.Lights)
 }

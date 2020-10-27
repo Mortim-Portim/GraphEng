@@ -158,11 +158,15 @@ func main() {
 
 type TestGame struct {
 	wrld *GE.WorldStructure
+	rec  *GE.Recorder
 	frame int
 }
 func (g *TestGame) Init(screen *ebiten.Image) {}
+
+var timeTaken int64
+var inputT, objT, lightUpT, lightDT, worldDT time.Duration
 func (g *TestGame) Update(screen *ebiten.Image) error {
-	startComp := time.Now()
+	startTime := time.Now()
 	if g.frame%2 == 0 {
 		if ebiten.IsKeyPressed(ebiten.KeyLeft) {
 			g.wrld.Move(-1,0,false,false)
@@ -180,14 +184,15 @@ func (g *TestGame) Update(screen *ebiten.Image) error {
 	_,dy := ebiten.Wheel()
 	if dy != 0 {
 		g.wrld.Lights[0].SetMaximumIntesity(g.wrld.Lights[0].GetMaximumIntesity()+int16(dy*10))
-		g.wrld.UpdateLights(g.wrld.Lights[0:1])
 	}
+	
 	//USE drawable to draw player
 	x,y := g.wrld.Middle()
 	g.wrld.Objects[0].SetToXY(float64(x),float64(y))
 	g.wrld.UpdateObjMat()
 	g.wrld.UpdateObjDrawables()
 	
+	/**
 	collides := g.wrld.Collides(x,y)
 	if collides {
 		for _,strct := range(g.wrld.Structures) {
@@ -198,21 +203,30 @@ func (g *TestGame) Update(screen *ebiten.Image) error {
 			strct.IsUnderstood = false
 		}
 	}
+	**/
 	
 	g.wrld.UpdateLightLevel(1)
-	g.wrld.DrawLights(false)
-	
+	g.wrld.UpdateAllLightsIfNecassary()
 	/**
 	g.wrld.DrawBack(screen)
 	g.wrld.DrawFront(screen)
 	**/
+	
+	//Around 8ms
 	g.wrld.Draw(screen)
 	
-	g.frame ++
+	if g.frame == 150 {
+		go g.rec.Save("./res/out.mp4")
+	}
+	g.rec.NextFrame(screen)
 	
-	msg := fmt.Sprintf(`TPS: %0.2f, Updating took: %v`, ebiten.CurrentTPS(), time.Now().Sub(startComp))
+	g.frame ++
+	timeTaken = time.Now().Sub(startTime).Milliseconds()
+	fps := ebiten.CurrentTPS()
+	msg := fmt.Sprintf(`TPS: %0.2f, Updating took: %v at frame %v`, fps, timeTaken, g.frame-1)
 	ebitenutil.DebugPrint(screen, msg)
 	GE.LogToFile(msg+"\n")
+	fmt.Println(msg)
 	return nil
 }
 func (g *TestGame) Layout(outsideWidth, outsideHeight int) (int, int) {
@@ -311,13 +325,13 @@ func main() {
 	fmt.Println("Loading wrld took: ", endDeComp.Sub(startDeComp))
 	
 	//Sets the start point
-	newWrld.SetMiddle(14,14,true)
+	//newWrld.SetMiddle(14,14,true)
 	newWrld.SetLightStats(10,255, 0.3)
 	newWrld.SetLightLevel(15)
 	//Creates a raster
 	newWrld.GetFrame(2, 90)
 	
-	g := &TestGame{newWrld, 0}	
+	g := &TestGame{newWrld, GE.GetNewRecorder(100, 640, 360, FPS), 0}	
 
 	StartGame(g)
 }

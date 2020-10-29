@@ -191,6 +191,7 @@ func (g *TestGame) Update(screen *ebiten.Image) error {
 	g.wrld.Objects[0].SetToXY(float64(x),float64(y))
 	g.wrld.UpdateObjMat()
 	g.wrld.UpdateObjDrawables()
+	//g.wrld.ComputeTilesOnScreen()
 	
 	/**
 	collides := g.wrld.Collides(x,y)

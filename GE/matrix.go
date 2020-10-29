@@ -119,7 +119,7 @@ func (m *Matrix) SetAbs(x, y int, v int16) {
 func (m *Matrix) Get(x, y int) (int16, error) {
 	xl,yl := int(m.focus.Min().X)+x, int(m.focus.Min().Y)+y
 	if xl < 0 || xl >= m.WAbs() || yl < 0 || yl >= m.HAbs() {
-		return 0, errors.New(fmt.Sprintf("Coordinates (%v:%v) not on matrix", x, y))
+		return 0, errors.New(fmt.Sprintf("Coordinates (%v:%v) not on matrix with w:%v, h:%v, xl:%v, yl:%v, wAbs:%v, hAbs:%v, lx:%v, ly:%v", x, y, int(m.focus.Bounds().X), int(m.focus.Bounds().Y), xl, yl, m.WAbs(), m.HAbs(), int(m.focus.Min().X), int(m.focus.Min().Y)))
 	}
 	
 	idx := int(x+int(m.focus.Min().X))+int(m.x.Int64())*int((y+int(m.focus.Min().Y)))

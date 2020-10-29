@@ -4,5 +4,6 @@ hitBoxWidth:    1
 hitBoxHeight:   1
 Collides:       true
 squareSize:     16
-Background:     true
+Background:     false
+Foreground:     false
 understandable: true

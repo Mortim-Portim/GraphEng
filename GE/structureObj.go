@@ -40,7 +40,13 @@ func (o *StructureObj) SetToXY(x,y float64) {
 	o.DrawBox = GetRectangle(o.HitBox.Min().X-(W-o.HitBox.Bounds().X-1)/2, o.HitBox.Min().Y-(H-o.HitBox.Bounds().Y-1), 0,0)
 	o.DrawBox.SetBounds(&Point{W,H})
 }
-
+func (o *StructureObj) GetPos() (float64, float64, int8) {
+	pnt := o.HitBox.GetMiddle()
+	return pnt.X+0.5,pnt.Y+0.5,o.layer
+}
+func (o *StructureObj) Height() float64 {
+	return o.HitBox.Bounds().Y
+}
 //Draws the objects hitbox if it can collide
 func (o *StructureObj) DrawCollisionMatrix(mat *Matrix, value int16) {
 	if !o.Collides {
@@ -49,17 +55,17 @@ func (o *StructureObj) DrawCollisionMatrix(mat *Matrix, value int16) {
 	mat.FillAbs(int(o.HitBox.Min().X), int(o.HitBox.Min().Y), int(o.HitBox.Max().X), int(o.HitBox.Max().Y), value)
 }
 
-func (o *StructureObj) Draw(screen *ebiten.Image, lv int16, x, y, sqSize float64) {
+func (o *StructureObj) Draw(screen *ebiten.Image, lv int16, leftTopX, leftTopY, xStart, yStart, sqSize float64) {
 	if !o.understandable || (o.understandable && !o.IsUnderstood) {
-		o.drawImg(o.NUA, screen, lv, x, y, sqSize)
+		o.drawImg(o.NUA, screen, lv, leftTopX, leftTopY, sqSize, xStart, yStart)
 	}else{
-		o.drawImg(o.UA, screen, lv, x, y, sqSize)
+		o.drawImg(o.UA, screen, lv, leftTopX, leftTopY, sqSize, xStart, yStart)
 	}
 }
-func (o *StructureObj) drawImg(img *DayNightAnim, screen *ebiten.Image, lv int16, oldx, oldy, sqSize float64) {
-	y := oldy+o.HitBox.Bounds().Y/2*sqSize-o.DrawBox.Bounds().Y*sqSize
-	x := oldx-o.DrawBox.Bounds().X/2*sqSize
-	img.SetParams(x,y, float64(o.DrawBox.Bounds().X)*sqSize, float64(o.DrawBox.Bounds().Y)*sqSize)
+func (o *StructureObj) drawImg(img *DayNightAnim, screen *ebiten.Image, lv int16, leftTopX, leftTopY, sqSize, xStart, yStart float64) {
+	y := (o.DrawBox.Min().Y-leftTopY)*sqSize
+	x := (o.DrawBox.Min().X-leftTopX)*sqSize
+	img.SetParams(x+xStart,y+yStart, float64(o.DrawBox.Bounds().X)*sqSize, float64(o.DrawBox.Bounds().Y)*sqSize)
 	img.LightLevel = lv
 	img.DrawAnim(screen)
 	o.frame ++

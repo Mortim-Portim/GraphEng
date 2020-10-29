@@ -4,6 +4,8 @@ import (
 	cmp "marvin/GraphEng/Compression"
 	"github.com/hajimehoshi/ebiten"
 	"math"
+	"time"
+	"fmt"
 )
 
 //Returns a WorldStructure object
@@ -30,7 +32,7 @@ deltaB
 **/
 type WorldStructure struct {
 	//Tiles and Structures should be the same on all devices
-	Tiles  			[]*Tile
+	Tiles			[]*Tile
 	Structures		[]*Structure
 	
 	//Represent Pointer to structures with a hitbox
@@ -67,29 +69,32 @@ type WorldStructure struct {
 func (p *WorldStructure) Draw(screen *ebiten.Image) {
 	p.drawTiles(screen)
 	
+	lT := p.TileMat.Focus().Min()
 	for _,dwa := range(*p.SO_Drawables) {
-		x := dwa.GetX(); y := dwa.GetY()
-		lv, err := p.LightMat.GetNearest(int(x), int(y-0.5))
-		if err != nil {ShitImDying(err)}
-		X := (x)*p.tileS + p.xStart
-		Y := (y)*p.tileS + p.yStart
-		dwa.Draw(screen, X, Y, lv, p.tileS)
+		xp,yp,_ := dwa.GetPos()
+		lv := p.GetLightValueAtPoint(int(xp-0.5-lT.X), int(yp-0.5-lT.Y))
+		dwa.Draw(screen, lv, lT.X, lT.Y, p.xStart, p.yStart, p.tileS)
 	}
 }
 //simply draws the current tiles to the screen
 func (p *WorldStructure) drawTiles(screen *ebiten.Image) {
+	start := time.Now()
 	for y := 0; y < p.TileMat.H(); y++ {
 		for x := 0; x < p.TileMat.W(); x++ {
 			tile_idx,err := p.TileMat.Get(x, y)
 			if err == nil {
-				p.drawer.X, p.drawer.Y = float64(x)*p.tileS + p.xStart, float64(y)*p.tileS + p.yStart
 				if int(tile_idx) >= 0 && int(tile_idx) < len(p.Tiles) {
+					idx := tile_idx
+					//x := tile[0]; y := tile[1]; idx := tile[2]
+					p.drawer.X, p.drawer.Y = float64(x)*p.tileS + p.xStart, float64(y)*p.tileS + p.yStart
 					lv := p.GetLightValueAtPoint(x, y)
-					p.Tiles[tile_idx].Draw(screen, p.drawer, p.frame, lv)
+					//Takes 5ms
+					p.Tiles[idx].Draw(screen, p.drawer, p.frame, lv)
 				}
 			}
 		}
 	}
+	fmt.Printf("Drawing took %v\n", time.Now().Sub(start))
 }
 
 //ONLY use when adding or removing lights
@@ -104,6 +109,7 @@ func (p *WorldStructure) MakeLightMat() {
 	p.LightMat = GetMatrix(p.TileMat.WAbs(), p.TileMat.HAbs(), 0)
 	p.UpdateLightValue(p.Lights, true)
 }
+//Updates all lights that somehow changed
 func (p *WorldStructure) UpdateAllLightsIfNecassary() int {
 	return p.UpdateLightValue(p.Lights, false)
 }
@@ -143,7 +149,7 @@ func (p *WorldStructure) drawLightsToMat(xL, yL, w, h int) {
 
 //Returns the sum of all the light values of all lights in ls at a relative point and the lightLevel
 func (p *WorldStructure) GetLightValueAtPoint(x,y int) (int16) {
-	v, _ := p.LightMat.Get(x,y)
+	v, _ := p.LightMat.GetNearest(x,y)
 	return v+int16(p.lightLevel)
 }
 //Calculates the sum of all the light values of all lights in ls at an absolute point
@@ -181,7 +187,7 @@ func (p *WorldStructure) UpdateObjDrawables() {
 				idx -= 1
 				obj := p.Objects[idx]
 				if !containsI(drawnObjs, int(idx)){
-					p.SO_Drawables = p.SO_Drawables.AddStructureObjOfWorld(obj, p)
+					p.SO_Drawables = p.SO_Drawables.Add(obj)
 					drawnObjs = append(drawnObjs, int(idx))
 				}
 			}

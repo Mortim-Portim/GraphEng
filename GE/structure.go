@@ -7,11 +7,12 @@ import (
 
 type Structure struct {
 	squareSize int
-	Collides, Background bool
+	Collides bool
 	HitboxW,HitboxH float64
 	Name string
 	understandable, IsUnderstood bool
 	NUA, UA *DayNightAnim
+	layer int8
 }
 /**
 Params.txt:
@@ -21,12 +22,12 @@ hitBoxWidth:	[1-NaN]
 hitBoxHeight:	[1-NaN]
 Collides:		[true/false]
 squareSize:		[1-NaN]
-Background:		[true/false]
+layer:			[-128-128]
 understandable: [true/false]
 **/
 func GetStructFromParams(img *ebiten.Image, p *Params) (s *Structure) {
 	collides := p.GetBool("Collides", false)
-	Background := p.GetBool("Background", false)
+	layer :=	int8(p.Get("layer"))
 	understandable := p.GetBool("understandable", false)
 	spW := int(p.Get("spriteWidth"))
 	uP := int(p.Get("updatePeriod"))
@@ -43,12 +44,12 @@ func GetStructFromParams(img *ebiten.Image, p *Params) (s *Structure) {
 		u_Img = nil
 	}
 	
-	s = GetStructure(anim, u_Img, p.Get("hitBoxWidth")-1,p.Get("hitBoxHeight")-1, int(p.Get("squareSize")), collides, Background, understandable)
+	s = GetStructure(anim, u_Img, p.Get("hitBoxWidth")-1,p.Get("hitBoxHeight")-1, int(p.Get("squareSize")), collides, understandable, layer)
 	return
 }
 //Returns a StructureObj
-func GetStructure(NUA, UA *DayNightAnim, HitboxW,HitboxH float64, squareSize int, Collides, Background, understandable bool) (o *Structure) {
-	o = &Structure{NUA:NUA, UA:UA, HitboxW:HitboxW ,HitboxH:HitboxH, squareSize:squareSize, Collides:Collides, Background:Background, understandable:understandable}
+func GetStructure(NUA, UA *DayNightAnim, HitboxW,HitboxH float64, squareSize int, Collides, understandable bool, layer int8) (o *Structure) {
+	o = &Structure{NUA:NUA, UA:UA, HitboxW:HitboxW ,HitboxH:HitboxH, squareSize:squareSize, Collides:Collides, understandable:understandable, layer:layer}
 	if NUA != nil {
 		o.NUA.Update(0)
 	}
@@ -58,7 +59,7 @@ func GetStructure(NUA, UA *DayNightAnim, HitboxW,HitboxH float64, squareSize int
 	return
 }
 func (s *Structure) Clone() *Structure {
-	return &Structure{NUA:s.NUA.Clone(), UA:s.UA.Clone(), squareSize:s.squareSize, Collides:s.Collides, Background:s.Background, HitboxW:s.HitboxW, HitboxH:s.HitboxH, Name:s.Name}
+	return &Structure{NUA:s.NUA.Clone(), UA:s.UA.Clone(), squareSize:s.squareSize, Collides:s.Collides, layer:s.layer, HitboxW:s.HitboxW, HitboxH:s.HitboxH, Name:s.Name}
 }
 /**
 Reads a slice of Structures from a folder like this:

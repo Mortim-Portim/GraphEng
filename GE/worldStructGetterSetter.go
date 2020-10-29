@@ -92,6 +92,7 @@ func (p *WorldStructure) SetLightLevel(newL int16) {
 		p.deltaB *= -1
 	}
 }
+//Updates the background lightlevel
 func (p *WorldStructure) UpdateLightLevel(ticks float64) {
 	p.currentD += p.deltaB*ticks
 	if math.Abs(p.currentD) >= 1 {

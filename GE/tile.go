@@ -49,6 +49,7 @@ func (t *Tile) Draw(screen *ebiten.Image, drawer, frame *ImageObj, lightlevel in
 	drawer.CopyXYWHToDN(t.Img)
 	alpha := float64(lightlevel)/float64(255)
 	t.Img.Draw(screen, alpha)
+	
 	if frame != nil {
 		drawer.CopyXYWHTo(frame)
 		frame.DrawImageObj(screen)

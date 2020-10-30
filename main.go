@@ -308,7 +308,7 @@ func main() {
 	
 	//loads the compressed world
 	startDeComp := time.Now()
-	newWrld, errL := GE.LoadWorldStructure(0,0,screenWidth,screenHeight, "./res/wrld.map", "./res/tiles/", "./res/structObjs/")
+	newWrld, errL := GE.LoadWorldStructure(0,0,screenWidth,screenHeight, "./res/TestMap4.map", "./res/tiles/", "./res/structObjs/")
 	if errL != nil {
 		GE.ShitImDying(errL)
 	}
@@ -321,7 +321,8 @@ func main() {
 	newWrld.SetLightStats(10,255, 0.3)
 	newWrld.SetLightLevel(15)
 	//Creates a raster
-	newWrld.GetFrame(2, 90)
+	//newWrld.GetFrame(2, 90)
+	newWrld.SetDisplayWH(32,18)
 	
 	g := &TestGame{newWrld, GE.GetNewRecorder(100, 640, 360, FPS), 0}	
 

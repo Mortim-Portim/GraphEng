@@ -2,6 +2,7 @@ package GE
 
 import (
 	"math"
+	"fmt"
 )
 
 func (l *Light) ApplyRaycasting(collMat *Matrix, factor float64) {
@@ -31,6 +32,7 @@ func (l *Light) ApplyRaycasting(collMat *Matrix, factor float64) {
 		l.SetMatrix(mat)
 		l.matrixNeedsUpdate = false
 		l.changed = true
+		fmt.Println(mat.Print())
 	}
 }
 

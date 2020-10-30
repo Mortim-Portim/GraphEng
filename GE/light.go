@@ -64,9 +64,8 @@ func (l *Light) GetAtAbs(x,y int) (int16, error) {
 	if l.lightMat == nil {
 		return 0, errors.New(fmt.Sprintf("LightMat of %v not yet initialized", l))
 	}
-	rad := l.GetRadius()
-	xp := x-int(l.location.X-math.Ceil(rad))
-	yp := y-int(l.location.Y-math.Ceil(rad))
+	xp := x-int(l.location.X)+int(float64(l.lightMat.WAbs()-1)/2.0)
+	yp := y-int(l.location.Y)+int(float64(l.lightMat.HAbs()-1)/2.0)
 	return l.lightMat.GetAbs(xp,yp)
 }
 func (l *Light) applyOnMatrix(mat *Matrix, factor float64) {
@@ -146,6 +145,18 @@ func (l *Light) Dir() *Vector {
 func (l *Light) SetDir(pnt *Vector) {
 	l.direction = pnt
 	l.matrixNeedsUpdate = true
+	l.changed = true
+}
+func (l *Light) Angle() float64 {
+	return l.angle
+}
+func (l *Light) SetAngle(a float64) {
+	l.angle = a
+	l.matrixNeedsUpdate = true
+	l.changed = true
+}
+func (l *Light) SetDark() {
+	l.SetMatrix(GetMatrix(1,1,0))
 	l.changed = true
 }
 func (l *Light) Matrix() *Matrix {

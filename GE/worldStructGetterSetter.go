@@ -2,7 +2,6 @@ package GE
 
 import (
 	"math"
-	//"github.com/hajimehoshi/ebiten"
 )
 
 

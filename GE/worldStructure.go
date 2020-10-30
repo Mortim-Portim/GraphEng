@@ -4,8 +4,6 @@ import (
 	cmp "marvin/GraphEng/Compression"
 	"github.com/hajimehoshi/ebiten"
 	"math"
-	"time"
-	"fmt"
 )
 
 //Returns a WorldStructure object
@@ -14,10 +12,11 @@ func GetWorldStructure(X, Y, W, H float64, WTiles, HTiles int) (p *WorldStructur
 	p.TileMat = GetMatrix(WTiles, HTiles, 0)
 	p.LIdxMat = GetMatrix(WTiles, HTiles, -1)
 	p.ObjMat  = GetMatrix(WTiles, HTiles, 0)
+	p.LightMat = GetMatrix(WTiles, HTiles, 0)
 	p.Add_Drawables = GetDrawables()
 	p.SO_Drawables = GetDrawables()
 	p.SetDisplayWH(WTiles, HTiles)
-	p.MakeLightMat()
+	p.UpdateLightValue(p.Lights, true)
 	return
 }
 
@@ -78,7 +77,6 @@ func (p *WorldStructure) Draw(screen *ebiten.Image) {
 }
 //simply draws the current tiles to the screen
 func (p *WorldStructure) drawTiles(screen *ebiten.Image) {
-	start := time.Now()
 	for y := 0; y < p.TileMat.H(); y++ {
 		for x := 0; x < p.TileMat.W(); x++ {
 			tile_idx,err := p.TileMat.Get(x, y)
@@ -94,20 +92,29 @@ func (p *WorldStructure) drawTiles(screen *ebiten.Image) {
 			}
 		}
 	}
-	//fmt.Printf("Drawing took %v\n", time.Now().Sub(start))
 }
 
 //ONLY use when adding or removing lights
 func (p *WorldStructure) UpdateLIdxMat() {
-	p.LIdxMat = GetMatrix(p.TileMat.WAbs(), p.TileMat.HAbs(), -1)
+	p.LIdxMat = GetMatrix(p.xTiles, p.yTiles, -1)
 	for i,l := range(p.Lights) {
 		p.LIdxMat.SetAbs(int(l.Loc().X), int(l.Loc().Y), int16(i))
 	}
 	p.TileMat.CopyFocus(p.LIdxMat)
 }
 func (p *WorldStructure) MakeLightMat() {
-	p.LightMat = GetMatrix(p.TileMat.WAbs(), p.TileMat.HAbs(), 0)
+	p.LightMat = GetMatrix(p.xTiles, p.yTiles, 0)
 	p.UpdateLightValue(p.Lights, true)
+}
+func (p *WorldStructure) AddLights(ls ...*Light) {
+	p.Lights = append(p.Lights, ls...)
+	p.UpdateLightValue(ls, true)
+}
+func (p *WorldStructure) RemoveLight(idx int) {
+	p.Lights[idx].SetDark()
+	p.UpdateAllLightsIfNecassary()
+	p.Lights[idx] = p.Lights[len(p.Lights)-1];p.Lights = p.Lights[:len(p.Lights)-1]
+	p.UpdateLIdxMat()
 }
 //Updates all lights that somehow changed
 func (p *WorldStructure) UpdateAllLightsIfNecassary() int {
@@ -121,14 +128,14 @@ func (p *WorldStructure) UpdateLightValue(ls []*Light, forceUpdate bool) (Update
 		if l.Changed() || forceUpdate {
 			loc := l.Loc()
 			r := int(math.Round(l.GetRadius()))
-			p.drawLightsToMat(int(loc.X)-r, int(loc.Y)-r, r*2, r*2)
+			p.drawLightsToMat(int(loc.X)-r, int(loc.Y)-r, r*2+1, r*2+1)
 			l.SetChanged(false)
 			UpdatedLights ++
 		}
 	}
 	return
 }
-const LIGHT_COMP_RADIUS = 20
+const LIGHT_COMP_RADIUS = 50
 func (p *WorldStructure) drawLightsToMat(xL, yL, w, h int) {
 	ls := make([]*Light, 0)
 	for x := xL-LIGHT_COMP_RADIUS; x < xL+w+LIGHT_COMP_RADIUS; x++ {

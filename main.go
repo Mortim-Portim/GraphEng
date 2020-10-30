@@ -317,7 +317,7 @@ func main() {
 	
 	//loads the compressed world
 	startDeComp := time.Now()
-	newWrld, errL := GE.LoadWorldStructure(0,0,screenWidth,screenHeight, "./res/TestMap3.map", "./res/tiles/", "./res/structObjs/")
+	newWrld, errL := GE.LoadWorldStructure(0,0,screenWidth,screenHeight, "./res/wrld.map", "./res/tiles/", "./res/structObjs/")
 	if errL != nil {
 		GE.ShitImDying(errL)
 	}

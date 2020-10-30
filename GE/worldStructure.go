@@ -108,13 +108,16 @@ func (p *WorldStructure) MakeLightMat() {
 }
 func (p *WorldStructure) AddLights(ls ...*Light) {
 	p.Lights = append(p.Lights, ls...)
+	p.UpdateLIdxMat()
 	p.UpdateLightValue(ls, true)
 }
 func (p *WorldStructure) RemoveLight(idx int) {
-	p.Lights[idx].SetDark()
-	p.UpdateAllLightsIfNecassary()
-	p.Lights[idx] = p.Lights[len(p.Lights)-1];p.Lights = p.Lights[:len(p.Lights)-1]
-	p.UpdateLIdxMat()
+	if idx >= 0 && idx < len(p.Lights) {
+		p.Lights[idx].SetDark()
+		p.UpdateAllLightsIfNecassary()
+		p.Lights[idx] = p.Lights[len(p.Lights)-1];p.Lights = p.Lights[:len(p.Lights)-1]
+		p.UpdateLIdxMat()
+	}
 }
 //Updates all lights that somehow changed
 func (p *WorldStructure) UpdateAllLightsIfNecassary() int {

@@ -94,7 +94,7 @@ func (p *WorldStructure) drawTiles(screen *ebiten.Image) {
 			}
 		}
 	}
-	fmt.Printf("Drawing took %v\n", time.Now().Sub(start))
+	//fmt.Printf("Drawing took %v\n", time.Now().Sub(start))
 }
 
 //ONLY use when adding or removing lights

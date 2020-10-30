@@ -10,8 +10,8 @@ func (p *WorldStructure) SetMiddle(xP, yP int, force bool) {
 	if (xP != p.middleX || yP != p.middleY) || force {
 		p.middleX = xP
 		p.middleY = yP
-		x,y := p.middleX-(p.xTiles-1)/2, p.middleY-(p.yTiles-1)/2
-		p.TileMat.SetFocus(x,y, x+p.xTiles, y+p.yTiles)
+		x,y := p.middleX-(p.xTilesS-1)/2, p.middleY-(p.yTilesS-1)/2
+		p.TileMat.SetFocus(x,y, x+p.xTilesS, y+p.yTilesS)
 		p.TileMat.CopyFocus(p.LIdxMat)
 		p.TileMat.CopyFocus(p.LightMat)
 		p.TileMat.CopyFocus(p.ObjMat)
@@ -26,8 +26,8 @@ func (p *WorldStructure) Move(dx,dy int, update, force bool) {
 }
 //Sets the number of tiles to be displayed in X and Y direction
 func (p *WorldStructure) SetDisplayWH(x,y int) {
-	p.xTiles = x
-	p.yTiles = y
+	p.xTilesS = x
+	p.yTilesS = y
 	p.xStart = p.X
 	p.tileS = p.W / float64(x)
 	p.yStart = p.Y - (float64(y)*p.tileS-p.H)/2

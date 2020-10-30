@@ -207,7 +207,7 @@ func (g *TestGame) Update(screen *ebiten.Image) error {
 	**/
 	
 	g.wrld.UpdateLightLevel(1)
-	g.wrld.UpdateAllLightsIfNecassary()
+	u_lights := g.wrld.UpdateAllLightsIfNecassary()
 	/**
 	g.wrld.DrawBack(screen)
 	g.wrld.DrawFront(screen)
@@ -224,7 +224,7 @@ func (g *TestGame) Update(screen *ebiten.Image) error {
 	g.frame ++
 	timeTaken = time.Now().Sub(startTime).Milliseconds()
 	fps := ebiten.CurrentTPS()
-	msg := fmt.Sprintf(`TPS: %0.2f, Updating took: %v at frame %v`, fps, timeTaken, g.frame-1)
+	msg := fmt.Sprintf(`TPS: %0.2f, Updating took: %v at frame %v, ul:%v`, fps, timeTaken, g.frame-1, u_lights)
 	ebitenutil.DebugPrint(screen, msg)
 	GE.LogToFile(msg+"\n")
 	fmt.Println(msg)
@@ -239,7 +239,7 @@ func main() {
 	GE.StandardFont = GE.ParseFontFromBytes(res.MONO_TTF)
 	GE.SetLogFile("./res/log.txt")
 	
-	XT := 16; YT := 9
+	XT := 50; YT := 50
 	
 	
 	//----------------------------------------------------------------------------------------------------------------------------------------------
@@ -259,8 +259,7 @@ func main() {
 
 	//----------------------------------------------------------------------------------------------------------------------------------------------
 	//Creates a WorldStructure object
-	wrld := GE.GetWorldStructure(0, 0, screenWidth, screenHeight, XT, YT)
-	wrld.TileMat = wmatI
+	wrld := GE.GetWorldStructure(0, 0, screenWidth, screenHeight, XT, YT, 32, 18)
 	
 	//----------------------------------------------------------------------------------------------------------------------------------------------
 	errtl := wrld.LoadTiles("./res/tiles/")
@@ -268,9 +267,9 @@ func main() {
 	errol := wrld.LoadStructureObjs("./res/structObjs/")
 	if errol != nil {panic(errol)}
 	
-	wrld.AddNamedStructureObj("house1", 	10, 10)
-	wrld.AddNamedStructureObj("tree2", 		 6, 10)
-	wrld.AddNamedStructureObj("tree2big", 	14, 10)
+	wrld.AddNamedStructureObj("house1", 	10, 2)
+	wrld.AddNamedStructureObj("tree2", 		5, 5)
+	wrld.AddNamedStructureObj("tree2big", 	14, 14)
 	
 	wrld.UpdateObjMat()
 	
@@ -280,20 +279,12 @@ func main() {
 	
 	//----------------------------------------------------------------------------------------------------------------------------------------------
 	//Add a light source to the world
-	light1 := GE.GetLightSource(&GE.Point{12,8}, &GE.Vector{0,-1,0}, 360, 400, 0.01, false)
+	light1 := GE.GetLightSource(&GE.Point{10,10}, &GE.Vector{0,-1,0}, 360, 400, 0.01, false)
+	light2 := GE.GetLightSource(&GE.Point{15,15}, &GE.Vector{0,-1,0}, 360, 400, 0.01, false)
 	
-//	light2 := GE.GetLightSource(&GE.Point{8,6}, &GE.Vector{0,-1,0}, 360, 400, 0.01, false)
-//	light3 := GE.GetLightSource(&GE.Point{2,7}, &GE.Vector{0,-1,0}, 360, 400, 0.01, false)
-//	light4 := GE.GetLightSource(&GE.Point{20,9}, &GE.Vector{0,-1,0}, 360, 400, 0.01, false)
-//	light5 := GE.GetLightSource(&GE.Point{4,2}, &GE.Vector{0,-1,0}, 360, 400, 0.01, false)
-//	light6 := GE.GetLightSource(&GE.Point{17,4}, &GE.Vector{0,-1,0}, 360, 400, 0.01, false)
-//	light7 := GE.GetLightSource(&GE.Point{8,16}, &GE.Vector{0,-1,0}, 360, 400, 0.01, false)
-//	light8 := GE.GetLightSource(&GE.Point{21,10}, &GE.Vector{0,-1,0}, 360, 400, 0.01, false)
-//	light9 := GE.GetLightSource(&GE.Point{20,32}, &GE.Vector{0,-1,0}, 360, 400, 0.01, false)
-//	light10 := GE.GetLightSource(&GE.Point{23,16}, &GE.Vector{0,-1,0}, 360, 400, 0.01, false)
-	
-	wrld.Lights = append(wrld.Lights, light1)//, light2, light3, light4, light5, light6, light7, light8, light9, light10)
+	wrld.Lights = append(wrld.Lights, light1, light2)//, light2, light3, light4, light5, light6, light7, light8, light9, light10)
 	wrld.UpdateLIdxMat()
+	wrld.UpdateLightValue(wrld.Lights, true)
 	
 	lbs := wrld.LightsToBytes()
 	fmt.Printf("Lights are %v bytes\n", len(lbs))

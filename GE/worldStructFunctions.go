@@ -1,7 +1,7 @@
 package GE
 
 import (
-	//"fmt"
+	"fmt"
 	"io/ioutil"
 	cmp "marvin/GraphEng/Compression"
 )
@@ -28,7 +28,8 @@ func GetWorldStructureFromBytes(X,Y,W,H float64, data []byte, tile_path, struct_
 	err1 := tilMat.Decompress(bs[5])
 	if err1 != nil {return nil, err1}
 	
-	p := GetWorldStructure(X,Y,W,H, int(tilMat.Focus().Bounds().X), int(tilMat.Focus().Bounds().Y))
+	fmt.Printf("Creating new World with w:%v, h:%v, fw:%v, fh:%v\n", tilMat.WAbs(), tilMat.HAbs(), int(tilMat.Focus().Bounds().X), int(tilMat.Focus().Bounds().Y))
+	p := GetWorldStructure(X,Y,W,H, tilMat.WAbs(), tilMat.HAbs(), int(tilMat.Focus().Bounds().X), int(tilMat.Focus().Bounds().Y))
 	p.TileMat = tilMat
 	p.LoadTiles(tile_path)
 	p.LoadStructureObjs(struct_path)

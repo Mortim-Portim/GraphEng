@@ -7,15 +7,15 @@ import (
 )
 
 //Returns a WorldStructure object
-func GetWorldStructure(X, Y, W, H float64, WTiles, HTiles int) (p *WorldStructure) {
-	p = &WorldStructure{X:X,Y:Y,W:W,H:H}
+func GetWorldStructure(X, Y, W, H float64, WTiles, HTiles, ScreenWT, ScreenHT int) (p *WorldStructure) {
+	p = &WorldStructure{X:X,Y:Y,W:W,H:H,xTilesAbs:WTiles, yTilesAbs:HTiles}
 	p.TileMat = GetMatrix(WTiles, HTiles, 0)
 	p.LIdxMat = GetMatrix(WTiles, HTiles, -1)
 	p.ObjMat  = GetMatrix(WTiles, HTiles, 0)
 	p.LightMat = GetMatrix(WTiles, HTiles, 0)
 	p.Add_Drawables = GetDrawables()
 	p.SO_Drawables = GetDrawables()
-	p.SetDisplayWH(WTiles, HTiles)
+	p.SetDisplayWH(ScreenWT, ScreenHT)
 	p.UpdateLightValue(p.Lights, true)
 	return
 }
@@ -60,7 +60,7 @@ type WorldStructure struct {
 	X,Y,W,H float64
 	drawer *ImageObj
 	//Set by SetDisplayWH and 
-	xTiles, yTiles int
+	xTilesAbs, yTilesAbs, xTilesS, yTilesS int
 	xStart, yStart, tileS float64
 }
 
@@ -96,14 +96,14 @@ func (p *WorldStructure) drawTiles(screen *ebiten.Image) {
 
 //ONLY use when adding or removing lights
 func (p *WorldStructure) UpdateLIdxMat() {
-	p.LIdxMat = GetMatrix(p.xTiles, p.yTiles, -1)
+	p.LIdxMat = GetMatrix(p.xTilesAbs, p.yTilesAbs, -1)
 	for i,l := range(p.Lights) {
 		p.LIdxMat.SetAbs(int(l.Loc().X), int(l.Loc().Y), int16(i))
 	}
 	p.TileMat.CopyFocus(p.LIdxMat)
 }
 func (p *WorldStructure) MakeLightMat() {
-	p.LightMat = GetMatrix(p.xTiles, p.yTiles, 0)
+	p.LightMat = GetMatrix(p.xTilesAbs, p.yTilesAbs, 0)
 	p.UpdateLightValue(p.Lights, true)
 }
 func (p *WorldStructure) AddLights(ls ...*Light) {
@@ -127,7 +127,7 @@ func (p *WorldStructure) UpdateAllLightsIfNecassary() int {
 func (p *WorldStructure) UpdateLightValue(ls []*Light, forceUpdate bool) (UpdatedLights int) {
 	UpdatedLights = 0
 	for _,l := range(ls) {
-		l.ApplyRaycasting(p.ObjMat, 1)
+		l.ApplyRaycasting(p.ObjMat, 1, forceUpdate)
 		if l.Changed() || forceUpdate {
 			loc := l.Loc()
 			r := int(math.Round(l.GetRadius()))

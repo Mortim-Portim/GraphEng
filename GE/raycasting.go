@@ -4,8 +4,8 @@ import (
 	"math"
 )
 
-func (l *Light) ApplyRaycasting(collMat *Matrix, factor float64) {
-	if (!l.static || l.Matrix() == nil) && l.matrixNeedsUpdate {
+func (l *Light) ApplyRaycasting(collMat *Matrix, factor float64, force bool) {
+	if ((!l.static || l.Matrix() == nil) && l.matrixNeedsUpdate) || force {
 		radReal := l.GetRadius()
 		rad := math.Ceil(radReal)
 		

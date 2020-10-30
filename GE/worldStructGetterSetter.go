@@ -8,7 +8,7 @@ import (
 
 //sets the Middle of the View
 func (p *WorldStructure) SetMiddle(xP, yP int, force bool) {
-	if xP != p.middleX || yP != p.middleY {
+	if (xP != p.middleX || yP != p.middleY) || force {
 		p.middleX = xP
 		p.middleY = yP
 		x,y := p.middleX-(p.xTiles-1)/2, p.middleY-(p.yTiles-1)/2

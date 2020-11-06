@@ -159,9 +159,12 @@ func main() {
 type TestGame struct {
 	wrld *GE.WorldStructure
 	rec  *GE.Recorder
+	player *GE.WObj
 	frame int
 }
-func (g *TestGame) Init(screen *ebiten.Image) {}
+func (g *TestGame) Init(screen *ebiten.Image) {
+	g.wrld.Add_Drawables = g.wrld.Add_Drawables.Add(g.player)
+}
 
 var timeTaken int64
 var inputT, objT, lightUpT, lightDT, worldDT time.Duration
@@ -186,16 +189,12 @@ func (g *TestGame) Update(screen *ebiten.Image) error {
 		g.wrld.Lights[0].SetMaximumIntesity(g.wrld.Lights[0].GetMaximumIntesity()+int16(dy*10))
 	}
 	
-	//USE drawable to draw player
 	x,y := g.wrld.Middle()
-	g.wrld.Objects[0].SetToXY(float64(x),float64(y))
-	g.wrld.UpdateObjMat()
+	g.player.Update(g.frame)
+	g.player.SetToXY(float64(x),float64(y))
 	g.wrld.UpdateObjDrawables()
-	//g.wrld.ComputeTilesOnScreen()
 	
-	/**
-	collides := g.wrld.Collides(x,y)
-	if collides {
+	if g.frame%100 < 50 {
 		for _,strct := range(g.wrld.Structures) {
 			strct.IsUnderstood = true
 		}
@@ -204,14 +203,9 @@ func (g *TestGame) Update(screen *ebiten.Image) error {
 			strct.IsUnderstood = false
 		}
 	}
-	**/
 	
 	g.wrld.UpdateLightLevel(1)
 	u_lights := g.wrld.UpdateAllLightsIfNecassary()
-	/**
-	g.wrld.DrawBack(screen)
-	g.wrld.DrawFront(screen)
-	**/
 	
 	//Around 8ms
 	g.wrld.Draw(screen)
@@ -238,6 +232,30 @@ func main() {
 	GE.Init("")
 	GE.StandardFont = GE.ParseFontFromBytes(res.MONO_TTF)
 	GE.SetLogFile("./res/log.txt")
+	time.Sleep(time.Second)
+	
+	pathFMat := GE.GetMatrix(10,10,0)
+	for x := 2; x < 7; x++ {
+		pathFMat.Set(x,3,10)
+	}
+	pathFMat.Set(2,4,10)
+	pathFMat.Set(2,5,10)
+	fmt.Println(pathFMat.Print())
+	
+	nanos := 0
+	for i := 0; i < 100; i++ {
+		stComp := time.Now()
+		GE.FindPathMat(pathFMat, [2]int{1,1}, [2]int{8,8}, true)
+		nanos += int(time.Now().Sub(stComp).Nanoseconds())
+	}
+	fmt.Println("Computing A* took: ", time.Duration(nanos/100))
+	
+	FP := GE.FindPathMat(pathFMat, [2]int{1,1}, [2]int{8,8}, false)
+	for _,p := range(FP) {
+		pathFMat.Set(p[0],p[1],888)
+		fmt.Println(p)
+	}
+	fmt.Println(pathFMat.Print())
 	
 	XT := 50; YT := 50
 	
@@ -276,6 +294,9 @@ func main() {
 	obs := wrld.ObjectsToBytes()
 	fmt.Printf("Objects are %v bytes\n", len(obs))
 	wrld.BytesToObjects(obs)
+	
+	player,err := GE.GetWObjFromPath("./res/anims/test")
+	if err != nil {panic(err)}
 	
 	//----------------------------------------------------------------------------------------------------------------------------------------------
 	//Add a light source to the world
@@ -324,7 +345,8 @@ func main() {
 	//newWrld.GetFrame(2, 90)
 	newWrld.SetDisplayWH(32,18)
 	
-	g := &TestGame{newWrld, GE.GetNewRecorder(100, 640, 360, FPS), 0}	
+	g := &TestGame{newWrld, GE.GetNewRecorder(100, 640, 360, FPS), player, 0}	
+	g.Init(nil)
 
 	StartGame(g)
 }

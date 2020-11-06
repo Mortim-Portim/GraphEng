@@ -187,7 +187,7 @@ func (p *WorldStructure) UpdateObjMat() {
 }
 //ONLY use after moving the world to a different position
 func (p *WorldStructure) UpdateObjDrawables() {
-	p.SO_Drawables = p.Add_Drawables
+	*p.SO_Drawables = *p.Add_Drawables
 	drawnObjs := make([]int,0)
 	for y := 0; y < p.ObjMat.H(); y++ {
 		for x := 0; x < p.ObjMat.W(); x++ {
@@ -204,6 +204,9 @@ func (p *WorldStructure) UpdateObjDrawables() {
 		}
 	}
 	p.SO_Drawables.Sort()
+}
+func (p *WorldStructure) AddDrawable(d Drawable) {
+	p.Add_Drawables = p.Add_Drawables.Add(d)
 }
 //Checks if an object obstructs the point
 func (p *WorldStructure) Collides(x,y int) bool {

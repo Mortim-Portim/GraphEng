@@ -264,6 +264,12 @@ func (m *Matrix) SubMatrix(x1,y1,x2,y2 int) (newM *Matrix) {
 	newM.SetFocus(x1,y1,x2,y2)
 	return
 }
+func (m *Matrix) SubMatFromMiddle(x,y,r int) (newM *Matrix) {
+	newM = m.Clone()
+	newM.SetFocus(x-r,y-r,x+r,y+r)
+	return
+}
+
 //Prints a matrix with maximum values of 999
 func (m *Matrix) Print() string {
 	out := ""

@@ -137,6 +137,19 @@ func (p *Params) GetS(key string) (string) {
 	}
 	return ""
 }
+func (p *Params) SetS(key, val string) {
+	p.strs[key] = val
+	fl, err2 := strconv.ParseFloat(val, 64)
+    if err2 == nil {
+	    p.p[key] = fl
+    }else{
+	    p.p[key] = 0.0
+    }
+}
+func (p *Params) Set(key string, val float64) {
+	p.p[key] = val
+	p.strs[key] = fmt.Sprintf("%0.8",val)
+}
 //returns the boolean value
 func (p *Params) GetBool(key string, standard bool) bool {
 	val := strings.ToLower(p.GetS(key))

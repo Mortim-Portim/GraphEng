@@ -30,7 +30,6 @@ func GetImageButton(eimg *ebiten.Image, X,Y, W,H float64) *Button {
 	return GetButton(img, dark)
 }
 //EDITTEXT ------------------------------------------------------------------------------------------------------------------------------
-
 //Returns a EditText, with a placeHolderText and a maximum number of runes
 func GetEditText(placeHolderText string, X, Y, H float64, maxRunes int, ttf *truetype.Font, cols ...color.Color) (et *EditText) {
 	imgo := ImageObj{H:H, X:X, Y:Y}

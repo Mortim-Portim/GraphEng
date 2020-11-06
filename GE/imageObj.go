@@ -158,6 +158,18 @@ func (obj *ImageObj) DrawImageObjAlpha(screen *ebiten.Image, alpha float64) {
 	op.ColorM.Scale(1, 1, 1, alpha)
 	screen.DrawImage(obj.Img, op)
 }
+func (img *ImageObj) Init(screen *ebiten.Image, data interface{}) (UpdateFunc, DrawFunc) {
+    return img.Update, img.Draw
+}
+func (img *ImageObj) Start(screen *ebiten.Image, data interface{}) {}
+
+func (img *ImageObj) Stop(screen *ebiten.Image, data interface{}) {}
+
+func (img *ImageObj) Update(frame int) {}
+
+func (img *ImageObj) Draw(screen *ebiten.Image) {
+    img.DrawImageObj(screen)
+}
 
 //Loads an image.Image
 func LoadImg(path string) (error, *image.Image) {

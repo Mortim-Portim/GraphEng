@@ -75,7 +75,7 @@ type WObj struct {
 	layer int8
 	HitBox, DrawBox *Rectangle
 	frame, squareSize int
-	name string
+	Name string
 }
 func (o *WObj) Update(frame int) {
 	o.img.Update(frame)
@@ -150,8 +150,25 @@ func GetWObjFromPath(path string) (*WObj, error) {
 	if err != nil {return nil,err}
 	return GetWObjFromParams(img, ps, name), nil
 }
+func LoadAllWObjs(folderPath string) (map[string]*WObj, error) {
+	if folderPath[len(folderPath)-1:] != "/" {
+		folderPath += "/"
+	}
+	files, err := OSReadDir(folderPath)
+	if err != nil {return nil, err}
+	
+	var currentError error
+	objs := make(map[string]*WObj)
+	names := make([]string, 0)
+	for _,f := range(files) {
+		obj, err := GetWObjFromPath(folderPath+f)
+		currentError = err
+		names = append(names, obj.Name)
+	}
+	return objs, currentError
+}
 func GetWObj(img *DayNightAnim, HitboxW,HitboxH, x, y float64, squareSize int, layer int8, name string) (o *WObj) {
-	o = &WObj{img:img, layer:layer, squareSize:squareSize, name:name}
+	o = &WObj{img:img, layer:layer, squareSize:squareSize, Name:name}
 	o.HitBox = GetRectangle(x,y, x+HitboxW, y+HitboxH)
 	if img != nil {
 		o.img.Update(0)

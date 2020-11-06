@@ -150,6 +150,7 @@ func GetWObjFromPath(path string) (*WObj, error) {
 	if err != nil {return nil,err}
 	return GetWObjFromParams(img, ps, name), nil
 }
+//Loads all WObjs from a directory
 func LoadAllWObjs(folderPath string) (map[string]*WObj, error) {
 	if folderPath[len(folderPath)-1:] != "/" {
 		folderPath += "/"
@@ -161,9 +162,13 @@ func LoadAllWObjs(folderPath string) (map[string]*WObj, error) {
 	objs := make(map[string]*WObj)
 	names := make([]string, 0)
 	for _,f := range(files) {
-		obj, err := GetWObjFromPath(folderPath+f)
-		currentError = err
-		names = append(names, obj.Name)
+		n := strings.Split(f, ".")[0]
+		if !isStringInList(n, names) {
+			obj, err := GetWObjFromPath(folderPath+n)
+			currentError = err
+			names = append(names, n)
+			objs[n] = obj
+		}
 	}
 	return objs, currentError
 }
@@ -178,7 +183,14 @@ func GetWObj(img *DayNightAnim, HitboxW,HitboxH, x, y float64, squareSize int, l
 }
 
 
-
+func isStringInList(s string, l []string) bool {
+	for _,str := range(l) {
+		if str == s {
+			return true
+		}
+	}
+	return false
+}
 /**
 func (dp *Drawables) AddImageObj(drawBox *Rectangle, obj *ImageObj) (*Drawables) {
 	pnt := drawBox.GetMiddle()

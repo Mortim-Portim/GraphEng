@@ -10,18 +10,21 @@ func (p *WorldStructure) MoveSmooth(dx, dy float64, update, force bool) {
 	if math.Abs(mX) >= 1 {
 		if mX < 0 {
 			p.Move(1, 0, update, force)
+			p.middleDx += 1
 		}else{
 			p.Move(-1, 0, update, force)
+			p.middleDx -= 1
 		}
-		p.middleDx = 0
+		
 	}
 	if math.Abs(mY) >= 1 {
 		if mY < 0 {
 			p.Move(0, 1, update, force)
+			p.middleDy += 1
 		}else{
 			p.Move(0, -1, update, force)
+			p.middleDy -= 1
 		}
-		p.middleDy = 0
 	}
 }
 func (p *WorldStructure) MoveMiddleDelta(dx, dy float64) {
@@ -70,6 +73,9 @@ func (p *WorldStructure) SetDisplayWH(x,y int) {
 	p.drawer.H = p.tileS
 	mx, my := p.Middle()
 	p.SetMiddle(mx,my, true)
+}
+func (p *WorldStructure) SmoothMiddle() (float64, float64) {
+	return float64(p.middleX)-p.middleDx, float64(p.middleY)-p.middleDy
 }
 //returns the middle of the view
 func (p *WorldStructure) Middle() (int, int) {

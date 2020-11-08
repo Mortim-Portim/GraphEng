@@ -184,12 +184,13 @@ func (g *TestGame) Update(screen *ebiten.Image) error {
 			g.wrld.MoveSmooth(0,0.2, false,false)
 		}
 	}
+	g.wrld.MoveSmooth(-0.01,0,false,false)
 	_,dy := ebiten.Wheel()
 	if dy != 0 {
 		g.wrld.Lights[0].SetMaximumIntesity(g.wrld.Lights[0].GetMaximumIntesity()+int16(dy*10))
 	}
 	
-	x,y := g.wrld.Middle()
+	x,y := g.wrld.SmoothMiddle()
 	g.player.Update(g.frame)
 	g.player.SetToXY(float64(x),float64(y))
 	g.wrld.UpdateObjDrawables()
@@ -345,7 +346,7 @@ func main() {
 	//newWrld.GetFrame(2, 90)
 	newWrld.SetDisplayWH(32,18)
 	
-	g := &TestGame{newWrld, GE.GetNewRecorder(FPS*5, 640, 360, FPS), player, 0}	
+	g := &TestGame{newWrld, GE.GetNewRecorder(FPS*5, 192, 108, FPS), player, 0}	
 	g.Init(nil)
 
 	StartGame(g)

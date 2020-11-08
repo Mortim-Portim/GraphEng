@@ -29,7 +29,7 @@ func GetStructureObj(stru *Structure, x, y float64) (o *StructureObj) {
 	return
 }
 func (o *StructureObj) Clone() *StructureObj {
-	return &StructureObj{o.Structure, o.HitBox.Clone(), o.DrawBox.Clone(), o.frame}
+	return &StructureObj{o.Structure, o.HitBox.Copy(), o.DrawBox.Copy(), o.frame}
 }
 
 //Sets the top left corner of the hitbox to a coordinate on the map

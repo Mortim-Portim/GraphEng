@@ -262,6 +262,23 @@ func OSReadDir(root string) ([]string, error) {
     return files, nil
 }
 
+//Calls handleFile for each different filename
+func ReadAllFiles(dir string, handleFile func(name string)) error {
+	files, err := OSReadDir(dir)
+	if err != nil {return err}
+	var currentError error
+	names := make([]string, 0)
+	for _,f := range(files) {
+		n := strings.Split(f, ".")[0]
+		if !IsStringInList(n, names) {
+			currentError = err
+			names = append(names, n)
+			handleFile(n)
+		}
+	}
+	return currentError
+}
+
 var LOGFILE *os.File
 func SetLogFile(path string) {
 	f, err := os.OpenFile(path, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)

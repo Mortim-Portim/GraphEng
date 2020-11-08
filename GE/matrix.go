@@ -252,7 +252,7 @@ func (m *Matrix) SetFocus(x1,y1,x2,y2 int) {
 //Copys the focus of the matrix
 func (m *Matrix) CopyFocus(m2 *Matrix) {
 	//m2.SetFocus(int(m.focus.Min().X), int(m2.focus.Min().Y), int(m2.focus.Max().X), int(m2.focus.Max().Y))
-	m2.focus = m.focus.Clone()
+	m2.focus = m.focus.Copy()
 }
 //Returns the focus of the matrix
 func (m *Matrix) Focus() *Rectangle {

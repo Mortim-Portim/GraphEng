@@ -4,7 +4,36 @@ import (
 	"math"
 )
 
-
+func (p *WorldStructure) MoveSmooth(dx, dy float64, update, force bool) {
+	p.MoveMiddleDelta(-dx,-dy)
+	mX, mY := p.GetMiddleDelta()
+	if math.Abs(mX) >= 1 {
+		if mX < 0 {
+			p.Move(1, 0, update, force)
+		}else{
+			p.Move(-1, 0, update, force)
+		}
+		p.middleDx = 0
+	}
+	if math.Abs(mY) >= 1 {
+		if mY < 0 {
+			p.Move(0, 1, update, force)
+		}else{
+			p.Move(0, -1, update, force)
+		}
+		p.middleDy = 0
+	}
+}
+func (p *WorldStructure) MoveMiddleDelta(dx, dy float64) {
+	odx, ody := p.GetMiddleDelta()
+	p.SetMiddleDelta(odx+dx, ody+dy)
+}
+func (p *WorldStructure) SetMiddleDelta(dx, dy float64) {
+	p.middleDx, p.middleDy = dx, dy
+}
+func (p *WorldStructure) GetMiddleDelta() (float64, float64) {
+	return p.middleDx, p.middleDy
+}
 //sets the Middle of the View
 func (p *WorldStructure) SetMiddle(xP, yP int, force bool) {
 	if (xP != p.middleX || yP != p.middleY) || force {
@@ -26,15 +55,15 @@ func (p *WorldStructure) Move(dx,dy int, update, force bool) {
 }
 //Sets the number of tiles to be displayed in X and Y direction
 func (p *WorldStructure) SetDisplayWH(x,y int) {
-	p.xTilesS = x
-	p.yTilesS = y
-	p.xStart = p.X
+	p.xTilesS = x+2
+	p.yTilesS = y+2
 	p.tileS = p.W / float64(x)
-	p.yStart = p.Y - (float64(y)*p.tileS-p.H)/2
+	p.xStart = p.X-p.tileS
+	p.yStart = p.Y - (float64(y)*p.tileS-p.H)/2 - p.tileS
 	if p.W < p.H {
 		p.tileS = p.H / float64(y)
-		p.xStart = p.X - (float64(x)*p.tileS-p.W)/2
-		p.yStart = p.Y
+		p.xStart = p.X - (float64(x)*p.tileS-p.W)/2 - p.tileS
+		p.yStart = p.Y -p.tileS
 	}
 	p.drawer = &ImageObj{}
 	p.drawer.W = p.tileS

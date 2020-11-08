@@ -77,6 +77,10 @@ type WObj struct {
 	frame, squareSize int
 	Name string
 }
+func (o *WObj) Copy() (o2 *WObj) {
+	o2 = &WObj{o.img.Copy(), o.layer, o.HitBox.Copy(), o.DrawBox.Copy(), o.frame, o.squareSize, o.Name}
+	return
+}
 func (o *WObj) Update(frame int) {
 	o.img.Update(frame)
 }
@@ -117,6 +121,12 @@ func (o *WObj) Draw(screen *ebiten.Image, lv int16, leftTopX, leftTopY, xStart, 
 	o.img.DrawAnim(screen)
 	o.frame ++
 }
+func (o *WObj) SetAnim(anim *DayNightAnim) {
+	if anim == nil {
+		panic("anim should never be nil")
+	}
+	o.img = anim
+}
 /**
 Params.txt:
 squareSize:		[1-NaN]
@@ -141,12 +151,21 @@ func GetWObjFromParams(img *ebiten.Image, p *Params, name string) (o *WObj) {
 	o = GetWObj(anim, hitBoxW, hitBoxH, XPos, YPos, sqSize, layer, name)
 	return
 }
-//"./res/test"
-func GetWObjFromPath(path string) (*WObj, error) {
-	sT := strings.Split(path, "/"); name := sT[len(sT)-1]
-	img, err := LoadEbitenImg(path+".png")
+//"./res/test" or "./res/img" and "./res/params"
+func GetWObjFromPath(path ...string) (*WObj, error) {
+	var pathImg, pathParams string
+	if len(path) == 1 {
+		pathImg = path[0]
+		pathParams = path[0]
+	}else if len(path) == 2 {
+		pathImg = path[0]
+		pathParams = path[1]
+	}
+	
+	sT := strings.Split(pathParams, "/"); name := sT[len(sT)-1]
+	img, err := LoadEbitenImg(pathImg+".png")
 	if err != nil {return nil,err}
-	ps := &Params{}; err = ps.LoadFromFile(path+".txt")
+	ps := &Params{}; err = ps.LoadFromFile(pathParams+".txt")
 	if err != nil {return nil,err}
 	return GetWObjFromParams(img, ps, name), nil
 }
@@ -163,7 +182,7 @@ func LoadAllWObjs(folderPath string) (map[string]*WObj, error) {
 	names := make([]string, 0)
 	for _,f := range(files) {
 		n := strings.Split(f, ".")[0]
-		if !isStringInList(n, names) {
+		if !IsStringInList(n, names) {
 			obj, err := GetWObjFromPath(folderPath+n)
 			currentError = err
 			names = append(names, n)
@@ -183,7 +202,7 @@ func GetWObj(img *DayNightAnim, HitboxW,HitboxH, x, y float64, squareSize int, l
 }
 
 
-func isStringInList(s string, l []string) bool {
+func IsStringInList(s string, l []string) bool {
 	for _,str := range(l) {
 		if str == s {
 			return true

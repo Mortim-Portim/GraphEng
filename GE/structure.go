@@ -59,7 +59,7 @@ func GetStructure(NUA, UA *DayNightAnim, HitboxW,HitboxH float64, squareSize int
 	return
 }
 func (s *Structure) Clone() *Structure {
-	return &Structure{NUA:s.NUA.Clone(), UA:s.UA.Clone(), squareSize:s.squareSize, Collides:s.Collides, layer:s.layer, HitboxW:s.HitboxW, HitboxH:s.HitboxH, Name:s.Name}
+	return &Structure{NUA:s.NUA.Copy(), UA:s.UA.Copy(), squareSize:s.squareSize, Collides:s.Collides, layer:s.layer, HitboxW:s.HitboxW, HitboxH:s.HitboxH, Name:s.Name}
 }
 /**
 Reads a slice of Structures from a folder like this:

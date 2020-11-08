@@ -21,7 +21,7 @@ func (p *Point) Equals(p2 *Point) bool {
 func (p *Point) Print() string {
 	return fmt.Sprintf("X:%v, Y:%v", p.X, p.Y)
 }
-func (p *Point) Clone() (*Point) {
+func (p *Point) Copy() (*Point) {
 	return &Point{p.X, p.Y}
 }
 func (p *Point) DistanceTo(p2 *Point) float64 {
@@ -68,8 +68,8 @@ type Rectangle struct {
 func (r *Rectangle) Print() string {
 	return fmt.Sprintf("Min: %s, Max: %s, Bounds: %s", r.Min().Print(), r.Max().Print(), r.Bounds().Print())
 }
-func (r *Rectangle) Clone() (*Rectangle) {
-	return &Rectangle{r.min.Clone(), r.max.Clone(), r.bounds.Clone()}
+func (r *Rectangle) Copy() (*Rectangle) {
+	return &Rectangle{r.min.Copy(), r.max.Copy(), r.bounds.Copy()}
 }
 func (r *Rectangle) MoveTo(pnt *Point) {
 	w,h := r.Bounds().X, r.Bounds().Y

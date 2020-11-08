@@ -61,7 +61,7 @@ type WorldStructure struct {
 	drawer *ImageObj
 	//Set by SetDisplayWH and 
 	xTilesAbs, yTilesAbs, xTilesS, yTilesS int
-	xStart, yStart, tileS float64
+	xStart, yStart, tileS, middleDx, middleDy float64
 }
 
 //Draws the tiles first and then SO_Drawables
@@ -72,7 +72,7 @@ func (p *WorldStructure) Draw(screen *ebiten.Image) {
 	for _,dwa := range(*p.SO_Drawables) {
 		xp,yp,_ := dwa.GetPos()
 		lv := p.GetLightValueAtPoint(int(xp-0.5-lT.X), int(yp-0.5-lT.Y))
-		dwa.Draw(screen, lv, lT.X, lT.Y, p.xStart, p.yStart, p.tileS)
+		dwa.Draw(screen, lv, lT.X, lT.Y, p.xStart+p.middleDx*p.tileS, p.yStart+p.middleDy*p.tileS, p.tileS)
 	}
 }
 //simply draws the current tiles to the screen
@@ -83,10 +83,8 @@ func (p *WorldStructure) drawTiles(screen *ebiten.Image) {
 			if err == nil {
 				if int(tile_idx) >= 0 && int(tile_idx) < len(p.Tiles) {
 					idx := tile_idx
-					//x := tile[0]; y := tile[1]; idx := tile[2]
-					p.drawer.X, p.drawer.Y = float64(x)*p.tileS + p.xStart, float64(y)*p.tileS + p.yStart
+					p.drawer.X, p.drawer.Y = (float64(x)+p.middleDx)*p.tileS + p.xStart, (float64(y)+p.middleDy)*p.tileS + p.yStart
 					lv := p.GetLightValueAtPoint(x, y)
-					//Takes 5ms
 					p.Tiles[idx].Draw(screen, p.drawer, p.frame, lv)
 				}
 			}
@@ -272,6 +270,12 @@ func (p *WorldStructure) GetNamedStructure(name string) (s *Structure) {
 		}
 	}
 	return
+}
+func (p *WorldStructure) GetTileOfCoords(x,y int) (xT, yT int) {
+	xWithoutDx := float64(x-x%int(p.tileS))+p.xStart; yWithoutDy := float64(y-y%int(p.tileS))+p.yStart
+	tilesDX := xWithoutDx/p.tileS; tilesDY := yWithoutDy/p.tileS
+	loc := p.TileMat.Focus().Min()
+	return int(loc.X+tilesDX), int(loc.Y+tilesDY)
 }
 
 /**

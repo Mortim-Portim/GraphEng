@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/hajimehoshi/ebiten"
 	"marvin/GraphEng/GE"
+	"marvin/TN_Engine/TNE"
 	
 	"marvin/GraphEng/res"
 	"fmt"
@@ -14,15 +15,15 @@ import (
 	//cmp "marvin/GraphEng/Compression"
 )
 const (
-	screenWidth  = 1920
-	screenHeight = 1080
+	screenWidth  = 1600
+	screenHeight = 900
 	FPS = 30
 	TestText = "Licht ist eine Form der elektromagnetischen Strahlung. Im engeren Sinne sind vom gesamten elektromagnetischen Spektrum nur die Anteile gemeint, die für das menschliche Auge sichtbar sind. Im weiteren Sinne werden auch elektromagnetische Wellen kürzerer Wellenlänge (Ultraviolett) und größerer Wellenlänge (Infrarot) dazu gezählt.\nDie physikalischen Eigenschaften des Lichts werden durch verschiedene Modelle beschrieben: In der Strahlenoptik wird die geradlinige Ausbreitung des Lichts durch „Lichtstrahlen“ veranschaulicht; in der Wellenoptik wird die Wellennatur des Lichts betont, wodurch auch Beugungs- und Interferenzerscheinungen erklärt werden können. In der Quantenphysik schließlich wird das Licht als ein Strom von Quantenobjekten, den Photonen (veranschaulichend auch „Lichtteilchen“ genannt), beschrieben. Eine vollständige Beschreibung des Lichts bietet die Quantenelektrodynamik. Im Vakuum breitet sich Licht mit der konstanten Lichtgeschwindigkeit von 299.792.458 m/s aus. Trifft Licht auf Materie, so kann es gestreut, reflektiert, gebrochen und verlangsamt oder absorbiert werden.\nLicht ist der für das menschliche Auge adäquate Sinnesreiz. Dabei wird die Intensität des Lichts als Helligkeit wahrgenommen, die spektrale Zusammensetzung als Farbe."
 )
 func StartGame(g ebiten.Game) {
 	ebiten.SetWindowSize(screenWidth, screenHeight)
 	ebiten.SetWindowTitle("GraphEng Test")
-	ebiten.SetFullscreen(true)
+	//ebiten.SetFullscreen(true)
 	ebiten.SetVsyncEnabled(true)
 	ebiten.SetRunnableOnUnfocused(true)
 	ebiten.SetMaxTPS(FPS)
@@ -159,7 +160,7 @@ func main() {
 type TestGame struct {
 	wrld *GE.WorldStructure
 	rec  *GE.Recorder
-	player *GE.WObj
+	player *TNE.Creature
 	frame int
 }
 func (g *TestGame) Init(screen *ebiten.Image) {
@@ -170,29 +171,39 @@ var timeTaken int64
 var inputT, objT, lightUpT, lightDT, worldDT time.Duration
 func (g *TestGame) Update(screen *ebiten.Image) error {
 	startTime := time.Now()
+	g.player.IsMoving = false
 	if g.frame%1 == 0 {
 		if ebiten.IsKeyPressed(ebiten.KeyA) {
 			g.wrld.MoveSmooth(-10,0,false,false)
+			g.player.IsMoving = true
 		}
 		if ebiten.IsKeyPressed(ebiten.KeyD) {
 			g.wrld.MoveSmooth(10,0, false,false)
+			g.player.IsMoving = true
 		}
 		if ebiten.IsKeyPressed(ebiten.KeyW) {
 			g.wrld.MoveSmooth(0,-10, false,false)
+			g.player.IsMoving = true
 		}
 		if ebiten.IsKeyPressed(ebiten.KeyS) {
 			g.wrld.MoveSmooth(0,10, false,false)
+			g.player.IsMoving = true
 		}
 	}
-	g.wrld.MoveSmooth(-1,0,false,false)
+	//g.wrld.MoveSmooth(-1,0,false,false)
 	_,dy := ebiten.Wheel()
 	if dy != 0 {
 		g.wrld.Lights[0].SetMaximumIntesity(g.wrld.Lights[0].GetMaximumIntesity()+int16(dy*10))
 	}
 	
 	x,y := g.wrld.SmoothMiddle()
-	g.player.Update(g.frame)
-	g.player.SetToXY(float64(x),float64(y))
+	g.player.Update(g.frame, nil)
+	g.player.SetTo(float64(x),float64(y))
+	
+	//oX, oY,_ := g.player.GetPos()
+	//g.player.SetPosMD(oX,oY)
+	
+	g.player.UpdateOrientation()
 	g.wrld.UpdateObjDrawables()
 	
 	if g.frame%100 < 50 {
@@ -296,8 +307,8 @@ func main() {
 	fmt.Printf("Objects are %v bytes\n", len(obs))
 	wrld.BytesToObjects(obs)
 	
-	player,err := GE.GetWObjFromPath("./res/anims/test")
-	if err != nil {panic(err)}
+	//player,err := GE.GetWObjFromPath("./res/anims/test")
+	//if err != nil {panic(err)}
 	
 	//----------------------------------------------------------------------------------------------------------------------------------------------
 	//Add a light source to the world
@@ -346,9 +357,22 @@ func main() {
 	//newWrld.GetFrame(2, 90)
 	newWrld.SetDisplayWH(32,18)
 	
-	g := &TestGame{newWrld, GE.GetNewRecorder(FPS*5, 1280, 720, FPS), player, 0}	
+	g := &TestGame{newWrld, GE.GetNewRecorder(FPS*5, 1280, 720, FPS), nil, 0}	
+	
+	cf, err := TNE.GetCreatureFactory("./res/creatures/", &g.frame, 3)
+	GE.ShitImDying(err)
+	
+	prepStart := time.Now()
+	cf.Prepare()
+	fmt.Println("Preparing took: ", time.Now().Sub(prepStart))
+	
+	getStart := time.Now()
+	c := cf.Get(0)
+	fmt.Println("Getting took: ", time.Now().Sub(getStart))
+	g.player = c
+	fmt.Println(c)
+	
 	g.Init(nil)
-
 	StartGame(g)
 }
 

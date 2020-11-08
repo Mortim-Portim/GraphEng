@@ -60,8 +60,8 @@ type WorldStructure struct {
 	X,Y,W,H float64
 	drawer *ImageObj
 	//Set by SetDisplayWH and 
-	xTilesAbs, yTilesAbs, xTilesS, yTilesS int
-	xStart, yStart, tileS, middleDx, middleDy float64
+	xTilesAbs, yTilesAbs, xTilesS, yTilesS, middleDx, middleDy int
+	xStart, yStart, tileS float64
 }
 
 //Draws the tiles first and then SO_Drawables
@@ -72,7 +72,7 @@ func (p *WorldStructure) Draw(screen *ebiten.Image) {
 	for _,dwa := range(*p.SO_Drawables) {
 		xp,yp,_ := dwa.GetPos()
 		lv := p.GetLightValueAtPoint(int(xp-0.5-lT.X), int(yp-0.5-lT.Y))
-		dwa.Draw(screen, lv, lT.X, lT.Y, p.xStart+p.middleDx*p.tileS, p.yStart+p.middleDy*p.tileS, p.tileS)
+		dwa.Draw(screen, lv, lT.X, lT.Y, p.xStart+float64(p.middleDx), p.yStart+float64(p.middleDy), p.tileS)
 	}
 }
 //simply draws the current tiles to the screen
@@ -83,7 +83,7 @@ func (p *WorldStructure) drawTiles(screen *ebiten.Image) {
 			if err == nil {
 				if int(tile_idx) >= 0 && int(tile_idx) < len(p.Tiles) {
 					idx := tile_idx
-					p.drawer.X, p.drawer.Y = (float64(x)+p.middleDx)*p.tileS + p.xStart, (float64(y)+p.middleDy)*p.tileS + p.yStart
+					p.drawer.X, p.drawer.Y = float64(x)*p.tileS + p.xStart + float64(p.middleDx), float64(y)*p.tileS + p.yStart + float64(p.middleDy)
 					lv := p.GetLightValueAtPoint(x, y)
 					p.Tiles[idx].Draw(screen, p.drawer, p.frame, lv)
 				}

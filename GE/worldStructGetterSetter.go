@@ -4,37 +4,38 @@ import (
 	"math"
 )
 
-func (p *WorldStructure) MoveSmooth(dx, dy float64, update, force bool) {
+func (p *WorldStructure) MoveSmooth(dx, dy int, update, force bool) {
 	p.MoveMiddleDelta(-dx,-dy)
 	mX, mY := p.GetMiddleDelta()
-	if math.Abs(mX) >= 1 {
+	ts := int(p.tileS)
+	if math.Abs(float64(mX)) >= p.tileS {
 		if mX < 0 {
 			p.Move(1, 0, update, force)
-			p.middleDx += 1
+			p.middleDx += ts
 		}else{
 			p.Move(-1, 0, update, force)
-			p.middleDx -= 1
+			p.middleDx -= ts
 		}
 		
 	}
-	if math.Abs(mY) >= 1 {
+	if math.Abs(float64(mY)) >= p.tileS {
 		if mY < 0 {
 			p.Move(0, 1, update, force)
-			p.middleDy += 1
+			p.middleDy += ts
 		}else{
 			p.Move(0, -1, update, force)
-			p.middleDy -= 1
+			p.middleDy -= ts
 		}
 	}
 }
-func (p *WorldStructure) MoveMiddleDelta(dx, dy float64) {
+func (p *WorldStructure) MoveMiddleDelta(dx, dy int) {
 	odx, ody := p.GetMiddleDelta()
 	p.SetMiddleDelta(odx+dx, ody+dy)
 }
-func (p *WorldStructure) SetMiddleDelta(dx, dy float64) {
+func (p *WorldStructure) SetMiddleDelta(dx, dy int) {
 	p.middleDx, p.middleDy = dx, dy
 }
-func (p *WorldStructure) GetMiddleDelta() (float64, float64) {
+func (p *WorldStructure) GetMiddleDelta() (int, int) {
 	return p.middleDx, p.middleDy
 }
 //sets the Middle of the View
@@ -75,7 +76,7 @@ func (p *WorldStructure) SetDisplayWH(x,y int) {
 	p.SetMiddle(mx,my, true)
 }
 func (p *WorldStructure) SmoothMiddle() (float64, float64) {
-	return float64(p.middleX)-p.middleDx, float64(p.middleY)-p.middleDy
+	return float64(p.middleX)-float64(p.middleDx)/p.tileS, float64(p.middleY)-float64(p.middleDy)/p.tileS
 }
 //returns the middle of the view
 func (p *WorldStructure) Middle() (int, int) {

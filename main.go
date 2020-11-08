@@ -172,19 +172,19 @@ func (g *TestGame) Update(screen *ebiten.Image) error {
 	startTime := time.Now()
 	if g.frame%1 == 0 {
 		if ebiten.IsKeyPressed(ebiten.KeyA) {
-			g.wrld.MoveSmooth(-0.2,0,false,false)
+			g.wrld.MoveSmooth(-10,0,false,false)
 		}
 		if ebiten.IsKeyPressed(ebiten.KeyD) {
-			g.wrld.MoveSmooth(0.2,0, false,false)
+			g.wrld.MoveSmooth(10,0, false,false)
 		}
 		if ebiten.IsKeyPressed(ebiten.KeyW) {
-			g.wrld.MoveSmooth(0,-0.2, false,false)
+			g.wrld.MoveSmooth(0,-10, false,false)
 		}
 		if ebiten.IsKeyPressed(ebiten.KeyS) {
-			g.wrld.MoveSmooth(0,0.2, false,false)
+			g.wrld.MoveSmooth(0,10, false,false)
 		}
 	}
-	g.wrld.MoveSmooth(-0.01,0,false,false)
+	g.wrld.MoveSmooth(-1,0,false,false)
 	_,dy := ebiten.Wheel()
 	if dy != 0 {
 		g.wrld.Lights[0].SetMaximumIntesity(g.wrld.Lights[0].GetMaximumIntesity()+int16(dy*10))

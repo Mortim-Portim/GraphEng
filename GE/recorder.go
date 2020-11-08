@@ -4,6 +4,7 @@ import (
 	"github.com/hajimehoshi/ebiten"
 	"image/color"
 	"os/exec"
+	//"time"
 	"fmt"
 	"os"
 	"io"
@@ -23,59 +24,63 @@ type Recorder struct {
 	back *ebiten.Image
 	video []*ebiten.Image
 	drawer *ImageObj
-	
 	saving bool
 }
 func (r *Recorder) NextFrame(img *ebiten.Image) {
 	if !r.saving {
-		newImg := DeepCopyEbitenImage(r.back)
-		r.drawer.Img = img
-		r.drawer.DrawImageObj(newImg)
-		r.video[r.current] = newImg
+		idx := r.current
 		r.current ++
 		if r.current >= r.frames {
 			r.current = 0
 		}
+		//copys the background
+		newImg := DeepCopyEbitenImage(r.back)
+		//draws the screen on the background
+		r.drawer.Img = img
+		r.drawer.DrawImageObj(newImg)
+		r.video[idx] = newImg
 	}
 }
 
 //MAY take a long time
 func (r *Recorder) Save(copyPath string) {
 	r.saving = true
-	path := "./tmp"
-	
-	err := os.Mkdir("./tmp", 0777)
-    if err != nil {
-    	fmt.Println("Error creating dir: ", err)
-    }
-    counter := 0
-    for i := r.current; i < r.current+r.frames; i++ {
-		idx := i
-		if idx >= r.frames {
-			idx -= r.frames
+	go func(){
+		err := os.Mkdir("./tmp", 0777)
+	    if err != nil {
+	    	fmt.Println("Error creating dir: ", err)
+	    }
+	    
+	    counter := 0
+	    for i := r.current; i < r.current+r.frames; i++ {
+			idx := i
+			if idx >= r.frames {
+				idx -= r.frames
+			}
+			counter ++
+			idxStr := getFFMPEGstring(counter)
+			img := r.video[idx]
+			SaveEbitenImage(fmt.Sprintf("./tmp/%s.png",idxStr), img)
+			r.video[idx] = nil
+	    }
+	    
+		wdir,err := os.Getwd()
+	    cmd := exec.Command("ffmpeg", "-i", "%04d.png", "-vf", fmt.Sprintf("fps=%v",r.fps), "-y", "out.mp4")
+	    cmd.Dir = fmt.Sprintf("%s/tmp/", wdir)
+	    err = cmd.Run()
+	    if err != nil {
+		    fmt.Println("Error running ffmpeg: ", err)
+	    }
+	    
+	    CopyFile(fmt.Sprintf("%s/tmp/out.mp4", wdir), copyPath)
+		
+		err = os.RemoveAll(fmt.Sprintf("%s/tmp", wdir))
+		if err != nil {
+		    fmt.Println(err)
 		}
-		counter ++
-		idxStr := getFFMPEGstring(counter)
-		img := r.video[idx]
-		SaveEbitenImage(fmt.Sprintf("%s/%s.png",path,idxStr), img)
-    }
-    
-    wdir,err := os.Getwd()
-    cmd := exec.Command("ffmpeg", "-i", "%04d.png", "-vf", fmt.Sprintf("fps=%v",r.fps), "-y", "out.mp4")
-    cmd.Dir = fmt.Sprintf("%s/tmp", wdir)
-    err = cmd.Run()
-    if err != nil {
-	    fmt.Println("Error running ffmpeg: ", err)
-    }
-    
-    CopyFile(fmt.Sprintf("%s/tmp/out.mp4", wdir), copyPath)
-	
-	err = os.RemoveAll(fmt.Sprintf("%s/tmp", wdir))
-	if err != nil {
-	    fmt.Println(err)
-	}
-	
-	r.saving = false
+		//fmt.Println("Removing tmp")
+		r.saving = false
+	}()
 }
 
 func getFFMPEGstring(i int) (out string) {

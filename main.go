@@ -212,7 +212,7 @@ func (g *TestGame) Update(screen *ebiten.Image) error {
 	g.wrld.Draw(screen)
 	
 	if g.frame == FPS*6 {
-		go g.rec.Save("./res/out.mp4")
+		g.rec.Save("./res/out.mp4")
 	}
 	g.rec.NextFrame(screen)
 	
@@ -221,7 +221,7 @@ func (g *TestGame) Update(screen *ebiten.Image) error {
 	fps := ebiten.CurrentTPS()
 	msg := fmt.Sprintf(`TPS: %0.2f, Updating took: %v at frame %v, ul:%v`, fps, timeTaken, g.frame-1, u_lights)
 	ebitenutil.DebugPrint(screen, msg)
-	GE.LogToFile(msg+"\n")
+	GE.LogToFile(fmt.Sprintf("%0.2f;%0.2f;%v\n", ebiten.CurrentTPS(), ebiten.CurrentFPS(), timeTaken))
 	fmt.Println(msg)
 	return nil
 }
@@ -346,7 +346,7 @@ func main() {
 	//newWrld.GetFrame(2, 90)
 	newWrld.SetDisplayWH(32,18)
 	
-	g := &TestGame{newWrld, GE.GetNewRecorder(FPS*5, 192, 108, FPS), player, 0}	
+	g := &TestGame{newWrld, GE.GetNewRecorder(FPS*5, 1280, 720, FPS), player, 0}	
 	g.Init(nil)
 
 	StartGame(g)

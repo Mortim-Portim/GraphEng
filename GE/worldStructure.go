@@ -272,7 +272,8 @@ func (p *WorldStructure) GetNamedStructure(name string) (s *Structure) {
 	return
 }
 func (p *WorldStructure) GetTileOfCoords(x,y int) (xT, yT int) {
-	xWithoutDx := float64(x-x%int(p.tileS))+p.xStart; yWithoutDy := float64(y-y%int(p.tileS))+p.yStart
+	x -= int(p.xStart); y -= int(p.yStart)
+	xWithoutDx := float64(x-x%int(p.tileS)); yWithoutDy := float64(y-y%int(p.tileS))
 	tilesDX := xWithoutDx/p.tileS; tilesDY := yWithoutDy/p.tileS
 	loc := p.TileMat.Focus().Min()
 	return int(loc.X+tilesDX), int(loc.Y+tilesDY)

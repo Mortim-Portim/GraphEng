@@ -171,6 +171,11 @@ var timeTaken int64
 var inputT, objT, lightUpT, lightDT, worldDT time.Duration
 func (g *TestGame) Update(screen *ebiten.Image) error {
 	startTime := time.Now()
+	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
+		x,y := ebiten.CursorPosition()
+		xt,yt := g.wrld.GetTileOfCoords(x,y)
+		fmt.Printf("You clicked at (%v|%v) tile (%v|%v)\n", x,y, xt,yt)
+	}
 	g.player.SetIsMoving(false)
 	if g.frame%1 == 0 {
 		if ebiten.IsKeyPressed(ebiten.KeyA) {
@@ -370,7 +375,6 @@ func main() {
 	c := cf.Get(0)
 	fmt.Println("Getting took: ", time.Now().Sub(getStart))
 	g.player = c
-	fmt.Println(c)
 	
 	g.Init(nil)
 	StartGame(g)

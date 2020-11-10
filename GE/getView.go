@@ -150,7 +150,9 @@ func GetDayNightAnim(X, Y, W, H float64, spriteWidth, updatePeriod int, sprites 
 	return
 }
 func GetDayNightAnimFromParams(X, Y, W, H float64, pPath, imgPath string) (*DayNightAnim, error) {
-	p := &Params{}; p.LoadFromFile(pPath)
+	p := &Params{}
+	err := p.LoadFromFile(pPath)
+	if err != nil {return nil,err}
 	img, err := LoadEbitenImg(imgPath)
 	if err != nil {return nil,err}
 	return GetDayNightAnim(X,Y,W,H, int(p.Get("spriteWidth")), int(p.Get("updatePeriod")), img), nil

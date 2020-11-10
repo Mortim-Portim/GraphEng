@@ -7,6 +7,7 @@ import (
 	"encoding/binary"
 	"math/big"
 )
+
 func BoolToByte(b bool) byte {
 	if b {
 		return byte(0)
@@ -17,18 +18,54 @@ func BoolToByte(b bool) byte {
 func ByteToBool(b byte) (bool) {
 	return b == 0
 }
+//Converts an float64 into a [8]byte array
 func Float64ToBytes(f float64) []byte {
 	buf := new(bytes.Buffer)
 	err := binary.Write(buf, binary.LittleEndian, f)
 	if err != nil {panic(err)}
 	return buf.Bytes()
 }
+//Converts a [8]byte array into a float64
 func BytesToFloat64(bs []byte) (f float64) {
 	buf := new(bytes.Buffer)
 	_, err := buf.Write(bs)
 	if err != nil {panic(err)}
 	err2 := binary.Read(buf, binary.LittleEndian, &f)
 	if err2 != nil {panic(err2)}
+	return
+}
+func Float64sToBytes(fs ...float64) (bs []byte) {
+	lenFs := len(fs)
+	done := make(chan bool)
+	bs = make([]byte, lenFs*8)
+	for i,f := range(fs) {
+		start := i*8
+		val := f
+		go func(){
+			copy(bs[start:start+8], Float64ToBytes(val))
+			done <- true
+		}()
+	}
+	for i := 0; i < lenFs; i++ {
+		<- done
+	}
+	return
+}
+func BytesToFloat64s(bs []byte) (fs []float64) {
+	lenFs := len(bs)/8
+	done := make(chan bool)
+	fs = make([]float64, lenFs)
+	for i,_ := range(fs) {
+		start := i*8
+		idx := i
+		go func(){
+			fs[idx] = BytesToFloat64(bs[start:start+8])
+			done <- true
+		}()
+	}
+	for i := 0; i < lenFs; i++ {
+		<- done
+	}
 	return
 }
 //Converts an int64 into a [8]byte array

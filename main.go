@@ -171,23 +171,23 @@ var timeTaken int64
 var inputT, objT, lightUpT, lightDT, worldDT time.Duration
 func (g *TestGame) Update(screen *ebiten.Image) error {
 	startTime := time.Now()
-	g.player.IsMoving = false
+	g.player.SetIsMoving(false)
 	if g.frame%1 == 0 {
 		if ebiten.IsKeyPressed(ebiten.KeyA) {
 			g.wrld.MoveSmooth(-10,0,false,false)
-			g.player.IsMoving = true
+			g.player.SetIsMoving(true)
 		}
 		if ebiten.IsKeyPressed(ebiten.KeyD) {
 			g.wrld.MoveSmooth(10,0, false,false)
-			g.player.IsMoving = true
+			g.player.SetIsMoving(true)
 		}
 		if ebiten.IsKeyPressed(ebiten.KeyW) {
 			g.wrld.MoveSmooth(0,-10, false,false)
-			g.player.IsMoving = true
+			g.player.SetIsMoving(true)
 		}
 		if ebiten.IsKeyPressed(ebiten.KeyS) {
 			g.wrld.MoveSmooth(0,10, false,false)
-			g.player.IsMoving = true
+			g.player.SetIsMoving(true)
 		}
 	}
 	//g.wrld.MoveSmooth(-1,0,false,false)
@@ -197,7 +197,7 @@ func (g *TestGame) Update(screen *ebiten.Image) error {
 	}
 	
 	x,y := g.wrld.SmoothMiddle()
-	g.player.Update(g.frame, nil)
+	g.player.Update(nil)
 	g.player.SetTo(float64(x),float64(y))
 	
 	//oX, oY,_ := g.player.GetPos()
@@ -222,8 +222,8 @@ func (g *TestGame) Update(screen *ebiten.Image) error {
 	//Around 8ms
 	g.wrld.Draw(screen)
 	
-	if g.frame == FPS*6 {
-		g.rec.Save("./res/out.mp4")
+	if ebiten.IsKeyPressed(ebiten.KeyC) && !g.rec.IsSaving() {
+		g.rec.Save("./res/out")
 	}
 	g.rec.NextFrame(screen)
 	

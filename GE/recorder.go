@@ -2,14 +2,14 @@ package GE
 
 import (
 	"github.com/hajimehoshi/ebiten"
+	"github.com/icza/mjpeg"
 	"image/color"
-	"os/exec"
-	//"time"
+	"image/jpeg"
+	"bytes"
 	"fmt"
 	"os"
 	"io"
 )
-//cd ./tmp && ffmpeg -i %04d.png -vf fps=30 -y out.mp4
 
 func GetNewRecorder(frames, XRES, YRES, fps int) (r *Recorder) {
 	r = &Recorder{frames:frames, current:0, fps:fps}
@@ -42,15 +42,16 @@ func (r *Recorder) NextFrame(img *ebiten.Image) {
 	}
 }
 
+func (r *Recorder) IsSaving() bool {
+	return r.saving
+}
+
 //MAY take a long time
 func (r *Recorder) Save(copyPath string) {
 	r.saving = true
 	go func(){
-		err := os.Mkdir("./tmp", 0777)
-	    if err != nil {
-	    	fmt.Println("Error creating dir: ", err)
-	    }
-	    
+	    aw, err := mjpeg.New(copyPath+".avi", 200, 100, int32(r.fps))
+		ShitImDying(err)
 	    counter := 0
 	    for i := r.current; i < r.current+r.frames; i++ {
 			idx := i
@@ -58,27 +59,17 @@ func (r *Recorder) Save(copyPath string) {
 				idx -= r.frames
 			}
 			counter ++
-			idxStr := getFFMPEGstring(counter)
 			img := r.video[idx]
-			SaveEbitenImage(fmt.Sprintf("./tmp/%s.png",idxStr), img)
 			r.video[idx] = nil
+			if img != nil {
+				buf := &bytes.Buffer{}
+				err := jpeg.Encode(buf, img, nil)
+				ShitImDying(err)
+				err = aw.AddFrame(buf.Bytes())
+				ShitImDying(err)
+			}
 	    }
-	    
-		wdir,err := os.Getwd()
-	    cmd := exec.Command("ffmpeg", "-i", "%04d.png", "-vf", fmt.Sprintf("fps=%v",r.fps), "-y", "out.mp4")
-	    cmd.Dir = fmt.Sprintf("%s/tmp/", wdir)
-	    err = cmd.Run()
-	    if err != nil {
-		    fmt.Println("Error running ffmpeg: ", err)
-	    }
-	    
-	    CopyFile(fmt.Sprintf("%s/tmp/out.mp4", wdir), copyPath)
-		
-		err = os.RemoveAll(fmt.Sprintf("%s/tmp", wdir))
-		if err != nil {
-		    fmt.Println(err)
-		}
-		//fmt.Println("Removing tmp")
+		ShitImDying(aw.Close())
 		r.saving = false
 	}()
 }

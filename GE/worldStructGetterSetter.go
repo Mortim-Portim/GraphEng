@@ -116,7 +116,7 @@ func (p *WorldStructure) AddStructObj(obj ...*StructureObj) {
 	p.Objects = append(p.Objects, obj...)
 }
 
-func (p *WorldStructure) SetLightLevel(newL int16) {
+func (p *WorldStructure) SetLightLevel(newL int64) {
 	p.lightLevel = newL
 	if newL > p.maxLight {
 		p.lightLevel = p.maxLight
@@ -131,15 +131,15 @@ func (p *WorldStructure) SetLightLevel(newL int16) {
 func (p *WorldStructure) UpdateLightLevel(ticks float64) {
 	p.currentD += p.deltaB*ticks
 	if math.Abs(p.currentD) >= 1 {
-		p.SetLightLevel(p.GetLightLevel()+int16(p.currentD))
+		p.SetLightLevel(p.GetLightLevel()+int64(p.currentD))
 		p.currentD = 0
 	}
 }
-func (p *WorldStructure) GetLightLevel() int16 {
+func (p *WorldStructure) GetLightLevel() int64 {
 	return p.lightLevel
 }
 
-func (p *WorldStructure) SetLightStats(min, max int16, lightChange float64) {
+func (p *WorldStructure) SetLightStats(min, max int64, lightChange float64) {
 	p.minLight = min
 	p.maxLight = max
 	p.lightLevel = max

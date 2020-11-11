@@ -77,50 +77,63 @@ type WObj struct {
 	frame, squareSize int
 	Name string
 }
+//Copys the WObj
 func (o *WObj) Copy() (o2 *WObj) {
 	o2 = &WObj{o.img.Copy(), o.layer, o.HitBox.Copy(), o.DrawBox.Copy(), o.frame, o.squareSize, o.Name}
 	return
 }
+//Updates the animation
 func (o *WObj) Update(frame int) {
 	o.img.Update(frame)
 }
+//Moves the WObj by delta
 func (o *WObj) MoveBy(dx,dy float64) {
 	if dx != 0 || dy != 0 {
 		x := o.HitBox.Min().X+dx;y := o.HitBox.Min().Y+dy
 		o.SetToXY(x,y)
 	}
 }
+//Sets the WObjs top left to x and y
 func (o *WObj) SetToXY(x,y float64) {
-	//fmt.Printf("Setting Pos (%v | %v)\n", x, y)
 	o.HitBox.MoveTo(&Point{x,y})
 	w,h := o.img.Size()
 	W := float64(w)/float64(o.squareSize); H := float64(h)/float64(o.squareSize)
-	//fmt.Printf("w:%v, h:%v, sqsize:%v, W:%v, H:%v\n", w,h, o.squareSize, W, H)
 	o.DrawBox = GetRectangle(o.HitBox.Min().X-(W-o.HitBox.Bounds().X-1)/2, o.HitBox.Min().Y-(H-o.HitBox.Bounds().Y-1), 0,0)
 	o.DrawBox.SetBounds(&Point{W,H})
-	//fmt.Printf("Finished Setting: DrawBox: %s, HitBox: %s\n", o.DrawBox.Print(), o.HitBox.Print())
 }
+//Sets the WObjs middle to x and y
+func (o *WObj) SetPos(x,y float64) {
+	w,h := o.Bounds()
+	o.SetToXY(x+w/2, y+h/2)
+}
+//Returns the Position of the middle of the WObj
 func (o *WObj) GetPos() (float64, float64, int8) {
 	pnt := o.HitBox.GetMiddle()
 	return pnt.X+0.5,pnt.Y+0.5,o.layer
 }
+//Sets the layer the WObj is drawn to
+func (o *WObj) SetLayer(l int8) {
+	o.layer = l
+}
+//Returns the Height-1 of the WObj
 func (o *WObj) Height() float64 {
 	return o.HitBox.Bounds().Y
 }
+//Returns the real Bounds of the WObj
 func (o *WObj) Bounds() (float64, float64) {
-	return o.HitBox.Bounds().Y+1, o.HitBox.Bounds().X+1
+	bnds := o.HitBox.Bounds()
+	return bnds.X+1, bnds.Y+1
 }
+//Draws the WObj to the screen
 func (o *WObj) Draw(screen *ebiten.Image, lv int16, leftTopX, leftTopY, xStart, yStart, sqSize float64) {
-	//fmt.Printf("Params: lv:%v, ltx:%v, lty:%v, sqsize:%v, xs:%v, ys:%v\n", lv, leftTopX, leftTopY, sqSize, xStart, yStart)
-	//fmt.Printf("DrawBox: %s, HitBox: %s\n", o.DrawBox.Print(), o.HitBox.Print())
 	y := (o.DrawBox.Min().Y-leftTopY)*sqSize
 	x := (o.DrawBox.Min().X-leftTopX)*sqSize
 	o.img.SetParams(x+xStart,y+yStart, float64(o.DrawBox.Bounds().X)*sqSize, float64(o.DrawBox.Bounds().Y)*sqSize)
-	//fmt.Printf("Drawing at x:%v, y:%v, w:%v, h:%v\n", x+xStart,y+yStart, float64(o.DrawBox.Bounds().X)*sqSize, float64(o.DrawBox.Bounds().Y)*sqSize)
 	o.img.LightLevel = lv
 	o.img.DrawAnim(screen)
 	o.frame ++
 }
+//Sets the animation the WObj is using
 func (o *WObj) SetAnim(anim *DayNightAnim) {
 	if anim == nil {
 		panic("anim should never be nil")
@@ -151,8 +164,11 @@ func GetWObjFromParams(img *ebiten.Image, p *Params, name string) (o *WObj) {
 	o = GetWObj(anim, hitBoxW, hitBoxH, XPos, YPos, sqSize, layer, name)
 	return
 }
-//"./res/test" or "./res/img" and "./res/params"
-func GetWObjFromPath(path ...string) (*WObj, error) {
+//provide at least on path
+func GetWObjFromPath(name string, path ...string) (*WObj, error) {
+	if len(path) == 0 {
+		panic("No path given")
+	}
 	var pathImg, pathParams string
 	if len(path) == 1 {
 		pathImg = path[0]
@@ -162,7 +178,6 @@ func GetWObjFromPath(path ...string) (*WObj, error) {
 		pathParams = path[1]
 	}
 	
-	sT := strings.Split(pathParams, "/"); name := sT[len(sT)-1]
 	img, err := LoadEbitenImg(pathImg+".png")
 	if err != nil {return nil,err}
 	ps := &Params{}; err = ps.LoadFromFile(pathParams+".txt")
@@ -183,7 +198,7 @@ func LoadAllWObjs(folderPath string) (map[string]*WObj, error) {
 	for _,f := range(files) {
 		n := strings.Split(f, ".")[0]
 		if !IsStringInList(n, names) {
-			obj, err := GetWObjFromPath(folderPath+n)
+			obj, err := GetWObjFromPath(n, folderPath+n)
 			currentError = err
 			names = append(names, n)
 			objs[n] = obj

@@ -52,7 +52,7 @@ subMatrix with focus (3,2,15,12)
 **/
 
 //Returns a Matrix of width=x, height=y and initial value=v
-func GetMatrix(x,y int, v int16) (m *Matrix) {
+func GetMatrix(x,y int, v int64) (m *Matrix) {
 	m = &Matrix{}
 	m.x = &big.Int{}
 	m.y = &big.Int{}
@@ -64,7 +64,7 @@ func GetMatrix(x,y int, v int16) (m *Matrix) {
 }
 type Matrix struct {
 	x,y *big.Int
-	list []int16
+	list []int64
 	focus *Rectangle
 }
 //Returns the width of the focused Matrix
@@ -84,17 +84,17 @@ func (m *Matrix) HAbs() int {
 	return int(m.y.Int64())
 }
 //Initializes m with a certain value
-func (m *Matrix) Init(standard int16) {
-	m.list = make([]int16, m.x.Int64()*m.y.Int64())
+func (m *Matrix) Init(standard int64) {
+	m.list = make([]int64, m.x.Int64()*m.y.Int64())
 	for i,_ := range(m.list) {
 		m.list[i] = standard
 	}
 }
 //Initializes m with the indexes (used for debugging)
 func (m *Matrix) InitIdx() {
-	m.list = make([]int16, m.x.Int64()*m.y.Int64())
+	m.list = make([]int64, m.x.Int64()*m.y.Int64())
 	for i,_ := range(m.list) {
-		m.list[i] = int16(i)
+		m.list[i] = int64(i)
 	}
 }
 //Returns a matrix with the same fields
@@ -102,21 +102,21 @@ func (m *Matrix) Clone() *Matrix {
 	return &Matrix{m.x,m.y,m.list,m.focus}
 }
 //Returns the value of the matrix at the absolute x and y coordinates
-func (m *Matrix) GetAbs(x,y int) (int16, error) {
+func (m *Matrix) GetAbs(x,y int) (int64, error) {
 	if x < 0 || y < 0 || x >= m.WAbs() || y >= m.HAbs() {
 		return 0, errors.New(fmt.Sprintf("Coordinates (%v:%v) not on matrix", x, y))
 	}
 	return m.list[x+int(m.x.Int64())*y], nil
 }
 //Sets the value of the matrix at the x and y coordinates
-func (m *Matrix) SetAbs(x, y int, v int16) {
+func (m *Matrix) SetAbs(x, y int, v int64) {
 	if x < 0 || y < 0 || x >= m.WAbs() || y >= m.HAbs() {
 		return
 	}
 	m.list[(int(x))+int(m.x.Int64())*(int(y))] = v
 }
 //Returns the value of the focused matrix at the x and y coordinates
-func (m *Matrix) Get(x, y int) (int16, error) {
+func (m *Matrix) Get(x, y int) (int64, error) {
 	xl,yl := int(m.focus.Min().X)+x, int(m.focus.Min().Y)+y
 	if xl < 0 || xl >= m.WAbs() || yl < 0 || yl >= m.HAbs() {
 		return 0, errors.New(fmt.Sprintf("Coordinates (%v:%v) not on matrix with w:%v, h:%v, xl:%v, yl:%v, wAbs:%v, hAbs:%v, lx:%v, ly:%v", x, y, int(m.focus.Bounds().X), int(m.focus.Bounds().Y), xl, yl, m.WAbs(), m.HAbs(), int(m.focus.Min().X), int(m.focus.Min().Y)))
@@ -126,7 +126,7 @@ func (m *Matrix) Get(x, y int) (int16, error) {
 	return m.list[idx], nil
 }
 //Returns the nearest value of a border of the matrix to a point
-func (m *Matrix) GetNearest(x, y int) (int16, error) {
+func (m *Matrix) GetNearest(x, y int) (int64, error) {
 	v,err := m.Get(x,y)
 	if err == nil {
 		return v,nil
@@ -172,7 +172,7 @@ func (m *Matrix) GetNearest(x, y int) (int16, error) {
 	return 0, errors.New(fmt.Sprintf("Should not be reached: x:%v, y:%v, w:%v, h:%v", X,Y,W,H))
 }
 //Sets the value of the focused matrix at the x and y coordinates
-func (m *Matrix) Set(x, y int, v int16) {
+func (m *Matrix) Set(x, y int, v int64) {
 	xl,yl := int(m.focus.Min().X)+x, int(m.focus.Min().Y)+y
 	if xl < 0 || xl >= m.WAbs() || yl < 0 || yl >= m.HAbs() {
 		return
@@ -180,17 +180,17 @@ func (m *Matrix) Set(x, y int, v int16) {
 	m.list[(int(x)+int(m.focus.Min().X))+int(m.x.Int64())*(int(y)+int(m.focus.Min().Y))] = v
 }
 //Adds a value to the value of the focused matrix at the x and y coordinate
-func (m *Matrix) Add(x,y int, v int16) {
+func (m *Matrix) Add(x,y int, v int64) {
 	ov, _ := m.Get(x,y)
-	m.Set(x,y, int16(ov)+v)
+	m.Set(x,y, int64(ov)+v)
 }
 //Adds a value to the value of the focused matrix at the x and y coordinate
-func (m *Matrix) AddAbs(x,y int, v int16) {
+func (m *Matrix) AddAbs(x,y int, v int64) {
 	ov, _ := m.GetAbs(x,y)
-	m.SetAbs(x,y, int16(ov)+v)
+	m.SetAbs(x,y, int64(ov)+v)
 }
 //Fills a Rectangle with a value
-func (m *Matrix) Fill(x1,y1,x2,y2 int, v int16) {
+func (m *Matrix) Fill(x1,y1,x2,y2 int, v int64) {
 	for x := x1; x <= x2; x++ {
 		for y := y1; y <= y2; y++ {
 			m.Set(x,y,v)
@@ -198,7 +198,7 @@ func (m *Matrix) Fill(x1,y1,x2,y2 int, v int16) {
 	}
 }
 //Fills a Rectangle with a value
-func (m *Matrix) FillAbs(x1,y1,x2,y2 int, v int16) {
+func (m *Matrix) FillAbs(x1,y1,x2,y2 int, v int64) {
 	for x := x1; x <= x2; x++ {
 		for y := y1; y <= y2; y++ {
 			m.SetAbs(x,y,v)
@@ -206,7 +206,7 @@ func (m *Matrix) FillAbs(x1,y1,x2,y2 int, v int16) {
 	}
 }
 //Adds a value to a Rectangle
-func (m *Matrix) AddToRect(x1,y1,x2,y2 int, v int16) {
+func (m *Matrix) AddToRect(x1,y1,x2,y2 int, v int64) {
 	for x := x1; x <= x2; x++ {
 		for y := y1; y <= y2; y++ {
 			m.Add(x,y,v)
@@ -214,7 +214,7 @@ func (m *Matrix) AddToRect(x1,y1,x2,y2 int, v int16) {
 	}
 }
 //Adds a value to all focused values
-func (m *Matrix) AddToAll(v int16) {
+func (m *Matrix) AddToAll(v int64) {
 	for x := 0; x < m.W(); x++ {
 		for y := 0; y < m.H(); y++ {
 			m.Add(x,y,v)
@@ -222,7 +222,7 @@ func (m *Matrix) AddToAll(v int16) {
 	}
 }
 //Adds a value to all values
-func (m *Matrix) AddToAllAbs(v int16) {
+func (m *Matrix) AddToAllAbs(v int64) {
 	for x := 0; x < m.WAbs(); x++ {
 		for y := 0; y < m.HAbs(); y++ {
 			m.Add(x,y,v)
@@ -289,7 +289,7 @@ func (m *Matrix) Print() string {
 }
 //Converts a Matrix to a []byte slice
 func (m *Matrix) ToBytes() []byte {
-	b := cmp.Int16sToBytes(m.list)
+	b := cmp.Int64sToBytes(m.list...)
 	b =	cmp.AppendInt16ToBytes(int16(m.focus.Min().X), b)
 	b = cmp.AppendInt16ToBytes(int16(m.focus.Min().Y), b)
 	b = cmp.AppendInt16ToBytes(int16(m.focus.Max().X), b)
@@ -301,7 +301,7 @@ func (m *Matrix) ToBytes() []byte {
 }
 //Loads a Matrix from a []byte slice
 func (m *Matrix) FromBytes(bs []byte) {
-	is := cmp.BytesToInt16s(bs[:len(bs)-16])
+	is := cmp.BytesToInt64s(bs[:len(bs)-16])
 	m.list = is[:len(is)-4]
 	m.x = cmp.BytesToBigInt(bs[len(bs)-16:len(bs)-8])
 	m.y = cmp.BytesToBigInt(bs[len(bs)-8:len(bs)])

@@ -176,6 +176,7 @@ func (g *TestGame) Update(screen *ebiten.Image) error {
 		xt,yt := g.wrld.GetTileOfCoords(x,y)
 		fmt.Printf("You clicked at (%v|%v) tile (%v|%v)\n", x,y, xt,yt)
 	}
+	/**
 	g.player.SetIsMoving(false)
 	if g.frame%1 == 0 {
 		if ebiten.IsKeyPressed(ebiten.KeyA) {
@@ -210,6 +211,7 @@ func (g *TestGame) Update(screen *ebiten.Image) error {
 	
 	g.player.UpdateOrientation()
 	g.wrld.UpdateObjDrawables()
+	**/
 	
 	if g.frame%100 < 50 {
 		for _,strct := range(g.wrld.Structures) {

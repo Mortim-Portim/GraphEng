@@ -45,7 +45,7 @@ type WorldStructure struct {
 	SO_Drawables	*Drawables
 	
 	//The standard light level
-	lightLevel, minLight, maxLight int16
+	lightLevel, minLight, maxLight int64
 	deltaB, currentD float64
 	//TileMat stores indexes of tiles, LightMat stores the lightlevel, ObjMat stores indexes of Objects
 	TileMat, LIdxMat, LightMat, ObjMat *Matrix
@@ -72,7 +72,7 @@ func (p *WorldStructure) Draw(screen *ebiten.Image) {
 	for _,dwa := range(*p.SO_Drawables) {
 		xp,yp,_ := dwa.GetPos()
 		lv := p.GetLightValueAtPoint(int(xp-0.5-lT.X), int(yp-0.5-lT.Y))
-		dwa.Draw(screen, lv, lT.X, lT.Y, p.xStart+float64(p.middleDx), p.yStart+float64(p.middleDy), p.tileS)
+		dwa.Draw(screen, int16(lv), lT.X, lT.Y, p.xStart+float64(p.middleDx), p.yStart+float64(p.middleDy), p.tileS)
 	}
 }
 //simply draws the current tiles to the screen
@@ -85,7 +85,7 @@ func (p *WorldStructure) drawTiles(screen *ebiten.Image) {
 					idx := tile_idx
 					p.drawer.X, p.drawer.Y = float64(x)*p.tileS + p.xStart + float64(p.middleDx), float64(y)*p.tileS + p.yStart + float64(p.middleDy)
 					lv := p.GetLightValueAtPoint(x, y)
-					p.Tiles[idx].Draw(screen, p.drawer, p.frame, lv)
+					p.Tiles[idx].Draw(screen, p.drawer, p.frame, int16(lv))
 				}
 			}
 		}
@@ -96,7 +96,7 @@ func (p *WorldStructure) drawTiles(screen *ebiten.Image) {
 func (p *WorldStructure) UpdateLIdxMat() {
 	p.LIdxMat = GetMatrix(p.xTilesAbs, p.yTilesAbs, -1)
 	for i,l := range(p.Lights) {
-		p.LIdxMat.SetAbs(int(l.Loc().X), int(l.Loc().Y), int16(i))
+		p.LIdxMat.SetAbs(int(l.Loc().X), int(l.Loc().Y), int64(i))
 	}
 	p.TileMat.CopyFocus(p.LIdxMat)
 }
@@ -156,12 +156,12 @@ func (p *WorldStructure) drawLightsToMat(xL, yL, w, h int) {
 }
 
 //Returns the sum of all the light values of all lights in ls at a relative point and the lightLevel
-func (p *WorldStructure) GetLightValueAtPoint(x,y int) (int16) {
+func (p *WorldStructure) GetLightValueAtPoint(x,y int) (int64) {
 	v, _ := p.LightMat.GetNearest(x,y)
-	return v+int16(p.lightLevel)
+	return v+int64(p.lightLevel)
 }
 //Calculates the sum of all the light values of all lights in ls at an absolute point
-func (p *WorldStructure) calcLightValueForPoint(x,y int, ls []*Light) (v int16) {
+func (p *WorldStructure) calcLightValueForPoint(x,y int, ls []*Light) (v int64) {
 	v = 0
 	for _,l := range(ls) {
 		lv,err := l.GetAtAbs(x,y)
@@ -179,7 +179,7 @@ func (p *WorldStructure) calcLightValueForPoint(x,y int, ls []*Light) (v int16) 
 func (p *WorldStructure) UpdateObjMat() {
 	p.ObjMat = GetMatrix(p.TileMat.WAbs(),p.TileMat.HAbs(),0)
 	for i,obj := range(p.Objects) {
-		obj.DrawCollisionMatrix(p.ObjMat, int16(i+1))
+		obj.DrawCollisionMatrix(p.ObjMat, int64(i+1))
 	}
 	p.TileMat.CopyFocus(p.ObjMat)
 }

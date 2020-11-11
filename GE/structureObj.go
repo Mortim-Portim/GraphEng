@@ -48,7 +48,7 @@ func (o *StructureObj) Height() float64 {
 	return o.HitBox.Bounds().Y
 }
 //Draws the objects hitbox if it can collide
-func (o *StructureObj) DrawCollisionMatrix(mat *Matrix, value int16) {
+func (o *StructureObj) DrawCollisionMatrix(mat *Matrix, value int64) {
 	if !o.Collides {
 		value = -value
 	}

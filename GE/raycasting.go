@@ -60,7 +60,7 @@ func (l *Light) iterateOverLine(dx, dy, rad, radReal, factor float64, pnt *Vecto
 		lv,_ := lightmat.Get(rx,ry)
 		if lv == 0 {
 			val := int16(l.getValueAtXYdif(int(float64(rx)-rad),int(float64(ry)-rad))*factor)
-			lightmat.Set(rx,ry, val)
+			lightmat.Set(rx,ry, int64(val))
 		}
 		if math.Abs(dx) > math.Abs(dy) {
 			pnt.X += xStep

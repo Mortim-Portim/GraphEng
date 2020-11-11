@@ -60,7 +60,7 @@ func (l *Light) Move(dx, dy float64) {
 	l.location.X += dx
 	l.location.Y += dy
 }
-func (l *Light) GetAtAbs(x,y int) (int16, error) {
+func (l *Light) GetAtAbs(x,y int) (int64, error) {
 	if l.lightMat == nil {
 		return 0, errors.New(fmt.Sprintf("LightMat of %v not yet initialized", l))
 	}
@@ -75,9 +75,9 @@ func (l *Light) applyOnMatrix(mat *Matrix, factor float64) {
 		for y := int(md.Y-rad-1); y < int(md.Y+rad+1); y++ {
 			pnt := &Point{float64(x), float64(y)}
 			if pnt.X == md.X && pnt.Y == md.Y {
-				mat.Add(x,y, int16(float64(l.maximumIntesity)*factor))
+				mat.Add(x,y, int64(float64(l.maximumIntesity)*factor))
 			}else{
-				mat.Add(x,y, int16(l.GetValueAtXY(x,y)*factor))
+				mat.Add(x,y, int64(l.GetValueAtXY(x,y)*factor))
 			}
 		}
 	}

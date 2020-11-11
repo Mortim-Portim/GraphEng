@@ -81,6 +81,40 @@ func BytesToInt64(b []byte) (int64) {
 	i.SetBytes(b)
 	return i.Int64()
 }
+func Int64sToBytes(is ...int64) (bs []byte) {
+	lenFs := len(is)
+	done := make(chan bool)
+	bs = make([]byte, lenFs*8)
+	for i,f := range(is) {
+		start := i*8
+		val := f
+		go func(){
+			copy(bs[start:start+8], Int64ToBytes(val))
+			done <- true
+		}()
+	}
+	for i := 0; i < lenFs; i++ {
+		<- done
+	}
+	return
+}
+func BytesToInt64s(bs []byte) (is []int64) {
+	lenFs := len(bs)/8
+	done := make(chan bool)
+	is = make([]int64, lenFs)
+	for i,_ := range(is) {
+		start := i*8
+		idx := i
+		go func(){
+			is[idx] = BytesToInt64(bs[start:start+8])
+			done <- true
+		}()
+	}
+	for i := 0; i < lenFs; i++ {
+		<- done
+	}
+	return
+}
 //converts an int64 into a [8]byte array
 func BigIntToBytes(i *big.Int) (b []byte) {
 	b = make([]byte, 8)

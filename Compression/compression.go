@@ -139,7 +139,7 @@ func BytesToInt16(b []byte) (int16) {
 	return int16(int64(binary.LittleEndian.Uint16(b))-32768)
 }
 //Converts a slice of ints into a []byte slice
-func Int16sToBytes(is []int16) (bs []byte) {
+func Int16sToBytes(is ...int16) (bs []byte) {
 	bs = make([]byte, 2*len(is))
 	for idx,i := range(is) {
 		b := Int16ToBytes(i)
@@ -159,12 +159,12 @@ func BytesToInt16s(bs []byte) (is []int16) {
 	return
 }
 //Converts a 2d slice of ints into a []byte slice
-func Int16s2DToBytes(is [][]int16) (bs []byte) {
+func Int16s2DToBytes(is ...[]int16) (bs []byte) {
 	bs = make([]byte, 0)
 	bs = append(bs, Int64ToBytes(int64(len(is[0])))...)
 	
 	for _,il := range(is) {
-		bs = append(bs, Int16sToBytes(il)...)
+		bs = append(bs, Int16sToBytes(il...)...)
 	}
 	
 	return

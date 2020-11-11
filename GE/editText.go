@@ -67,9 +67,10 @@ func (t *EditText) Update(frame int) {
 			t.imageNeedsUpdate = true
 			t.text += newText
 		}
-		if repeatingKeyPressed(ebiten.KeyInsert) || (repeatingKeyPressed(ebiten.KeyV) && repeatingKeyPressed(ebiten.KeyControl)) {
+		if repeatingKeyPressed(ebiten.KeyInsert) || areKeysPressed(ebiten.KeyV, ebiten.KeyControl) {
 			txt,_ := clipboard.ReadAll()
-			newText = txt
+			t.imageNeedsUpdate = true
+			t.text += txt
 		}
 		if repeatingKeyPressed(ebiten.KeyBackspace) {
 			if len(t.text) >= 1 {

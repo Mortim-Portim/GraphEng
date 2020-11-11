@@ -137,6 +137,24 @@ func repeatingKeyPressed(key ebiten.Key) bool {
 	return false
 }
 
+func areKeysPressed(keys ...ebiten.Key) bool {
+	keysPressed := 0
+	for _,key := range(keys) {
+		if ebiten.IsKeyPressed(key) {
+			keysPressed ++
+		}
+	}
+	if keysPressed < len(keys) {
+		return false
+	}
+	for _,key := range(keys) {
+		if inpututil.KeyPressDuration(key) == 1 {
+			return true
+		}
+	}
+	return false
+}
+
 //Panics if an error occured
 func CheckErr(err error) {
 	if err != nil {

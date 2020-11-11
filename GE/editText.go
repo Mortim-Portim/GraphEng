@@ -5,6 +5,7 @@ import (
 	"strings"
 	"strconv"
 	"image/color"
+	"github.com/atotto/clipboard"
 	"github.com/hajimehoshi/ebiten"
 	"github.com/golang/freetype/truetype"
 )
@@ -65,6 +66,10 @@ func (t *EditText) Update(frame int) {
 		if len(newText) > 0 && strings.ContainsAny(newText, allLetters+" ") {
 			t.imageNeedsUpdate = true
 			t.text += newText
+		}
+		if repeatingKeyPressed(ebiten.KeyInsert) || (repeatingKeyPressed(ebiten.KeyV) && repeatingKeyPressed(ebiten.KeyControl)) {
+			txt,_ := clipboard.ReadAll()
+			newText = txt
 		}
 		if repeatingKeyPressed(ebiten.KeyBackspace) {
 			if len(t.text) >= 1 {

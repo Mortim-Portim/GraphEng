@@ -45,7 +45,7 @@ type WorldStructure struct {
 	SO_Drawables	*Drawables
 	
 	//The standard light level
-	lightLevel, minLight, maxLight int64
+	lightLevel, minLight, maxLight int16
 	deltaB, currentD float64
 	//TileMat stores indexes of tiles, LightMat stores the lightlevel, ObjMat stores indexes of Objects
 	TileMat, LIdxMat, LightMat, ObjMat *Matrix
@@ -168,8 +168,8 @@ func (p *WorldStructure) calcLightValueForPoint(x,y int, ls []*Light) (v int64) 
 		if err == nil {
 			v += lv
 		}
-		if p.maxLight != 0 && v > p.maxLight {
-			v = p.maxLight
+		if p.maxLight != 0 && v > int64(p.maxLight) {
+			v = int64(p.maxLight)
 			return
 		}
 	}

@@ -115,9 +115,9 @@ func (i *DayNightImg) ScaleToOriginalSize() {
 //Scales the Image in a dimension keeping the aspect ratio
 func (i *DayNightImg) ScaleDim(newval float64, dim int) {
 	if dim == 0 {
-		i.day.ScaleToX(newval)
+		i.ScaleToX(newval)
 	}else if dim == 1 {
-		i.day.ScaleToY(newval)
+		i.ScaleToY(newval)
 	}
 }
 //Scales the Image in the X dimension keeping the aspect ratio

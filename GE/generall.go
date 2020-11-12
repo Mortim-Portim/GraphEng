@@ -154,6 +154,12 @@ func areKeysPressed(keys ...ebiten.Key) bool {
 	}
 	return false
 }
+func IsKeyJustDown(key ebiten.Key) bool {
+	if inpututil.KeyPressDuration(key) == 1 {
+		return true
+	}
+	return false
+}
 
 //Panics if an error occured
 func CheckErr(err error) {

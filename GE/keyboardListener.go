@@ -121,6 +121,17 @@ func (l *KeyLi) GetRawKeyState(KeyID int) (state, change bool) {
 	change = containsI(l.JustChanged, KeyID)
 	return
 }
+//Returns the state and weather it just changed based on the Keys ID
+func GetRawKeyStateFast(KeyID int) (state, change bool) {
+	key := AllKeys[KeyID]
+	return GetKeyStateFast(key)
+}
+//Returns the state and weather it just changed based on the Keys ID
+func GetKeyStateFast(key ebiten.Key) (state, change bool) {
+	state = ebiten.IsKeyPressed(key)
+	change = IsKeyJustDown(key)
+	return
+}
 //Returns the state and weather it just changed based on the Keys mapped ID
 func (l *KeyLi) GetMappedKeyState(ID int) (state, change bool) {
 	KeyID, ok := l.mapper[ID]
@@ -128,6 +139,14 @@ func (l *KeyLi) GetMappedKeyState(ID int) (state, change bool) {
 		KeyID = ID
 	}
 	return l.GetRawKeyState(KeyID)
+}
+//Returns the state and weather it just changed based on the Keys mapped ID
+func (l *KeyLi) GetMappedKeyStateFast(ID int) (state, change bool) {
+	KeyID, ok := l.mapper[ID]
+	if !ok {
+		KeyID = ID
+	}
+	return GetRawKeyStateFast(KeyID)
 }
 //Saves the Keyboardmapper to a file
 func (l *KeyLi) SaveConfig(path string) {

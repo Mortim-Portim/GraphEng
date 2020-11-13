@@ -115,6 +115,28 @@ func (m *Matrix) SetAbs(x, y int, v int64) {
 	}
 	m.list[x+m.WAbs()*y] = v
 }
+func (m *Matrix) XYtoIDX(x,y int) (int, error) {
+	if x >= m.WAbs() || y >= m.HAbs() {
+		return 0, errors.New(fmt.Sprintf("Coordinates (%v:%v) not on matrix", x, y))
+	}
+	return x+m.WAbs()*y, nil
+}
+func (m *Matrix) IDXtoXY(idx int) (int, int, error) {
+	csm1 := m.WAbs()-1
+	x := idx%m.WAbs()
+	y := (idx-(idx%csm1))/csm1
+	if x >= m.WAbs() || y >= m.HAbs() {
+		return 0,0, errors.New(fmt.Sprintf("Coordinates (%v:%v) not on matrix", x, y))
+	}
+	return x,y,nil
+}
+//Returns the value of the matrix at the index
+func (m *Matrix) GetAbsByIdx(idx int) (int64, error) {
+	if idx < 0 || idx >= len(m.list) {
+		return 0, errors.New(fmt.Sprintf("Index: %v not on matrix with w:%v, h:%v, wAbs:%v, hAbs:%v, lx:%v, ly:%v", idx, int(m.focus.Bounds().X), int(m.focus.Bounds().Y), m.WAbs(), m.HAbs(), int(m.focus.Min().X), int(m.focus.Min().Y)))
+	}
+	return m.list[idx], nil
+}
 //Returns the value of the focused matrix at the x and y coordinates
 func (m *Matrix) Get(x, y int) (int64, error) {
 	xl,yl := int(m.focus.Min().X)+x, int(m.focus.Min().Y)+y

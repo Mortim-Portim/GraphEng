@@ -13,7 +13,9 @@ import (
 	"math"
 	"time"
 	"math/rand"
+	"runtime"
 	"runtime/debug"
+	"os/exec"
 	"os"
 	"fmt"
 )
@@ -301,6 +303,20 @@ func ReadAllFiles(dir string, handleFile func(name string)) error {
 		}
 	}
 	return currentError
+}
+
+func ShutDown() {
+	if runtime.GOOS == "linux" {
+	    if err := exec.Command("cmd", "/C", "shutdown", "now").Run(); err != nil {
+	    	fmt.Println("Failed to initiate shutdown:", err)
+		}
+	}else if runtime.GOOS == "windows" {
+		if err := exec.Command("cmd", "/C", "shutdown", "/t", "0", "/s").Run(); err != nil {
+	    	fmt.Println("Failed to initiate shutdown:", err)
+		}
+	}else{
+		panic("Wat is dat denn fürn Betriebssystem????")
+	}
 }
 
 var LOGFILE *os.File

@@ -83,7 +83,7 @@ func (p *WorldStructure) Draw(screen *ebiten.Image) {
 	lT := p.TileMat.Focus().Min()
 	for _,dwa := range(*p.SO_Drawables) {
 		xp,yp,_ := dwa.GetPos()
-		lv := p.GetLightValueAtPoint(int(xp-0.5-lT.X), int(yp-0.5-lT.Y))
+		lv := p.GetLightValueAtPoint(int(xp-lT.X), int(yp-lT.Y))
 		dwa.Draw(screen, int16(lv), lT.X, lT.Y, p.xStart+float64(p.middleDx), p.yStart+float64(p.middleDy), p.tileS)
 	}
 }

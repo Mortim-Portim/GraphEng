@@ -4,6 +4,7 @@ import (
 	cmp "marvin/GraphEng/Compression"
 	"github.com/hajimehoshi/ebiten"
 	"math"
+	"fmt"
 )
 
 //Returns a WorldStructure object
@@ -64,6 +65,17 @@ type WorldStructure struct {
 	xStart, yStart, tileS float64
 }
 
+func (p *WorldStructure) Print() (out string) {
+	out = fmt.Sprintf("Tiles: %v, Structures: %v, Objects: %v, Lights: %v, Add_Drawables: %v, SO_Drawables: %v\n",
+		len(p.Tiles), len(p.Structures), len(p.Objects), len(p.Lights), p.Add_Drawables.Len(), p.SO_Drawables.Len())
+	out += fmt.Sprintf("LightLevel: %v, minL: %v, maxL: %v, deltaB: %v, currentD: %v, middleX: %v, middleY: %v\n",
+		p.lightLevel, p.minLight, p.maxLight, p.deltaB, p.currentD, p.middleX, p.middleY)
+	out += fmt.Sprintf("X:%v, Y:%v, W:%v, H:%v, xTsAbs: %v, yTsAbs: %v, xTs: %v, yTs: %v, middleDx: %v, middleDy: %v, xStart: %v, yStart: %v, tileS: %v\n", 
+		p.X,p.Y,p.W,p.H,p.xTilesAbs, p.yTilesAbs, p.xTilesS, p.yTilesS, p.middleDx, p.middleDy, p.xStart, p.yStart, p.tileS)
+	out += fmt.Sprintf("TilesMat:\n%s\nLIdxMat:\n%s\nLightMat:\n%s\nObjMat:\n%s",
+		p.TileMat.Print(), p.LIdxMat.Print(), p.LightMat.Print(), p.ObjMat.Print())
+	return
+}
 //Draws the tiles first and then SO_Drawables
 func (p *WorldStructure) Draw(screen *ebiten.Image) {
 	p.drawTiles(screen)

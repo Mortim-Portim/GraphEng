@@ -46,7 +46,7 @@ func (p *WorldStructure) Save(path string) error {
 	if err != nil {return err}
 	return ioutil.WriteFile(path, bs, 0644)
 }
-//Loads the world from the file system
+//Loads the world from the file system ("./res/wrld.map", "./res/tiles", "./res/structs")
 func LoadWorldStructure(X,Y,W,H float64, wrld_path, tile_path, struct_path string) (*WorldStructure, error) {
 	data, err1 := ioutil.ReadFile(wrld_path)
    	if err1 != nil {return nil, err1}

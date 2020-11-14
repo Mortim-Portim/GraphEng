@@ -306,7 +306,7 @@ func (m *Matrix) Print() string {
 			}
 			out += valStr
 		}
-		out += "\n"
+		out += "\n\n"
 	}
 	out += fmt.Sprintf("W:%v, H:%v, Focus:%s", m.W(), m.H(), m.focus.Print())
 	return out

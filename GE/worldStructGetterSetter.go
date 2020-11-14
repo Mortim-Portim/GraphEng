@@ -28,6 +28,11 @@ func (p *WorldStructure) MoveSmooth(dx, dy int, update, force bool) {
 		}
 	}
 }
+func (p *WorldStructure) SetMiddleSmooth(x,y float64) {
+	xR := math.Remainder(x, 1.0); yR := math.Remainder(y, 1.0)
+	p.SetMiddleDelta(-int(p.tileS*xR), -int(p.tileS*yR))
+	p.SetMiddle(int(x-xR), int(y-yR), false)
+}
 func (p *WorldStructure) MoveMiddleDelta(dx, dy int) {
 	odx, ody := p.GetMiddleDelta()
 	p.SetMiddleDelta(odx+dx, ody+dy)

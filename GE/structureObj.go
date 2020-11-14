@@ -44,8 +44,8 @@ func (o *StructureObj) GetPos() (float64, float64, int8) {
 	pnt := o.HitBox.GetMiddle()
 	return pnt.X+0.5,pnt.Y+0.5,o.layer
 }
-func (o *StructureObj) Height() float64 {
-	return o.HitBox.Bounds().Y
+func (o *StructureObj) GetDrawBox() *Rectangle {
+	return o.DrawBox
 }
 //Draws the objects hitbox if it can collide
 func (o *StructureObj) DrawCollisionMatrix(mat *Matrix, value int64) {

@@ -20,7 +20,7 @@ func GetDrawables() *Drawables {
 
 
 type Drawable interface {
-	Height() float64
+	GetDrawBox() *Rectangle
 	GetPos()(x, y float64, layer int8)
 	Draw(screen *ebiten.Image, lv int16, leftTopX, leftTopY, xStart, yStart, sqSize float64)
 }
@@ -35,20 +35,27 @@ func (d Drawables) Less(i, j int) bool {
 	}else if layer1 > layer2 {
 		return false
 	}
-	if math.Abs(y1-y2) < 0.5 {
-		if d[i].Height() < d[j].Height() {
+	
+	if math.Abs(y1-y2) < 0.01 {
+		box1 := d[i].GetDrawBox()
+		box2 := d[j].GetDrawBox()
+		if box1.Bounds().Y > box2.Bounds().Y {
 			return true
 		}
 		return false
 	}
+	
 	return y1 < y2
 }
 func (d Drawables) Sort() {
 	sort.Sort(d)
 }
+func (dp *Drawables) Clear() {
+	*dp = Drawables(make([]Drawable, 0))
+}
 func (dp *Drawables) Add(obj Drawable) (*Drawables) {
-	d := append(*dp, obj)
-	return &d
+	*dp = append(*dp, obj)
+	return dp
 }
 func (dp *Drawables) Remove(obj interface{}) error {
 	objType := reflect.TypeOf(obj)
@@ -115,9 +122,9 @@ func (o *WObj) GetPos() (float64, float64, int8) {
 func (o *WObj) SetLayer(l int8) {
 	o.layer = l
 }
-//Returns the Height-1 of the WObj
-func (o *WObj) Height() float64 {
-	return o.HitBox.Bounds().Y
+//Returns the DrawBox of the WObj
+func (o *WObj) GetDrawBox() *Rectangle {
+	return o.DrawBox
 }
 //Returns the real Bounds of the WObj
 func (o *WObj) Bounds() (float64, float64) {

@@ -307,7 +307,7 @@ func ReadAllFiles(dir string, handleFile func(name string)) error {
 
 func ShutDown() {
 	if runtime.GOOS == "linux" {
-	    if err := exec.Command("cmd", "/C", "shutdown", "now").Run(); err != nil {
+	    if err := exec.Command("shutdown", "now").Run(); err != nil {
 	    	fmt.Println("Failed to initiate shutdown:", err)
 		}
 	}else if runtime.GOOS == "windows" {

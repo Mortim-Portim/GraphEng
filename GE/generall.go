@@ -1,27 +1,29 @@
 package GE
 
 import (
-	"io/ioutil"
-	"github.com/hajimehoshi/ebiten"
-	"github.com/hajimehoshi/ebiten/text"
-	"marvin/GraphEng/res"
-	"github.com/golang/freetype/truetype" 
-	"github.com/hajimehoshi/ebiten/inpututil"
-	"golang.org/x/image/font"
+	"fmt"
 	"image/color"
-	"strings"
+	"io/ioutil"
 	"math"
-	"time"
 	"math/rand"
+	"os"
+	"os/exec"
 	"runtime"
 	"runtime/debug"
-	"os/exec"
-	"os"
-	"fmt"
+	"strings"
+	"time"
+
+	"github.com/golang/freetype/truetype"
+	"github.com/hajimehoshi/ebiten"
+	"github.com/hajimehoshi/ebiten/inpututil"
+	"github.com/hajimehoshi/ebiten/text"
+	"github.com/mortim-portim/GraphEng/res"
+	"golang.org/x/image/font"
 )
 
 const allLetters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz/.:"
 const StandardFontSize = 64
+
 var StandardFont *truetype.Font
 
 /**
@@ -44,21 +46,23 @@ type UpdateAble interface {
 func Init(FontPath string) {
 	if len(FontPath) > 0 {
 		StandardFont = ParseFont(FontPath)
-	}else{
+	} else {
 		StandardFont = ParseFontFromBytes(res.VT323)
 	}
 	InitAudioContext()
 	rand.Seed(time.Now().UnixNano())
 	InitParams(nil)
 }
+
 //Parses a font from bytes
-func ParseFontFromBytes(fnt []byte) (*truetype.Font) {
+func ParseFontFromBytes(fnt []byte) *truetype.Font {
 	tt, err := truetype.Parse(fnt)
 	CheckErr(err)
 	return tt
 }
+
 //Parses a font from the filesystem
-func ParseFont(path string) (*truetype.Font) {
+func ParseFont(path string) *truetype.Font {
 	font, err1 := ioutil.ReadFile(path)
 	CheckErr(err1)
 	tt, err2 := truetype.Parse(font)
@@ -67,14 +71,14 @@ func ParseFont(path string) (*truetype.Font) {
 }
 
 //Draws text of the given font on an Image
-func MakePopUp(str string, size float64, ttf *truetype.Font, textCol, backCol color.Color) (*ebiten.Image) {
+func MakePopUp(str string, size float64, ttf *truetype.Font, textCol, backCol color.Color) *ebiten.Image {
 	mplusNormalFont := truetype.NewFace(ttf, &truetype.Options{
 		Size:    size,
 		DPI:     96,
 		Hinting: font.HintingFull,
 	})
 	w, h := MeasureString(str, mplusNormalFont)
-	
+
 	popUpBack, _ := ebiten.NewImage(w, h, ebiten.FilterDefault)
 	popUpBack.Fill(backCol)
 	xP, yP := h/6, h/4*3
@@ -83,26 +87,29 @@ func MakePopUp(str string, size float64, ttf *truetype.Font, textCol, backCol co
 }
 
 //Returns an ImageObj with a single line text on it
-func GetTextImage(textStr string, X, Y, H float64, ttf *truetype.Font, txtCol, backCol color.Color) (*ImageObj) {
-	imgo := &ImageObj{H:H, X:X, Y:Y}
+func GetTextImage(textStr string, X, Y, H float64, ttf *truetype.Font, txtCol, backCol color.Color) *ImageObj {
+	imgo := &ImageObj{H: H, X: X, Y: Y}
 	if len(textStr) > 0 {
-		textImg := MakePopUp(textStr, StandardFontSize, ttf, txtCol, &color.RGBA{0,0,0,0})
-		w,h := textImg.Size(); W := float64(w)*H/float64(h)
+		textImg := MakePopUp(textStr, StandardFontSize, ttf, txtCol, &color.RGBA{0, 0, 0, 0})
+		w, h := textImg.Size()
+		W := float64(w) * H / float64(h)
 		imgo.W = W
-		
+
 		Back, _ := ebiten.NewImage(int(W), int(H), ebiten.FilterDefault)
-		Back.Fill(backCol); imgo.Img = Back
-		
+		Back.Fill(backCol)
+		imgo.Img = Back
+
 		op := &ebiten.DrawImageOptions{}
 		op.Filter = ebiten.FilterNearest
 		op.GeoM.Scale(H/float64(h), H/float64(h))
 		//op.GeoM.Translate(H*0.25,0)
 		imgo.Img.DrawImage(textImg, op)
-	}else{
+	} else {
 		Back, _ := ebiten.NewImage(1, 1, ebiten.FilterDefault)
-		Back.Fill(backCol); imgo.Img = Back
+		Back.Fill(backCol)
+		imgo.Img = Back
 	}
-	
+
 	return imgo
 }
 
@@ -111,7 +118,7 @@ func GetTextLinesImages(textStr string, X, Y, lineHeight float64, ttf *truetype.
 	lines := strings.Split(textStr, "\n")
 	lineImgs = make([]*ImageObj, len(lines))
 	maxWidth = 0
-	for i,str := range(lines) {
+	for i, str := range lines {
 		for str[0] == " "[0] {
 			str = str[1:]
 		}
@@ -120,7 +127,7 @@ func GetTextLinesImages(textStr string, X, Y, lineHeight float64, ttf *truetype.
 			maxWidth = lineImgs[i].W
 		}
 	}
-	return 
+	return
 }
 
 // repeatingKeyPressed return true when key is pressed considering the repeat state.
@@ -141,15 +148,15 @@ func repeatingKeyPressed(key ebiten.Key) bool {
 
 func areKeysPressed(keys ...ebiten.Key) bool {
 	keysPressed := 0
-	for _,key := range(keys) {
+	for _, key := range keys {
 		if ebiten.IsKeyPressed(key) {
-			keysPressed ++
+			keysPressed++
 		}
 	}
 	if keysPressed < len(keys) {
 		return false
 	}
-	for _,key := range(keys) {
+	for _, key := range keys {
 		if inpututil.KeyPressDuration(key) == 1 {
 			return true
 		}
@@ -172,8 +179,8 @@ func CheckErr(err error) {
 
 //Checks if two colors have the same red, green, blue and alpha value
 func SameCols(col, col2 color.Color) bool {
-	r,g,b,a := col.RGBA()
-	r2,g2,b2,a2 := col2.RGBA()
+	r, g, b, a := col.RGBA()
+	r2, g2, b2, a2 := col2.RGBA()
 	if r == r2 && g == g2 && b == b2 && a == a2 {
 		return true
 	}
@@ -182,20 +189,20 @@ func SameCols(col, col2 color.Color) bool {
 
 //Reduces the color values of an image to a minimum of 0
 func ReduceColor(col color.Color, delta int) color.Color {
-	r,g,b,a := col.RGBA()
-	newR := int(r)-delta
+	r, g, b, a := col.RGBA()
+	newR := int(r) - delta
 	if newR < 0 {
 		newR = 0
 	}
-	newG := int(g)-delta
+	newG := int(g) - delta
 	if newG < 0 {
 		newG = 0
 	}
-	newB := int(b)-delta
+	newB := int(b) - delta
 	if newB < 0 {
 		newB = 0
 	}
-	return &color.RGBA{uint8(newR),uint8(newG),uint8(newB),uint8(a)}
+	return &color.RGBA{uint8(newR), uint8(newG), uint8(newB), uint8(a)}
 }
 
 //Reduces the alpha value of an Image, making it more transparent
@@ -204,65 +211,66 @@ func ReduceColorImage(img *ebiten.Image, val int) (reduced *ebiten.Image) {
 	Back, _ := ebiten.NewImage(W, H, ebiten.FilterDefault)
 	reduced = Back
 	op := &ebiten.DrawImageOptions{}
-	op.ColorM.Scale(1,1,1, float64(255-val)/255.0)
+	op.ColorM.Scale(1, 1, 1, float64(255-val)/255.0)
 	reduced.DrawImage(img, op)
 	return
 }
 
 //Returns true if e is in s
 func containsI(s []int, e int) bool {
-    for _, a := range s {
-        if a == e {
-            return true
-        }
-    }
-    return false
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
 }
 
 //Returns true if e is in s
 func containsS(s []string, e string) bool {
-    for _, a := range s {
-        if a == e {
-            return true
-        }
-    }
-    return false
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
 }
 
 //measures a string, storing the maximum height of that Face in a map to be reused
 var faceHeight = make(map[font.Face]int)
+
 func MeasureString(str string, faceTTF font.Face) (x, y int) {
 	h, ok := faceHeight[faceTTF]
 	if !ok {
 		rectAll := text.BoundString(faceTTF, allLetters)
-		h = rectAll.Max.Y-rectAll.Min.Y
+		h = rectAll.Max.Y - rectAll.Min.Y
 		faceHeight[faceTTF] = h
 	}
 	rect := text.BoundString(faceTTF, str+"#")
 	x, y = rect.Max.X-rect.Min.X, h*(strings.Count(str, "\n")+1)+h/6
 	//fmt.Println(rect.String(), ":     ", x, ":", y)
-	return 
+	return
 }
 
 //Generates a slice of Points forming a circle
-func genVertices(X,Y,R float64, num int) *Points {
+func genVertices(X, Y, R float64, num int) *Points {
 	centerX := X
 	centerY := Y
-	r       := R
+	r := R
 
-	vs := make([]*Vector,0)
+	vs := make([]*Vector, 0)
 	for i := 0; i <= num; i++ {
 		rate := float64(i) / float64(num)
 		vs = append(vs, &Vector{
-			X:float64(r*math.Cos(2*math.Pi*rate)) + centerX,
-			Y:float64(r*math.Sin(2*math.Pi*rate)) + centerY,
-			Z:0})
+			X: float64(r*math.Cos(2*math.Pi*rate)) + centerX,
+			Y: float64(r*math.Sin(2*math.Pi*rate)) + centerY,
+			Z: 0})
 	}
 
 	vs = append(vs, &Vector{
-		X:centerX,
-		Y:centerY,
-		Z:0})
+		X: centerX,
+		Y: centerY,
+		Z: 0})
 	ps := Points(vs)
 	return &ps
 }
@@ -271,30 +279,32 @@ func OSReadDir(root string) ([]string, error) {
 	if root[len(root)-1:] != "/" {
 		root += "/"
 	}
-    var files []string
-    f, err := os.Open(root)
-    if err != nil {
-        return files, err
-    }
-    fileInfo, err := f.Readdir(-1)
-    f.Close()
-    if err != nil {
-        return files, err
-    }
+	var files []string
+	f, err := os.Open(root)
+	if err != nil {
+		return files, err
+	}
+	fileInfo, err := f.Readdir(-1)
+	f.Close()
+	if err != nil {
+		return files, err
+	}
 
-    for _, file := range fileInfo {
-        files = append(files, file.Name())
-    }
-    return files, nil
+	for _, file := range fileInfo {
+		files = append(files, file.Name())
+	}
+	return files, nil
 }
 
 //Calls handleFile for each different filename
 func ReadAllFiles(dir string, handleFile func(name string)) error {
 	files, err := OSReadDir(dir)
-	if err != nil {return err}
+	if err != nil {
+		return err
+	}
 	var currentError error
 	names := make([]string, 0)
-	for _,f := range(files) {
+	for _, f := range files {
 		n := strings.Split(f, ".")[0]
 		if !IsStringInList(n, names) {
 			currentError = err
@@ -307,29 +317,30 @@ func ReadAllFiles(dir string, handleFile func(name string)) error {
 
 func ShutDown() {
 	if runtime.GOOS == "linux" {
-	    if err := exec.Command("shutdown", "now").Run(); err != nil {
-	    	fmt.Println("Failed to initiate shutdown:", err)
+		if err := exec.Command("shutdown", "now").Run(); err != nil {
+			fmt.Println("Failed to initiate shutdown:", err)
 		}
-	}else if runtime.GOOS == "windows" {
+	} else if runtime.GOOS == "windows" {
 		if err := exec.Command("cmd", "/C", "shutdown", "/t", "0", "/s").Run(); err != nil {
-	    	fmt.Println("Failed to initiate shutdown:", err)
+			fmt.Println("Failed to initiate shutdown:", err)
 		}
-	}else{
+	} else {
 		panic("Wat is dat denn fürn Betriebssystem????")
 	}
 }
 
 var LOGFILE *os.File
+
 func SetLogFile(path string) {
 	f, err := os.OpenFile(path, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
-	    panic(err)
+		panic(err)
 	}
 	LOGFILE = f
 }
 func LogToFile(text string) {
 	if _, err := LOGFILE.WriteString(text); err != nil {
-	    panic(err)
+		panic(err)
 	}
 }
 func CloseLogFile() {
@@ -337,7 +348,7 @@ func CloseLogFile() {
 }
 func ShitImDying(err error) {
 	if err != nil {
-		defer func(){
+		defer func() {
 			help := fmt.Sprintf("ShitImDying: %v\nStacktrace: %s", err, string(debug.Stack()))
 			if LOGFILE != nil {
 				LogToFile(help)

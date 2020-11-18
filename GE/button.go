@@ -4,6 +4,15 @@ import (
 	"github.com/hajimehoshi/ebiten"
 )
 
+type Button struct {
+	Img         *ImageObj
+	dark, light *ebiten.Image
+
+	LPressed, RPressed, LastL, LastR, Active, DrawDark bool
+	onPressLeft, onPressRight                          func(b *Button)
+	Data                                               interface{}
+}
+
 /**
 Button represents a struct, which should be updated every frame
 
@@ -14,14 +23,6 @@ It can be created from a Image or using Text
 Button implements UpdateAble
 **/
 
-type Button struct {
-	Img *ImageObj
-	dark, light *ebiten.Image
-		
-	LPressed, RPressed, LastL, LastR, Active, DrawDark bool
-	onPressLeft, onPressRight func(b *Button)
-	Data interface{}
-}
 func (b *Button) Reset() {
 	b.LPressed = false
 	b.RPressed = false
@@ -68,7 +69,7 @@ func (b *Button) Update(frame int) {
 			}
 		}
 		b.LastL = b.LPressed
-		
+
 		if b.RPressed != b.LastR {
 			if b.onPressRight != nil {
 				b.onPressRight(b)
@@ -79,14 +80,15 @@ func (b *Button) Update(frame int) {
 }
 func (b *Button) Draw(screen *ebiten.Image) {
 	if b.Active {
-		oldX := b.Img.X; oldY := b.Img.Y
+		oldX := b.Img.X
+		oldY := b.Img.Y
 		if b.LPressed || b.RPressed {
-			b.Img.X = (oldX+b.Img.W*MoveOnButtonDown)
-			b.Img.Y = (oldY+b.Img.H*MoveOnButtonDown)
+			b.Img.X = (oldX + b.Img.W*MoveOnButtonDown)
+			b.Img.Y = (oldY + b.Img.H*MoveOnButtonDown)
 		}
 		if b.DrawDark {
 			b.Img.Img = b.dark
-		}else{
+		} else {
 			b.Img.Img = b.light
 		}
 		b.Img.DrawImageObj(screen)

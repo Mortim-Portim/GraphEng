@@ -1,32 +1,34 @@
 package GE
 
 import (
+	"errors"
 	"fmt"
 	"math"
-	"errors"
-	cmp "marvin/GraphEng/Compression"
+
+	cmp "github.com/mortim-portim/GraphEng/Compression"
 )
+
 const LIGHT_DIS_FACTOR = 20
 const LIGHT_EXTINCTION_LEVEL = 10
 const LIGHT_EXTINCTION_POWER = 3
 
 type Light struct {
-	location *Point
+	location  *Point
 	direction *Vector
-	angle float64
-	lightMat *Matrix
-	static bool
-	
+	angle     float64
+	lightMat  *Matrix
+	static    bool
+
 	//0-255
 	maximumIntesity int16
 	//0-0.05
-	extinctionRate float64
-	radius float64
+	extinctionRate                                float64
+	radius                                        float64
 	radiusNeedsUpdate, matrixNeedsUpdate, changed bool
 }
 
 func GetLightSource(loc *Point, direction *Vector, angle float64, maxI int16, extRate float64, static bool) (l *Light) {
-	l = &Light{location:loc, maximumIntesity:maxI, extinctionRate:extRate, direction:direction, angle:angle, static:static, lightMat:nil}
+	l = &Light{location: loc, maximumIntesity: maxI, extinctionRate: extRate, direction: direction, angle: angle, static: static, lightMat: nil}
 	l.CalcRadius()
 	l.matrixNeedsUpdate = true
 	l.changed = true
@@ -45,7 +47,7 @@ func (l *Light) ToBytes() (b []byte) {
 	return
 }
 func GetLightSourceFromBytes(b []byte) (l *Light) {
-	bs := cmp.DecompressAll(b, []int{16,24,8,8,2,1})
+	bs := cmp.DecompressAll(b, []int{16, 24, 8, 8, 2, 1})
 	loc := PointFromBytes(bs[0])
 	dir := VectorFromBytes(bs[1])
 	ang := cmp.BytesToFloat64(bs[2])
@@ -60,36 +62,36 @@ func (l *Light) Move(dx, dy float64) {
 	l.location.X += dx
 	l.location.Y += dy
 }
-func (l *Light) GetAtAbs(x,y int) (int64, error) {
+func (l *Light) GetAtAbs(x, y int) (int64, error) {
 	if l.lightMat == nil {
 		return 0, errors.New(fmt.Sprintf("LightMat of %v not yet initialized", l))
 	}
-	xp := x-int(l.location.X)+int(float64(l.lightMat.WAbs()-1)/2.0)
-	yp := y-int(l.location.Y)+int(float64(l.lightMat.HAbs()-1)/2.0)
-	return l.lightMat.GetAbs(xp,yp)
+	xp := x - int(l.location.X) + int(float64(l.lightMat.WAbs()-1)/2.0)
+	yp := y - int(l.location.Y) + int(float64(l.lightMat.HAbs()-1)/2.0)
+	return l.lightMat.GetAbs(xp, yp)
 }
 func (l *Light) applyOnMatrix(mat *Matrix, factor float64) {
 	rad := l.GetRadius()
 	md := l.location
-	for x := int(md.X-rad-1); x < int(md.X+rad+1); x++ {
-		for y := int(md.Y-rad-1); y < int(md.Y+rad+1); y++ {
+	for x := int(md.X - rad - 1); x < int(md.X+rad+1); x++ {
+		for y := int(md.Y - rad - 1); y < int(md.Y+rad+1); y++ {
 			pnt := &Point{float64(x), float64(y)}
 			if pnt.X == md.X && pnt.Y == md.Y {
-				mat.Add(x,y, int64(float64(l.maximumIntesity)*factor))
-			}else{
-				mat.Add(x,y, int64(l.GetValueAtXY(x,y)*factor))
+				mat.Add(x, y, int64(float64(l.maximumIntesity)*factor))
+			} else {
+				mat.Add(x, y, int64(l.GetValueAtXY(x, y)*factor))
 			}
 		}
 	}
 }
-func (l *Light) GetValueAtXY(x,y int) float64 {
-	return l.getValueAtRadius(l.location.DistanceTo(&Point{float64(x),float64(y)}))
+func (l *Light) GetValueAtXY(x, y int) float64 {
+	return l.getValueAtRadius(l.location.DistanceTo(&Point{float64(x), float64(y)}))
 }
-func (l *Light) getValueAtXYdif(xd,yd int) float64 {
-	return l.getValueAtRadius(math.Pow(math.Pow(float64(xd), 2)+math.Pow(float64(yd), 2),1.0/2.0))
+func (l *Light) getValueAtXYdif(xd, yd int) float64 {
+	return l.getValueAtRadius(math.Pow(math.Pow(float64(xd), 2)+math.Pow(float64(yd), 2), 1.0/2.0))
 }
 func (l *Light) getValueAtRadius(r float64) float64 {
-	val := float64(l.maximumIntesity)/(math.Pow(l.extinctionRate*LIGHT_DIS_FACTOR*r+1, LIGHT_EXTINCTION_POWER))
+	val := float64(l.maximumIntesity) / (math.Pow(l.extinctionRate*LIGHT_DIS_FACTOR*r+1, LIGHT_EXTINCTION_POWER))
 	if val > LIGHT_EXTINCTION_LEVEL {
 		return val
 	}
@@ -97,7 +99,7 @@ func (l *Light) getValueAtRadius(r float64) float64 {
 }
 
 func (l *Light) SetRadiusByMaxI(r float64) {
-	l.extinctionRate = ((math.Pow(float64(l.maximumIntesity)/LIGHT_EXTINCTION_LEVEL, 1.0/LIGHT_EXTINCTION_POWER)-1)/(r*LIGHT_DIS_FACTOR))
+	l.extinctionRate = ((math.Pow(float64(l.maximumIntesity)/LIGHT_EXTINCTION_LEVEL, 1.0/LIGHT_EXTINCTION_POWER) - 1) / (r * LIGHT_DIS_FACTOR))
 	l.radiusNeedsUpdate = true
 	l.matrixNeedsUpdate = true
 	l.changed = true
@@ -122,7 +124,7 @@ func (l *Light) SetExtinctionRate(r float64) {
 	l.changed = true
 }
 func (l *Light) CalcRadius() float64 {
-	l.radius = (math.Pow(float64(l.maximumIntesity)/LIGHT_EXTINCTION_LEVEL, 1.0/LIGHT_EXTINCTION_POWER)-1)/(l.extinctionRate*LIGHT_DIS_FACTOR)
+	l.radius = (math.Pow(float64(l.maximumIntesity)/LIGHT_EXTINCTION_LEVEL, 1.0/LIGHT_EXTINCTION_POWER) - 1) / (l.extinctionRate * LIGHT_DIS_FACTOR)
 	return l.radius
 }
 func (l *Light) GetRadius() float64 {
@@ -156,7 +158,7 @@ func (l *Light) SetAngle(a float64) {
 	l.changed = true
 }
 func (l *Light) SetDark() {
-	l.SetMatrix(GetMatrix(1,1,0))
+	l.SetMatrix(GetMatrix(1, 1, 0))
 	l.changed = true
 }
 func (l *Light) Matrix() *Matrix {

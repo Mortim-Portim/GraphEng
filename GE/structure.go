@@ -49,7 +49,7 @@ func GetStructFromParams(img *ebiten.Image, p *Params) (s *Structure) {
 }
 //Returns a StructureObj
 func GetStructure(NUA, UA *DayNightAnim, HitboxW,HitboxH float64, squareSize int, Collides, understandable bool, layer int8) (o *Structure) {
-	o = &Structure{NUA:NUA, UA:UA, HitboxW:HitboxW ,HitboxH:HitboxH, squareSize:squareSize, Collides:Collides, understandable:understandable, layer:layer}
+	o = &Structure{NUA:NUA, UA:UA, HitboxW:HitboxW ,HitboxH:HitboxH, squareSize:squareSize, Collides:Collides, understandable:understandable, IsUnderstood:true, layer:layer}
 	if NUA != nil {
 		o.NUA.Update(0)
 	}

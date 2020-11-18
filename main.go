@@ -160,7 +160,7 @@ func main() {
 type TestGame struct {
 	wrld *GE.WorldStructure
 	rec  *GE.Recorder
-	player *TNE.Creature
+	player *TNE.Entity
 	frame int
 }
 func (g *TestGame) Init(screen *ebiten.Image) {
@@ -366,7 +366,7 @@ func main() {
 	
 	g := &TestGame{newWrld, GE.GetNewRecorder(FPS*5, 1280, 720, FPS), nil, 0}	
 	
-	cf, err := TNE.GetCreatureFactory("./res/creatures/", &g.frame, 3)
+	cf, err := TNE.GetEntityFactory("./res/creatures/", &g.frame, 3)
 	GE.ShitImDying(err)
 	
 	prepStart := time.Now()

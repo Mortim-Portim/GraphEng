@@ -2,6 +2,7 @@ package GE
 
 import (
 	"fmt"
+	"image/color"
 	"math"
 
 	"github.com/hajimehoshi/ebiten"
@@ -58,6 +59,10 @@ type WorldStructure struct {
 	//GetFrame
 	frame *ImageObj
 
+	frameThickness float64
+	frameAlpha     uint8
+	frameScale     int
+
 	//Set in GetWorldStructure
 	X, Y, W, H float64
 	drawer     *ImageObj
@@ -81,7 +86,7 @@ func (p *WorldStructure) Print() (out string) {
 //Draws the tiles first and then SO_Drawables
 func (p *WorldStructure) Draw(screen *ebiten.Image) {
 	p.drawTiles(screen)
-
+	p.DrawFrame(screen)
 	lT := p.TileMat.Focus().Min()
 	for _, dwa := range *p.SO_Drawables {
 		xp, yp, _ := dwa.GetPos()
@@ -100,10 +105,26 @@ func (p *WorldStructure) drawTiles(screen *ebiten.Image) {
 					idx := tile_idx
 					p.drawer.X, p.drawer.Y = float64(x)*p.tileS+p.xStart+float64(p.middleDx), float64(y)*p.tileS+p.yStart+float64(p.middleDy)
 					lv := p.GetLightValueAtPoint(x, y)
-					p.Tiles[idx].Draw(screen, p.drawer, p.frame, int16(lv))
+					p.Tiles[idx].Draw(screen, p.drawer, int16(lv))
 				}
 			}
 		}
+	}
+}
+func (p *WorldStructure) DrawFrame(screen *ebiten.Image) {
+	col := &color.RGBA{0, 0, 0, p.frameAlpha}
+	lT := p.TileMat.Focus().Min()
+	sX, sY := p.xStart+float64(p.middleDx), p.yStart+float64(p.middleDy)
+	w, h := sX+float64(2+p.xTilesS)*p.tileS, sY+float64(2+p.yTilesS)*p.tileS
+	for x := -(int(lT.X) % p.frameScale); x <= p.xTilesS; x += p.frameScale {
+		X := sX + float64(x)*p.tileS
+		l := GetLineOfPoints(X, sY, X, sY+h, p.frameThickness)
+		l.Fill(screen, col)
+	}
+	for y := -(int(lT.Y) % p.frameScale); y <= p.yTilesS; y += p.frameScale {
+		Y := sY + float64(y)*p.tileS
+		l := GetLineOfPoints(sX, Y, sX+w, Y, p.frameThickness)
+		l.Fill(screen, col)
 	}
 }
 

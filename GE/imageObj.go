@@ -85,7 +85,7 @@ func (obj *ImageObj) ScaleToY(newHeight float64) {
 	obj.H = newHeight
 }
 //Returns a frame of a given thickness and alpha value for the ImageObj
-func (obj *ImageObj) GetFrame(thickness float64, alpha uint8) (frame *ImageObj) {
+func (obj *ImageObj) GetFrame(thickness float64, alpha uint8, scale float64) (frame *ImageObj) {
 	frame = &ImageObj{X:obj.X, Y:obj.Y, W:obj.W, H:obj.H}
 	
 	frameImg, _ := ebiten.NewImage(int(obj.W), int(obj.H), ebiten.FilterDefault)
@@ -101,8 +101,10 @@ func (obj *ImageObj) GetFrame(thickness float64, alpha uint8) (frame *ImageObj) 
 	top.Fill(frameImg, col)
 	right.Fill(frameImg, col)
 	bottom.Fill(frameImg, col)
-	frame.Img = frameImg
-	
+	oImg := image.Image(frameImg)
+	frame.OriginalImg = &oImg
+	frame.ScaleOriginal(obj.W*scale, obj.H*scale)
+	frame.ScaleToOriginalSize()
 	return
 }
 //Draws the ImageObj on a screen
@@ -157,6 +159,18 @@ func (obj *ImageObj) DrawImageObjAlpha(screen *ebiten.Image, alpha float64) {
 	
 	op.ColorM.Scale(1, 1, 1, alpha)
 	screen.DrawImage(obj.Img, op)
+}
+func (obj *ImageObj) FillArea(screen *ebiten.Image, width, height float64) {
+	oX := obj.X;oY := obj.Y
+	for obj.X+obj.W <= width {
+		for obj.Y+obj.H <= height {
+			obj.Draw(screen)
+			obj.Y += obj.H
+		}
+		obj.Y = oY
+		obj.X += obj.W
+	}
+	obj.X = oX
 }
 func (img *ImageObj) Init(screen *ebiten.Image, data interface{}) (UpdateFunc, DrawFunc) {
     return img.Update, img.Draw

@@ -30,11 +30,6 @@ func (d Drawables) Swap(i, j int) {d[i], d[j] = d[j], d[i]}
 func (d Drawables) Less(i, j int) bool {
 	x1,y1,layer1 := d[i].GetPos()
 	x2,y2,layer2 := d[j].GetPos()
-	if layer1 < layer2 {
-		return true
-	}else if layer1 > layer2 {
-		return false
-	}
 	
 	if math.Abs(y1-y2) < 0.01 {
 		box1 := d[i].GetDrawBox()
@@ -42,7 +37,13 @@ func (d Drawables) Less(i, j int) bool {
 		yB1 := box1.Bounds().Y
 		yB2 := box2.Bounds().Y
 		if math.Abs(yB1-yB2) < 0.01 {
-			return x1 < x2
+			if layer1 < layer2 {
+				return true
+			}else if layer1 > layer2 {
+				return false
+			}else{
+				return x1 < x2
+			}
 		}
 		if yB1 > yB2 {
 			return true

@@ -88,8 +88,10 @@ func (p *WorldStructure) Middle() (int, int) {
 	return p.middleX, p.middleY
 }
 //Applies a frame
-func (p *WorldStructure) GetFrame(thickness float64, alpha uint8) {
-	p.frame = p.drawer.GetFrame(thickness, alpha)
+func (p *WorldStructure) GetFrame(thickness float64, alpha uint8, scale int) {
+	p.frameThickness = thickness
+	p.frameAlpha = alpha
+	p.frameScale = scale
 }
 //Returns the width and height of the tiles
 func (p *WorldStructure) GetTileS() float64 {

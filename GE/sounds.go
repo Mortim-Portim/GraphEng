@@ -24,11 +24,11 @@ func (s *Sounds) PlayInfinite() {
 		p.Repeat()
 	}
 }
-func (s *Sounds) FadeToSoundR(s2 *Sounds, seed int64) {
+func (s *Sounds) FadeToSoundR(s2 *Sounds, seed int64, done chan bool) {
 	new_file := s2.GetRandomSound(seed)
-	s.FadeToSound(s2, new_file, STANDARD_FADE_TIME)
+	s.FadeToSound(s2, new_file, STANDARD_FADE_TIME, done)
 }
-func (s *Sounds) FadeToSound(s2 *Sounds, new_file string, seconds float64) {
+func (s *Sounds) FadeToSound(s2 *Sounds, new_file string, seconds float64, done chan bool) {
 	oldP, ok := s.sounds[s.currentPlayer]
 	if !ok {
 		oldP = nil
@@ -41,23 +41,23 @@ func (s *Sounds) FadeToSound(s2 *Sounds, new_file string, seconds float64) {
 		s2.currentPlayer = new_file
 	}
 	millis := seconds*1000.0
-	FadePlayer(oldP, newP, int(millis), int(millis/2.0), s2.fadeInFunc, s.fadeOutFunc, true)
+	FadePlayer(oldP, newP, int(millis), int(millis/2.0), s2.fadeInFunc, s.fadeOutFunc, true, done)
 }
-func (s *Sounds) FadeOut(seconds float64) {
+func (s *Sounds) FadeOut(seconds float64, done chan bool) {
 	millis := seconds*1000.0
-	s.ChangeTo(int(millis), int(millis/2.0), "", nil, s.fadeOutFunc, false)
+	s.ChangeTo(int(millis), int(millis/2.0), "", nil, s.fadeOutFunc, false, done)
 	go func(){
 		time.Sleep(time.Duration(float64(time.Millisecond)*millis))
 		s.PauseAll()
 	}()
 }
-func (s *Sounds) FadeTo(new_file string, seconds float64) {
+func (s *Sounds) FadeTo(new_file string, seconds float64, done chan bool) {
 	millis := seconds*1000.0
-	s.ChangeTo(int(millis), int(millis/2.0), new_file, s.fadeInFunc, s.fadeOutFunc, true)
+	s.ChangeTo(int(millis), int(millis/2.0), new_file, s.fadeInFunc, s.fadeOutFunc, true, done)
 }
-func (s *Sounds) FadeToR(seed int64, seconds float64) {
+func (s *Sounds) FadeToR(seed int64, seconds float64, done chan bool) {
 	millis := seconds*1000.0
-	s.ChangeTo(int(millis), int(millis/2.0), s.GetRandomSound(seed), s.fadeInFunc, s.fadeOutFunc, true)
+	s.ChangeTo(int(millis), int(millis/2.0), s.GetRandomSound(seed), s.fadeInFunc, s.fadeOutFunc, true, done)
 }
 
 //loads all audio files in a folder
@@ -120,7 +120,7 @@ func (s *Sounds) GetRandomSound(seed int64) string {
 	return ""
 }
 
-func (s *Sounds) ChangeTo(milliseconds, iterations int, new_file string, volumefaderNew, volumefaderOld  func(percent float64)(volume float64), changeToNew bool) {
+func (s *Sounds) ChangeTo(milliseconds, iterations int, new_file string, volumefaderNew, volumefaderOld  func(percent float64)(volume float64), changeToNew bool, done chan bool) {
 	oldP, ok := s.sounds[s.currentPlayer]
 	if !ok {
 		oldP = nil
@@ -131,10 +131,10 @@ func (s *Sounds) ChangeTo(milliseconds, iterations int, new_file string, volumef
 	}else{
 		s.currentPlayer = new_file
 	}
-	FadePlayer(oldP, newP, milliseconds, iterations, volumefaderNew, volumefaderOld, changeToNew)
+	FadePlayer(oldP, newP, milliseconds, iterations, volumefaderNew, volumefaderOld, changeToNew, done)
 }
 
-func FadePlayer(oldP, newP *AudioPlayer, milliseconds, iterations int, volumefaderNew, volumefaderOld  func(percent float64)(volume float64), changeToNew bool) {
+func FadePlayer(oldP, newP *AudioPlayer, milliseconds, iterations int, volumefaderNew, volumefaderOld  func(percent float64)(volume float64), changeToNew bool, done chan bool) {
 	delay := float64(milliseconds)/float64(iterations)
 	if newP != nil {
 		newP.PlayFromBeginning(0.0)
@@ -162,6 +162,9 @@ func FadePlayer(oldP, newP *AudioPlayer, milliseconds, iterations int, volumefad
 		}
 		if newP != nil {
 			newP.SetVolume(volumefaderNew(1.0))
+		}
+		if done != nil {
+			done <- true
 		}
 	}()
 }

@@ -135,6 +135,21 @@ func RectangleFromBytes(bs []byte) (r *Rectangle) {
 	r.updateBounds()
 	return
 }
+func GetOrderedRectangleI(p1, p2 [2]int) *Rectangle {
+	return GetOrderedRectangleF([2]float64{float64(p1[0]), float64(p1[1])}, [2]float64{float64(p2[0]), float64(p2[1])})
+}
+
+func GetOrderedRectangleF(p1, p2 [2]float64) *Rectangle {
+	minX := p1[0];maxX := p2[0]
+	minY := p1[1];maxY := p2[1]
+	if p1[0] > p2[0] {
+		minX = p2[0];maxX = p1[0]
+	}
+	if p1[1] > p2[1] {
+		minY = p2[1];maxY = p1[1]
+	}
+	return GetRectangle(minX, minY, maxX, maxY)
+}
 
 /**
 func (r *Rectangle) GetLines() (l []*line) {

@@ -298,6 +298,11 @@ func (m *Matrix) SetFocus(x1, y1, x2, y2 int) {
 	m.focus = GetRectangle(float64(x1), float64(y1), float64(x2), float64(y2))
 }
 
+//Sets the focus of the matrix
+func (m *Matrix) SetFocusRect(r *Rectangle) {
+	m.focus = r
+}
+
 //Copys the focus of the matrix
 func (m *Matrix) CopyFocus(m2 *Matrix) {
 	//m2.SetFocus(int(m.focus.Min().X), int(m2.focus.Min().Y), int(m2.focus.Max().X), int(m2.focus.Max().Y))

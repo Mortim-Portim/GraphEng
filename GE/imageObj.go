@@ -22,6 +22,11 @@ func LoadImgObj(path string, width, height, x, y, angle float64) (*ImageObj, err
 	if err != nil {return nil, err}
 	return &ImageObj{eimg, img, width, height, x, y, angle}, nil
 }
+func EbitenImgToImgObj(img *ebiten.Image) *ImageObj {
+	width, height := img.Size()
+	oimg := (image.Image)(img)
+	return &ImageObj{img, &oimg, float64(width), float64(height), 0, 0, 0}
+}
 //Stores the original, ebiten image and dimensions
 type ImageObj struct {
 	Img *ebiten.Image; OriginalImg *image.Image

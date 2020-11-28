@@ -230,7 +230,30 @@ func (m *Matrix) AddAbs(x, y int, v int64) {
 	ov, _ := m.GetAbs(x, y)
 	m.SetAbs(x, y, int64(ov)+v)
 }
-
+//Swaps the value of two positions
+func (m *Matrix) Swap(x1,y1, x2,y2 int) error {
+	p1v, err := m.Get(x1,y1)
+	if err != nil {return err}
+	p2v, err := m.Get(x2,y2)
+	if err != nil {return err}
+	m.Set(x1,y1, p2v)
+	m.Set(x2,y2, p1v)
+	return nil
+}
+//Swaps the value of two positions
+func (m *Matrix) SwapAbs(x1,y1, x2,y2 int) error {
+	p1v, err := m.GetAbs(x1,y1)
+	if err != nil {return err}
+	p2v, err := m.GetAbs(x2,y2)
+	if err != nil {return err}
+	m.SetAbs(x1,y1, p2v)
+	m.SetAbs(x2,y2, p1v)
+	return nil
+}
+//Clears the matrix
+func (m *Matrix) Clear(v int64) {
+	m.FillAbs(0,0,m.WAbs()-1, m.HAbs()-1, v)
+}
 //Fills a Rectangle with a value
 func (m *Matrix) Fill(x1, y1, x2, y2 int, v int64) {
 	for x := x1; x <= x2; x++ {

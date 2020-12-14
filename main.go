@@ -379,7 +379,8 @@ func main() {
 	fmt.Println("Preparing took: ", time.Now().Sub(prepStart))
 
 	getStart := time.Now()
-	c := cf.Get(0)
+	c, err := cf.Get(0)
+	GE.ShitImDying(err)
 	fmt.Println("Getting took: ", time.Now().Sub(getStart))
 	g.player = c
 

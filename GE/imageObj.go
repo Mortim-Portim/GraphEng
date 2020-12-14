@@ -22,6 +22,12 @@ func LoadImgObj(path string, width, height, x, y, angle float64) (*ImageObj, err
 	if err != nil {return nil, err}
 	return &ImageObj{eimg, img, width, height, x, y, angle}, nil
 }
+func LoadImgObjFromBytes(bs []byte, width, height, x, y, angle float64) (*ImageObj, error) {
+	eimg, err := LoadEbitenImgFromBytes(bs)
+	if err != nil {return nil, err}
+	img := (image.Image)(eimg)
+	return &ImageObj{eimg, &img, width, height, x, y, angle}, nil
+}
 func EbitenImgToImgObj(img *ebiten.Image) *ImageObj {
 	width, height := img.Size()
 	oimg := (image.Image)(img)
@@ -189,7 +195,11 @@ func (img *ImageObj) Update(frame int) {}
 func (img *ImageObj) Draw(screen *ebiten.Image) {
     img.DrawImageObj(screen)
 }
-
+func DrawImageOnImage(dst, src *ebiten.Image, x,y float64) {
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Translate(x, y)
+	dst.DrawImage(src, op)
+}
 //Loads an image.Image
 func LoadImg(path string) (error, *image.Image) {
 	f, err := os.Open(path)

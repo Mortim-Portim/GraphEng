@@ -142,6 +142,25 @@ func (p *WorldStructure) UpdateLightLevel(ticks float64) {
 		p.currentD = 0
 	}
 }
+//Downdate the background lightlevel
+func (p *WorldStructure) DowndateLightLevel(ticks float64, count int) {
+	deltaB := p.deltaB
+	for i := 0; i < count; i++ {
+		p.currentD -= deltaB*ticks
+		if math.Abs(p.currentD) >= 1 {
+			p.lightLevel += int16(p.currentD)
+			if p.lightLevel > p.maxLight {
+				p.lightLevel = p.maxLight
+				deltaB *= -1
+			}
+			if p.lightLevel < p.minLight {
+				p.lightLevel = p.minLight
+				deltaB *= -1
+			}
+			p.currentD = 0
+		}
+	}
+}
 func (p *WorldStructure) GetLightLevel() int16 {
 	return p.lightLevel
 }

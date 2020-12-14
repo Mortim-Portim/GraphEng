@@ -6,8 +6,74 @@ import (
 	"compress/gzip"
 	"encoding/binary"
 	"math/big"
+	"math"
 )
 
+var BITVALS = []int{1,2,4,8,16,32,64,128}
+func BoolsToBytes(bls []bool) (bs []byte) {
+	bs = []byte{}
+	for i := 0; i < len(bls); i += 8 {
+		b := 0
+		for i2 := 0; i2 < 8; i2++ {
+			if i+i2 < len(bls) && bls[i+i2] {
+				b += BITVALS[i2]
+			}
+		}
+		bs = append(bs, byte(b))
+	}
+	return
+}
+func BytesToBool(bs []byte) (bls []bool) {
+	bls = make([]bool, len(bs)*8)
+	for i,b := range(bs) {
+		for i2 := 0; i2 < 8; i2++ {
+			bls[i*8+i2] = (int(b) & BITVALS[i2])==BITVALS[i2]
+		}
+	}
+	return
+}
+//converts two float64 to byte[6]
+func Float2DToBytesRound(f1, f2 float64) (bs []byte) {
+	bs = append(FloatToBytesRound(f1), FloatToBytesRound(f2)...)
+	return
+}
+//converts byte[6] to float64
+func BytesToFloat2DRound(bs []byte) (f1, f2 float64) {
+	f1 = BytesToFloatRound(bs[0:3])
+	f2 = BytesToFloatRound(bs[3:6])
+	return
+}
+//Converts a float64 in [0;2^16] with a precision of 1/127 to byte[3]
+func FloatToBytesRound(f float64) (bs []byte) {
+	ff := math.Round(f); fr := (f-ff)*255
+	bs = UInt16ToBytes(uint16(ff))
+	bs = append(bs, Int8ToBytes(int8(fr))...)
+	return
+}
+//Converts byte[3] into a float64 in [0;2^16] with a precision of 1/127
+func BytesToFloatRound(bs []byte) (f float64) {
+	f = float64(BytesToUInt16(bs[0:2]))
+	f += float64(BytesToInt8(bs[2:3]))/255
+	return
+}
+//converts a uint16 to [2]byte
+func UInt16ToBytes(i uint16) (b []byte) {
+	b = make([]byte, 2)
+	binary.LittleEndian.PutUint16(b, i)
+	return
+}
+//converts a [2]byte to uint16
+func BytesToUInt16(b []byte) uint16 {
+	return binary.LittleEndian.Uint16(b)
+}
+//converts a int8 to [1]byte
+func Int8ToBytes(i int8) []byte {
+	return []byte{byte(int(i)+128)}
+}
+//converts a [1]byte to int8
+func BytesToInt8(b []byte) int8 {
+	return int8(int(b[0])-128)
+}
 func BoolToByte(b bool) byte {
 	if b {
 		return byte(0)

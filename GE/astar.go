@@ -10,7 +10,7 @@ var (
 	ErrPathNotFound = errors.New("PathNotFound")
 )
 
-func DistanceFrom(p1,p2 [2]int) float64 {
+func DistanceFrom(p1, p2 [2]int) float64 {
 	dx := float64(p1[0] - p2[0])
 	dy := float64(p1[1] - p2[1])
 	val := math.Sqrt(dx*dx + dy*dy)
@@ -19,7 +19,7 @@ func DistanceFrom(p1,p2 [2]int) float64 {
 
 // function for finding shortest path. it returns nodes have passed in shortest path.
 // Returning slice order is latest visited node. Thus, goal is first element in slice.
-func FindPath(start, goal [2]int, NeighborsOfPos func([2]int)([][2]int)) ([][2]int, error) {
+func FindPath(start, goal [2]int, NeighborsOfPos func([2]int) [][2]int) ([][2]int, error) {
 	startinfo := newnodeinfo(start, 0, DistanceFrom(start, goal))
 	all := make(map[[2]int]*nodeinfo)
 	all[start] = startinfo
@@ -53,7 +53,7 @@ func FindPath(start, goal [2]int, NeighborsOfPos func([2]int)([][2]int)) ([][2]i
 			return nil, ErrPathNotFound
 		}
 		current = pq[0] // to avoid typecast
-		_ = heap.Pop(&pq)
+		heap.Pop(&pq)
 	}
 
 	var rtn [][2]int

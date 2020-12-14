@@ -93,6 +93,8 @@ func (p *WorldStructure) GetFrame(thickness float64, alpha uint8, scale int) {
 	p.frameAlpha = alpha
 	p.frameScale = scale
 }
+func (p *WorldStructure) HasFrame() bool {
+	return p.frameThickness != 0 && p.frameAlpha != 0 && p.frameScale != 0
 //Returns the width and height of the tiles
 func (p *WorldStructure) GetTileS() float64 {
 	return p.tileS

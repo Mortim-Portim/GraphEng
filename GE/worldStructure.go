@@ -112,6 +112,9 @@ func (p *WorldStructure) drawTiles(screen *ebiten.Image) {
 	}
 }
 func (p *WorldStructure) DrawFrame(screen *ebiten.Image) {
+	if !p.HasFrame() {
+		return
+	}
 	col := &color.RGBA{0, 0, 0, p.frameAlpha}
 	lT := p.TileMat.Focus().Min()
 	sX, sY := p.xStart+float64(p.middleDx), p.yStart+float64(p.middleDy)

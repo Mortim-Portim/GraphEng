@@ -29,7 +29,10 @@ func ReadTiles(folderPath string) ([]*Tile, error) {
 	for i,name := range(slc) {
 	        if !containsS(names, name) {
 				names = append(names, name)
-				DNImg := LoadDayNightImg(folderPath+name+".png",0,0,0,0,0)
+				DNImg, err := LoadDayNightImg(folderPath+name+".png",0,0,0,0,0)
+				if err != nil {
+					return nil, err
+				}
 				DNImg.ScaleToOriginalSize()
 				ts[i] = &Tile{DNImg, name}
             }

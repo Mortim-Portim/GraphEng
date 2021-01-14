@@ -29,16 +29,22 @@ func (p *WorldStructure) ToBytes() ([]byte, error) {
 func GetWorldStructureFromBytes(X, Y, W, H float64, data []byte, tile_path, struct_path string) (*WorldStructure, error) {
 	bs := cmp.DecompressAll(data, []int{8, 8, 2, 2, 8})
 	tilMat := GetMatrix(0, 0, 0)
-	err1 := tilMat.Decompress(bs[5])
-	if err1 != nil {
-		return nil, err1
+	err := tilMat.Decompress(bs[5])
+	if err != nil {
+		return nil, err
 	}
 
 	fmt.Printf("Creating new World with w:%v, h:%v, fw:%v, fh:%v\n", tilMat.WAbs(), tilMat.HAbs(), int(tilMat.Focus().Bounds().X), int(tilMat.Focus().Bounds().Y))
 	p := GetWorldStructure(X, Y, W, H, tilMat.WAbs(), tilMat.HAbs(), int(tilMat.Focus().Bounds().X), int(tilMat.Focus().Bounds().Y))
 	p.TileMat = tilMat
-	p.LoadTiles(tile_path)
-	p.LoadStructureObjs(struct_path)
+	err = p.LoadTiles(tile_path)
+	if err != nil {
+		return nil, err
+	}
+	err = p.LoadStructureObjs(struct_path)
+	if err != nil {
+		return nil, err
+	}
 	p.BytesToObjects(bs[6])
 	p.BytesToLights(bs[7])
 	p.SetMiddle(int(cmp.BytesToInt64(bs[0])), int(cmp.BytesToInt64(bs[1])), true)

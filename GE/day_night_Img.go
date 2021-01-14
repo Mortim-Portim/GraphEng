@@ -30,13 +30,16 @@ func LoadDayImg(day_path string, width, height, x, y, angle float64) (*DayNightI
 	img.night = di
 	return img, nil
 }
-func LoadDayNightImg(path string, width, height, x, y, angle float64) (img *DayNightImg) {
-	img = &DayNightImg{}
-	dn,_ := LoadEbitenImg(path)
+func LoadDayNightImg(path string, width, height, x, y, angle float64) (*DayNightImg, error) {
+	img := &DayNightImg{}
+	dn,err := LoadEbitenImg(path)
+	if err != nil {
+		return nil, err
+	}
 	w,h := dn.Size()
 	img.day = &ImageObj{Img:dn.SubImage(image.Rect(0, 0, w, h/2)).(*ebiten.Image), W:width, H:height, X:x, Y:y, Angle:angle}
 	img.night = &ImageObj{Img:dn.SubImage(image.Rect(0, h/2, w, h)).(*ebiten.Image), W:width, H:height, X:x, Y:y, Angle:angle}
-	return
+	return img, nil
 }
 func CreateDayNightImg(dn *ebiten.Image, width, height, x, y, angle float64) (img *DayNightImg) {
 	img = &DayNightImg{}

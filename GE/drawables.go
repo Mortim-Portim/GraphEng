@@ -31,12 +31,12 @@ func (d Drawables) Less(i, j int) bool {
 	x1,y1,layer1 := d[i].GetPos()
 	x2,y2,layer2 := d[j].GetPos()
 	
-	if math.Abs(y1-y2) < 0.01 {
+	if math.Abs(y1-y2) < 0.5 {
 		box1 := d[i].GetDrawBox()
 		box2 := d[j].GetDrawBox()
 		yB1 := box1.Bounds().Y
 		yB2 := box2.Bounds().Y
-		if math.Abs(yB1-yB2) < 0.01 {
+		if math.Abs(yB1-yB2) < 0.5 {
 			if layer1 < layer2 {
 				return true
 			}else if layer1 > layer2 {
@@ -103,26 +103,42 @@ func (o *WObj) Update(frame int) {
 func (o *WObj) MoveBy(dx,dy float64) {
 	if dx != 0 || dy != 0 {
 		x := o.HitBox.Min().X+dx;y := o.HitBox.Min().Y+dy
-		o.SetToXY(x,y)
+		o.SetTopLeft(x,y)
 	}
 }
 //Sets the WObjs top left to x and y
-func (o *WObj) SetToXY(x,y float64) {
+func (o *WObj) SetTopLeft(x,y float64) {
 	o.HitBox.MoveTo(&Point{x,y})
 	w,h := o.img.Size()
 	W := float64(w)/float64(o.squareSize); H := float64(h)/float64(o.squareSize)
 	o.DrawBox = GetRectangle(o.HitBox.Min().X-(W-o.HitBox.Bounds().X-1)/2, o.HitBox.Min().Y-(H-o.HitBox.Bounds().Y-1), 0,0)
 	o.DrawBox.SetBounds(&Point{W,H})
 }
-//Sets the WObjs middle to x and y
-func (o *WObj) SetPos(x,y float64) {
+//Sets the WObjs bottom right to x and y
+func (o *WObj) SetBottomRight(x,y float64) {
 	w,h := o.Bounds()
-	o.SetToXY(x+w/2, y+h/2)
+	o.SetTopLeft(x-w, y-h)
+}
+//Sets the WObjs middle to x and y
+func (o *WObj) SetMiddle(x,y float64) {
+	w,h := o.Bounds()
+	o.SetTopLeft(x-w/2, y-h/2)
 }
 //Returns the Position of the middle of the WObj
-func (o *WObj) GetPos() (float64, float64, int8) {
-	pnt := o.HitBox.GetMiddle()
-	return pnt.X+0.5,pnt.Y+0.5,o.layer
+func (o *WObj) GetMiddle() (float64, float64, int8) {
+	pnt := o.HitBox.Min()
+	w,h := o.Bounds()
+	return pnt.X+w/2,pnt.Y+h/2,o.layer
+}
+//Returns the Position of the left top of the WObj
+func (o *WObj) GetTopLeft() (float64, float64) {
+	pnt := o.HitBox.Min()
+	return pnt.X, pnt.Y
+}
+func (o *WObj) GetBottomRight() (float64, float64) {
+	pnt := o.HitBox.Min()
+	w,h := o.Bounds()
+	return pnt.X+w, pnt.Y+h
 }
 //Sets the layer the WObj is drawn to
 func (o *WObj) SetLayer(l int8) {
@@ -225,7 +241,7 @@ func GetWObj(img *DayNightAnim, HitboxW,HitboxH, x, y float64, squareSize int, l
 	if img != nil {
 		o.img.Update(0)
 	}
-	o.SetToXY(x, y)
+	o.SetTopLeft(x, y)
 	return
 }
 

@@ -156,7 +156,9 @@ func (l *KeyLi) SaveConfig(path string) {
 func (l *KeyLi) LoadConfig(path string) {
 	mapper := LoadMapper(path)
 	if mapper != nil && len(mapper) > 0 {
-		l.mapper = mapper
+		for i,k := range(mapper) {
+			l.mapper[i] = k
+		}
 	}
 }
 //Loads a map[int]int from a file

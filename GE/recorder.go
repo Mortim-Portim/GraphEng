@@ -40,9 +40,6 @@ func (r *Recorder) NextFrame(img *ebiten.Image) {
 		r.drawer.DrawImageObj(newImg)
 		r.video[idx] = newImg
 	}
-	if ebiten.IsKeyPressed(ebiten.KeySpace) {
-		ShutDown()
-	}
 }
 
 func (r *Recorder) IsSaving() bool {

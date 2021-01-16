@@ -133,7 +133,7 @@ func GetTextLinesImages(textStr string, X, Y, lineHeight float64, ttf *truetype.
 // repeatingKeyPressed return true when key is pressed considering the repeat state.
 func repeatingKeyPressed(key ebiten.Key) bool {
 	const (
-		delay    = 30
+		delay    = 20
 		interval = 3
 	)
 	d := inpututil.KeyPressDuration(key)

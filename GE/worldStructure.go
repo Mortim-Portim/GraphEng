@@ -69,7 +69,9 @@ type WorldStructure struct {
 	xTilesAbs, yTilesAbs, xTilesS, yTilesS, middleDx, middleDy int
 	xStart, yStart, tileS                                      float64
 }
-
+func (p *WorldStructure) Size() (int, int) {
+	return p.xTilesAbs, p.yTilesAbs
+}
 func (p *WorldStructure) Print() (out string) {
 	out = fmt.Sprintf("Tiles: %v, Structures: %v, Objects: %v, Lights: %v, Add_Drawables: %v, SO_Drawables: %v\n",
 		len(p.Tiles), len(p.Structures), len(p.Objects), len(p.Lights), p.Add_Drawables.Len(), p.SO_Drawables.Len())

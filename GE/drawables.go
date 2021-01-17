@@ -56,14 +56,15 @@ func (d Drawables) Less(i, j int) bool {
 func (d Drawables) Sort() {
 	sort.Sort(d)
 }
-func (dp *Drawables) Clear() {
+func (dp *Drawables) Clear() (*Drawables) {
 	*dp = Drawables(make([]Drawable, 0))
+	return dp
 }
 func (dp *Drawables) Add(obj Drawable) (*Drawables) {
 	*dp = append(*dp, obj)
 	return dp
 }
-func (dp *Drawables) Remove(obj interface{}) error {
+func (dp *Drawables) Remove(obj interface{}) (error, *Drawables) {
 	objType := reflect.TypeOf(obj)
 	i := sort.Search(len(*dp), func(idx int) bool {
 			tp := reflect.TypeOf((*dp)[idx])
@@ -72,15 +73,11 @@ func (dp *Drawables) Remove(obj interface{}) error {
 			return false
 	})
 	if i < 0 || i >= len(*dp) {
-		return errors.New(fmt.Sprintf("Cannot remove %s, %v does not exist", objType.String(), obj))
+		return errors.New(fmt.Sprintf("Cannot remove %s, %v does not exist", objType.String(), obj)), nil
 	}
-	(*dp).removeIdx(i)
-	return nil
-}
-
-func (d Drawables) removeIdx(i int) {
-	d[i] = d[len(d)-1]
-	d = d[:len(d)-1]
+	(*dp)[i] = (*dp)[len(*dp)-1]
+	(*dp) = (*dp)[:len(*dp)-1]
+	return nil, dp
 }
 
 type WObj struct {

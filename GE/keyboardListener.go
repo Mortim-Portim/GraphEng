@@ -2,10 +2,7 @@ package GE
 
 import (
 	"github.com/hajimehoshi/ebiten"
-	//"fmt"
-	//"log"
-	//"math"
-	//"errors"
+	"sync"
 	"encoding/json"
 	"io/ioutil"
 )
@@ -29,8 +26,9 @@ only update used keys, increasing performance (UpdateMapped)
 //KeyboardListener
 type KeyLi struct {
 	mapper map[int]int
-	
 	keyStates map[int]bool
+	
+	mL,sL sync.Mutex
 	JustChanged []int
 	
 	SettingKey int
@@ -39,15 +37,20 @@ type KeyLi struct {
 }
 func (l *KeyLi) MappIDToKey(id int, key ebiten.Key) {
 	oid := GetKeyID(key)
+	l.mL.Lock()
 	l.mapper[id] = oid
+	l.mL.Unlock()
 }
 func (l *KeyLi) MappKey(key ebiten.Key) int {
 	id := GetKeyID(key)
+	l.mL.Lock()
 	l.mapper[id] = id
+	l.mL.Unlock()
 	return id
 }
 //Registers a listener for an event of a single key
 func (l *KeyLi) RegisterKeyEventListener(keyID int, listener func(*KeyLi, bool)) {
+	l.mL.Lock()
 	if _,ok := l.mapper[keyID]; !ok {
 		l.mapper[keyID] = keyID
 	}
@@ -56,11 +59,16 @@ func (l *KeyLi) RegisterKeyEventListener(keyID int, listener func(*KeyLi, bool))
 		l.EventListeners[l.mapper[keyID]] = make([]func(l *KeyLi, state bool), 0)
 	}
 	l.EventListeners[l.mapper[keyID]] = append(l.EventListeners[l.mapper[keyID]], listener)
+	l.mL.Unlock()
 }
 //Resets the configurations
 func (l *KeyLi) Reset() {
+	l.mL.Lock()
 	l.mapper = make(map[int]int)
+	l.mL.Unlock()
+	l.sL.Lock()
 	l.keyStates = make(map[int]bool)
+	l.sL.Unlock()
 	l.JustChanged = make([]int, 0)
 	l.SettingKey = -1
 	l.EventListeners = make(map[int][]func(l *KeyLi, state bool))
@@ -68,9 +76,11 @@ func (l *KeyLi) Reset() {
 //Update only the Keys that are used
 func (l *KeyLi) UpdateMapped() error {
 	l.JustChanged = make([]int, 0)
+	l.mL.Lock()
 	for _,ID := range(l.mapper) {
 		l.UpdateKeyState(ID)
 	}
+	l.mL.Unlock()
 	return nil
 }
 //Update all Keys
@@ -82,14 +92,18 @@ func (l *KeyLi) Update() {
 }
 //Update the state of a specific Key
 func (l *KeyLi) UpdateKeyState(KeyID int) {
+	l.sL.Lock()
 	lastKeyState, ok := l.keyStates[KeyID]
+	l.sL.Unlock()
 	if !ok {
 		lastKeyState = false
 	}
+	l.sL.Lock()
 	l.keyStates[KeyID] = false
 	if ebiten.IsKeyPressed(AllKeys[KeyID]) {
 		l.keyStates[KeyID] = true
 	}
+	l.sL.Unlock()
 	if lastKeyState != l.keyStates[KeyID] && !containsI(l.JustChanged, KeyID) {
 		l.JustChanged = append(l.JustChanged, KeyID)
 		
@@ -101,7 +115,9 @@ func (l *KeyLi) UpdateKeyState(KeyID int) {
 		}
 		
 		if l.SettingKey >= 0 {
+			l.mL.Lock()
 			l.mapper[l.SettingKey] = KeyID
+			l.mL.Unlock()
 			l.SettingKey = -1
 		}
 	}
@@ -117,7 +133,9 @@ func (l *KeyLi) GetJustChangedKeys() (IDs []int) {
 }
 //Returns the state and weather it just changed based on the Keys ID
 func (l *KeyLi) GetRawKeyState(KeyID int) (state, change bool) {
+	l.sL.Lock()
 	state = l.keyStates[KeyID]
+	l.sL.Unlock()
 	change = containsI(l.JustChanged, KeyID)
 	return
 }
@@ -134,7 +152,9 @@ func GetKeyStateFast(key ebiten.Key) (state, change bool) {
 }
 //Returns the state and weather it just changed based on the Keys mapped ID
 func (l *KeyLi) GetMappedKeyState(ID int) (state, change bool) {
+	l.mL.Lock()
 	KeyID, ok := l.mapper[ID]
+	l.mL.Unlock()
 	if !ok {
 		KeyID = ID
 	}
@@ -142,7 +162,9 @@ func (l *KeyLi) GetMappedKeyState(ID int) (state, change bool) {
 }
 //Returns the state and weather it just changed based on the Keys mapped ID
 func (l *KeyLi) GetMappedKeyStateFast(ID int) (state, change bool) {
+	l.mL.Lock()
 	KeyID, ok := l.mapper[ID]
+	l.mL.Unlock()
 	if !ok {
 		KeyID = ID
 	}
@@ -150,15 +172,19 @@ func (l *KeyLi) GetMappedKeyStateFast(ID int) (state, change bool) {
 }
 //Saves the Keyboardmapper to a file
 func (l *KeyLi) SaveConfig(path string) {
+	l.mL.Lock()
 	SaveMapper(path, l.mapper)
+	l.mL.Unlock()
 }
 //Loads the Keyboardmapper from a file
 func (l *KeyLi) LoadConfig(path string) {
 	mapper := LoadMapper(path)
 	if mapper != nil && len(mapper) > 0 {
+		l.mL.Lock()
 		for i,k := range(mapper) {
 			l.mapper[i] = k
 		}
+		l.mL.Unlock()
 	}
 }
 //Loads a map[int]int from a file

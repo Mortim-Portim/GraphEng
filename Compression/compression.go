@@ -10,7 +10,7 @@ import (
 )
 
 var BITVALS = []int{1,2,4,8,16,32,64,128}
-func BoolsToBytes(bls []bool) (bs []byte) {
+func BoolsToBytes(bls ...bool) (bs []byte) {
 	bs = []byte{}
 	for i := 0; i < len(bls); i += 8 {
 		b := 0
@@ -54,6 +54,18 @@ func FloatToBytesRound(f float64) (bs []byte) {
 func BytesToFloatRound(bs []byte) (f float64) {
 	f = float64(BytesToUInt16(bs[0:2]))
 	f += float64(BytesToInt8(bs[2:3]))/255
+	return
+}
+//Converts a float64 in [0;255] with a precision of 1/65535 to byte[3]
+func FloatToBytesRoundFP(f float64) (bs []byte) {
+	ff := math.Floor(f); fr := int16((f-ff)*65535)
+	bs = append(Int16ToBytes(fr), byte(ff))
+	return
+}
+//Converts byte[3] into a float64 in [0;255] with a precision of 1/65535
+func BytesToFloatRoundFP(bs []byte) (f float64) {
+	f = float64(BytesToInt16(bs[0:2]))/65535
+	f += float64(bs[2])
 	return
 }
 //converts a uint16 to [2]byte

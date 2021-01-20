@@ -18,6 +18,12 @@ type Sounds struct {
 	currentPlayer string
 	StandardVolume float64
 }
+func (s *Sounds) SetVolume(volume float64) {
+	s.StandardVolume = volume
+	if pl,ok := s.sounds[s.currentPlayer]; ok && pl.IsPlaying() {
+		s.sounds[s.currentPlayer].SetVolume(s.StandardVolume)
+	}
+}
 func (s *Sounds) PlayInfinite() {
 	p, ok := s.sounds[s.currentPlayer]
 	if ok {

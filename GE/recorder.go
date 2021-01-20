@@ -5,12 +5,16 @@ import (
 	"github.com/icza/mjpeg"
 	"image/color"
 	"image/jpeg"
+	"runtime"
 	"bytes"
 	"fmt"
 	"os"
 	"io"
 )
-
+//if ebiten.IsKeyPressed(ebiten.KeyC) && !g.rec.IsSaving() {
+//		g.rec.Save("./res/out")
+//	}
+//	g.rec.NextFrame(screen)
 func GetNewRecorder(frames, XRES, YRES, fps int) (r *Recorder) {
 	r = &Recorder{frames:frames, current:0, fps:fps}
 	r.video = make([]*ebiten.Image, frames)
@@ -26,12 +30,24 @@ type Recorder struct {
 	drawer *ImageObj
 	saving bool
 }
+func (r *Recorder) Delete() {
+	if r == nil {return}
+	r.saving = true
+	r.back = nil
+	for i,_ := range(r.video) {
+		r.video[i] = nil
+	}
+	r.video = nil
+	r.drawer.Img = nil
+	r = nil
+}
 func (r *Recorder) NextFrame(img *ebiten.Image) {
 	if !r.saving {
 		idx := r.current
 		r.current ++
 		if r.current >= r.frames {
 			r.current = 0
+			runtime.GC()
 		}
 		//copys the background
 		newImg := DeepCopyEbitenImage(r.back)
@@ -47,10 +63,10 @@ func (r *Recorder) IsSaving() bool {
 }
 
 //MAY take a long time
-func (r *Recorder) Save(copyPath string) {
+func (r *Recorder) Save(path string) {
 	r.saving = true
 	go func(){
-	    aw, err := mjpeg.New(copyPath+".avi", 200, 100, int32(r.fps))
+	    aw, err := mjpeg.New(path+".avi", 200, 100, int32(r.fps))
 		ShitImDying(err)
 	    counter := 0
 	    for i := r.current; i < r.current+r.frames; i++ {

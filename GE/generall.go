@@ -339,11 +339,17 @@ func SetLogFile(path string) {
 	LOGFILE = f
 }
 func LogToFile(text string) {
+	if LOGFILE == nil {
+		return
+	}
 	if _, err := LOGFILE.WriteString(text); err != nil {
 		panic(err)
 	}
 }
 func CloseLogFile() {
+	if LOGFILE == nil {
+		return
+	}
 	LOGFILE.Close()
 }
 func ShitImDying(err error) {

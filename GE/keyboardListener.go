@@ -6,6 +6,21 @@ import (
 	"encoding/json"
 	"io/ioutil"
 )
+var MOVE_A_D = false
+var counter = 0
+var MOVING_A = false
+func CheckForAutoMove(key ebiten.Key) bool {
+	if !MOVE_A_D {return false}
+	if (key == ebiten.KeyA && MOVING_A) || (key == ebiten.KeyD && !MOVING_A) {
+		counter ++
+		if counter > 20 {
+			counter = 0
+			MOVING_A = !MOVING_A
+		}
+		return true
+	}
+	return false
+}
 /**
 KeyboardListener represents a struct, that listens for KeyboardEvents
 
@@ -100,7 +115,7 @@ func (l *KeyLi) UpdateKeyState(KeyID int) {
 	}
 	l.sL.Lock()
 	l.keyStates[KeyID] = false
-	if ebiten.IsKeyPressed(AllKeys[KeyID]) {
+	if ebiten.IsKeyPressed(AllKeys[KeyID]) || CheckForAutoMove(AllKeys[KeyID]) {
 		l.keyStates[KeyID] = true
 	}
 	l.sL.Unlock()

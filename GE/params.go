@@ -9,8 +9,12 @@ import (
 	"errors"
 	"image/color"
 	"io/ioutil"
+	"time"
 )
-
+func GetTime() string {
+	jned := strings.Join(strings.Split(fmt.Sprintf("%v", time.Now().UTC()), " ")[:2], "_")
+	return strings.ReplaceAll(strings.Split(jned, ".")[0], ":", "-")
+}
 /**
 Params represents a struct that can be loaded from a file, that contains paramters
 
@@ -126,6 +130,9 @@ func (p *Params) SaveToFile(path string) error {
 	for key,val := range(p.strs) {
 		data += fmt.Sprintf("%s:%s\n", key, val)
 	}
+	if len(data) == 0 {
+		return nil
+	}
 	data = data[:len(data)-2]
 	ioutil.WriteFile(path, []byte(data), 0644)
 	return nil
@@ -148,7 +155,7 @@ func (p *Params) SetS(key, val string) {
 }
 func (p *Params) Set(key string, val float64) {
 	p.p[key] = val
-	p.strs[key] = fmt.Sprintf("%0.8",val)
+	p.strs[key] = fmt.Sprintf("%0.8f",val)
 }
 //returns the boolean value
 func (p *Params) GetBool(key string, standard bool) bool {

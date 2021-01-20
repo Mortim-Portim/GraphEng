@@ -57,7 +57,11 @@ func (t *SoundTrack) Play(name string) {
 		}
 	}()
 }
-
+func (t *SoundTrack) SetVolume(volume float64) {
+	for _,s := range t.Tracks {
+		s.SetVolume(volume)
+	}
+}
 func (t *SoundTrack) Pause() {
 	t.Tracks[t.current].PauseAll()
 }

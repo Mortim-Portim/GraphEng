@@ -63,7 +63,7 @@ func (r *Recorder) IsSaving() bool {
 }
 
 //MAY take a long time
-func (r *Recorder) Save(path string) {
+func (r *Recorder) Save(path string, done chan bool) {
 	r.saving = true
 	go func(){
 	    aw, err := mjpeg.New(path+".avi", 200, 100, int32(r.fps))
@@ -87,6 +87,9 @@ func (r *Recorder) Save(path string) {
 	    }
 		ShitImDying(aw.Close())
 		r.saving = false
+		if done != nil {
+			done <- true
+		}
 	}()
 }
 

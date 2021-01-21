@@ -231,7 +231,7 @@ func (g *TestGame) Update(screen *ebiten.Image) error {
 	g.wrld.Draw(screen)
 
 	if ebiten.IsKeyPressed(ebiten.KeyC) && !g.rec.IsSaving() {
-		g.rec.Save("./res/out")
+		g.rec.Save("./res/out", nil)
 	}
 	g.rec.NextFrame(screen)
 

@@ -1,12 +1,10 @@
 package GE
 
 import (
-	"fmt"
 	"math/rand"
 	"io/ioutil"
 	"errors"
 	"time"
-	//"github.com/hajimehoshi/ebiten/audio"
 )
 const STANDARDVOLUME = 1.0
 
@@ -79,7 +77,7 @@ func LoadSounds(folder string) (*Sounds, error) {
 	for _, f := range files {
 		name := f.Name()
 		file := folder+name
-		fmt.Println("Loading: ", file)
+		//fmt.Println("Loading: ", file)
 		player, err := NewPlayer(file)
 		if err != nil {break}
 		s.sounds[name[:len(name)-4]] = player

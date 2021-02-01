@@ -78,6 +78,21 @@ func UInt16ToBytes(i uint16) (b []byte) {
 func BytesToUInt16(b []byte) uint16 {
 	return binary.LittleEndian.Uint16(b)
 }
+
+
+//converts a uint16 to [2]byte
+func UInt64ToBytes(i uint64) (b []byte) {
+	b = make([]byte, 2)
+	binary.LittleEndian.PutUint64(b, i)
+	return
+}
+//converts a [2]byte to uint16
+func BytesToUInt64(b []byte) uint64 {
+	return binary.LittleEndian.Uint64(b)
+}
+
+
+
 //converts a int8 to [1]byte
 func Int8ToBytes(i int8) []byte {
 	return []byte{byte(int(i)+128)}

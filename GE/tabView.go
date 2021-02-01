@@ -42,7 +42,7 @@ func (t *TabView) Stop(screen *ebiten.Image, data interface{}) {
 //Updates all currently active contents of the TabView
 func (t *TabView) Update(frame int) {
 	t.Screens.UpdateFuncs[t.CurrentTab](frame)
-	for i,mmb := range(t.TabBtns.Member) {
+	for i,mmb := range(t.TabBtns.Members) {
 		btn := mmb.(*Button)
 		btn.DrawDark = false
 		if i == t.CurrentTab {
@@ -71,9 +71,9 @@ func getTabView(Names []string, screens []UpdateAble, X, Y, W, H, TabH float64, 
 		TabBtns[i].(*Button).Data = i
 	}
 	v.TabBtns = GetGroup(TabBtns...)
-	for i,mmb := range(v.TabBtns.Member[1:]) {
+	for i,mmb := range(v.TabBtns.Members[1:]) {
 		tab := mmb.(*Button)
-		tabm1 := v.TabBtns.Member[i].(*Button)
+		tabm1 := v.TabBtns.Members[i].(*Button)
 		tab.Img.X = (tabm1.Img.X+tabm1.Img.W+W*dis)
 	}
 	return v
@@ -89,9 +89,9 @@ func getTabViewWithImages(imgs []*ebiten.Image, screens []UpdateAble, X, Y, W, H
 		TabBtns[i].(*Button).Data = i
 	}
 	v.TabBtns = GetGroup(TabBtns...)
-	for i,mmb := range(v.TabBtns.Member[1:]) {
+	for i,mmb := range(v.TabBtns.Members[1:]) {
 		tab := mmb.(*Button)
-		tabm1 := v.TabBtns.Member[i].(*Button)
+		tabm1 := v.TabBtns.Members[i].(*Button)
 		tab.Img.X = (tabm1.Img.X+tabm1.Img.W+W*dis)
 	}
 	return v

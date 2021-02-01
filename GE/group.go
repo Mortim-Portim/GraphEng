@@ -17,7 +17,10 @@ Group implements UpdateAble
 
 func GetGroup(members ...UpdateAble) (g *Group) {
 	g = &Group{}
-	g.Member = members
+	g.UpdateFuncs = make([]UpdateFunc, 0)
+	g.DrawFuncs = make([]DrawFunc, 0)
+	g.Members = make([]UpdateAble, 0)
+	g.Add(members...)
 	return
 }
 func (g *Group) Add(members ...UpdateAble) {
@@ -30,9 +33,10 @@ func (g *Group) Add(members ...UpdateAble) {
 			g.DrawFuncs = append(g.DrawFuncs, f_d)
 		}
 	}
+	g.Members = append(g.Members, members...)
 }
 type Group struct {
-	Member []UpdateAble
+	Members []UpdateAble
 	UpdateFuncs []UpdateFunc
 	DrawFuncs []DrawFunc
 	
@@ -42,26 +46,15 @@ type Group struct {
 
 func (g *Group) Init(screen *ebiten.Image, data interface{}) (UpdateFunc, DrawFunc) {
 	g.InitScreen = screen; g.InitData = data
-	g.UpdateFuncs = make([]UpdateFunc, 0)
-	g.DrawFuncs = make([]DrawFunc, 0)
-	for _,mmb := range(g.Member) {
-		f_u, f_d := mmb.Init(screen, data)
-		if f_u != nil {
-			g.UpdateFuncs = append(g.UpdateFuncs, f_u)
-		}
-		if f_d != nil {
-			g.DrawFuncs = append(g.DrawFuncs, f_d)
-		}
-	}
 	return g.Update, g.Draw
 }
 func (g *Group) Start(screen *ebiten.Image, data interface{}) {
-	for _,mmb := range(g.Member) {
+	for _,mmb := range(g.Members) {
 		mmb.Start(screen, data)
 	}
 }
 func (g *Group) Stop(screen *ebiten.Image, data interface{}) {
-	for _,mmb := range(g.Member) {
+	for _,mmb := range(g.Members) {
 		mmb.Stop(screen, data)
 	}
 }

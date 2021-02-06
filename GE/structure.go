@@ -8,7 +8,7 @@ import (
 type Structure struct {
 	squareSize int
 	Collides bool
-	HitboxW,HitboxH float64
+	H_W,H_H float64
 	Name string
 	understandable, IsUnderstood bool
 	NUA, UA *DayNightAnim
@@ -18,8 +18,8 @@ type Structure struct {
 Params.txt:
 spriteWidth: 	[1-NaN]
 updatePeriod: 	[0-NaN]
-hitBoxWidth:	[1-NaN]
-hitBoxHeight:	[1-NaN]
+hitBoxWidth:	[0-NaN]
+hitBoxHeight:	[0-NaN]
 Collides:		[true/false]
 squareSize:		[1-NaN]
 layer:			[-128-128]
@@ -44,12 +44,12 @@ func GetStructFromParams(img *ebiten.Image, p *Params) (s *Structure) {
 		u_Img = nil
 	}
 	
-	s = GetStructure(anim, u_Img, p.Get("hitBoxWidth")-1,p.Get("hitBoxHeight")-1, int(p.Get("squareSize")), collides, understandable, layer)
+	s = GetStructure(anim, u_Img, p.Get("hitBoxWidth"),p.Get("hitBoxHeight"), int(p.Get("squareSize")), collides, understandable, layer)
 	return
 }
 //Returns a StructureObj
 func GetStructure(NUA, UA *DayNightAnim, HitboxW,HitboxH float64, squareSize int, Collides, understandable bool, layer int8) (o *Structure) {
-	o = &Structure{NUA:NUA, UA:UA, HitboxW:HitboxW ,HitboxH:HitboxH, squareSize:squareSize, Collides:Collides, understandable:understandable, IsUnderstood:true, layer:layer}
+	o = &Structure{NUA:NUA, UA:UA, H_W:HitboxW ,H_H:HitboxH, squareSize:squareSize, Collides:Collides, understandable:understandable, IsUnderstood:true, layer:layer}
 	if NUA != nil {
 		o.NUA.Update(0)
 	}
@@ -59,7 +59,7 @@ func GetStructure(NUA, UA *DayNightAnim, HitboxW,HitboxH float64, squareSize int
 	return
 }
 func (s *Structure) Clone() *Structure {
-	return &Structure{NUA:s.NUA.Copy(), UA:s.UA.Copy(), squareSize:s.squareSize, Collides:s.Collides, layer:s.layer, HitboxW:s.HitboxW, HitboxH:s.HitboxH, Name:s.Name}
+	return &Structure{NUA:s.NUA.Copy(), UA:s.UA.Copy(), squareSize:s.squareSize, Collides:s.Collides, layer:s.layer, H_W:s.H_W, H_H:s.H_H, Name:s.Name}
 }
 /**
 Reads a slice of Structures from a folder like this:

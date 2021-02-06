@@ -49,7 +49,7 @@ func (p *AudioPlayer) Pause() {
 	p.repeating = false
 	p.Player.Pause()
 }
-func (p *AudioPlayer) Repeat() {
+func (p *AudioPlayer) Repeat(OnRepeat func() bool) {
 	if !p.repeating {
 		p.repeating = true
 		go func(){
@@ -57,6 +57,10 @@ func (p *AudioPlayer) Repeat() {
 				remaining := p.total - p.Current()
 				time.Sleep(remaining+time.Millisecond)
 				if p.repeating {
+					if !OnRepeat() {
+						p.repeating = false
+						return
+					}
 					p.Rewind()
 					p.Play()
 				}

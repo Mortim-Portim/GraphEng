@@ -15,6 +15,7 @@ type Sounds struct {
 	sounds map[string]*AudioPlayer
 	currentPlayer string
 	StandardVolume float64
+	OnRepeat func() bool
 }
 func (s *Sounds) SetVolume(volume float64) {
 	s.StandardVolume = volume
@@ -22,10 +23,10 @@ func (s *Sounds) SetVolume(volume float64) {
 		s.sounds[s.currentPlayer].SetVolume(s.StandardVolume)
 	}
 }
-func (s *Sounds) PlayInfinite() {
+func (s *Sounds) PlayInfinite(OnRepeat func() bool) {
 	p, ok := s.sounds[s.currentPlayer]
 	if ok {
-		p.Repeat()
+		p.Repeat(OnRepeat)
 	}
 }
 func (s *Sounds) FadeToSoundR(s2 *Sounds, seed int64, done chan bool) {
@@ -46,6 +47,9 @@ func (s *Sounds) FadeToSound(s2 *Sounds, new_file string, seconds float64, done 
 	}
 	millis := seconds*1000.0
 	FadePlayer(oldP, newP, int(millis), int(millis/2.0), s2.fadeInFunc, s.fadeOutFunc, true, done)
+	if s.OnRepeat != nil {
+		s.PlayInfinite(s.OnRepeat)
+	}
 }
 func (s *Sounds) FadeOut(seconds float64, done chan bool) {
 	millis := seconds*1000.0
@@ -99,6 +103,9 @@ func (s *Sounds) PS(file string) {
 	if !s.sounds[file].IsPlaying() {
 		s.sounds[file].PlayFromBeginning(s.StandardVolume)
 	}
+	if s.OnRepeat != nil {
+		s.PlayInfinite(s.OnRepeat)
+	}
 }
 //Plays a random audio file
 func (s *Sounds) PR(seed int64) {
@@ -136,6 +143,9 @@ func (s *Sounds) ChangeTo(milliseconds, iterations int, new_file string, volumef
 		s.currentPlayer = new_file
 	}
 	FadePlayer(oldP, newP, milliseconds, iterations, volumefaderNew, volumefaderOld, changeToNew, done)
+	if s.OnRepeat != nil {
+		s.PlayInfinite(s.OnRepeat)
+	}
 }
 
 func FadePlayer(oldP, newP *AudioPlayer, milliseconds, iterations int, volumefaderNew, volumefaderOld  func(percent float64)(volume float64), changeToNew bool, done chan bool) {

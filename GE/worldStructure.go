@@ -235,9 +235,11 @@ func (p *WorldStructure) UpdateObjMat() {
 func (p *WorldStructure) UpdateObjDrawables() {
 	*p.SO_Drawables = *p.Add_Drawables
 	drawnObjs := make([]int, 0)
-	for y := 0; y < p.ObjMat.H(); y++ {
-		for x := 0; x < p.ObjMat.W(); x++ {
-			mvi, err := p.ObjMat.Get(x, y)
+	minP := p.ObjMat.Focus().Min()
+	maxP := p.ObjMat.Focus().Max()
+	for y := int(minP.Y-OBJ_MAX_SIZE); y < int(maxP.Y+OBJ_MAX_SIZE); y++ {
+		for x := int(minP.X-OBJ_MAX_SIZE); x < int(maxP.X+OBJ_MAX_SIZE); x++ {
+			mvi, err := p.ObjMat.GetAbs(x, y)
 			idx := int(math.Abs(float64(mvi)))
 			if idx != 0 && err == nil {
 				idx -= 1
@@ -254,19 +256,40 @@ func (p *WorldStructure) UpdateObjDrawables() {
 func (p *WorldStructure) AddDrawable(d Drawable) {
 	p.Add_Drawables = p.Add_Drawables.Add(d)
 }
-
+func FloatPosToIntPos(fx, fy float64) (int, int) {
+	return int(math.Round(fx-0.5)), int(math.Round(fy-0.5))
+}
+const OBJ_MAX_SIZE = 20
 //Checks if an object obstructs the point
-func (p *WorldStructure) Collides(x, y int) bool {
-	v, err := p.ObjMat.GetAbs(x, y)
-	if v <= 0 && err == nil {
-		return false
+func (p *WorldStructure) Collides(x, y, w, h float64) bool {
+	idxs := p.GetObjectsInField(int(x)-OBJ_MAX_SIZE, int(y)-OBJ_MAX_SIZE, int(w)+2*OBJ_MAX_SIZE, int(h)+2*OBJ_MAX_SIZE)
+	return p.collidesWithObjs(x,y,w,h, idxs...)
+}
+func (p *WorldStructure) collidesWithObjs(x,y,w,h float64, idxs ...int) bool {
+	r := GetRectangle(x,y,x+w,y+h)
+	for _,idx := range(idxs) {
+		obj := p.Objects[idx]
+		if r.Overlaps(obj.Hitbox) {
+			return true
+		}
 	}
-	return true
+	return !r.Overlaps(GetRectangle(0,0,float64(p.xTilesAbs),float64(p.yTilesAbs)))
+}
+func (p *WorldStructure) GetObjectsInField(X,Y,W,H int) (idxs []int) {
+	for x := X; x < X+W; x++ {
+		for y := Y; y < Y+H; y++ {
+			v, err := p.ObjMat.GetAbs(x, y)
+			if v > 0 && err == nil {
+				idxs = append(idxs, int(v-1))
+			}
+		}
+	}
+	return
 }
 func (p *WorldStructure) ObjectsToBytes() (bs []byte) {
 	bss := make([][]byte, 0)
 	for _, obj := range p.Objects {
-		bss = append(bss, cmp.CompressAll([][]byte{[]byte(obj.Name)}, cmp.Float64ToBytes(obj.HitBox.Min().X), cmp.Float64ToBytes(obj.HitBox.Min().Y)))
+		bss = append(bss, cmp.CompressAll([][]byte{[]byte(obj.Name)}, cmp.Float64ToBytes(obj.Hitbox.Min().X), cmp.Float64ToBytes(obj.Hitbox.Min().Y)))
 	}
 	bs = cmp.CompressAll(bss)
 	return
@@ -330,7 +353,14 @@ func (p *WorldStructure) GetTileOfCoords(x, y int) (xT, yT int) {
 	loc := p.TileMat.Focus().Min()
 	return int(loc.X + tilesDX), int(loc.Y + tilesDY)
 }
-
+func (p *WorldStructure) GetTileOfCoordsFP(x, y float64) (xT, yT float64) {
+	x -= p.xStart
+	y -= p.yStart
+	tilesDX := x / p.tileS
+	tilesDY := x / p.tileS
+	loc := p.TileMat.Focus().Min()
+	return loc.X + tilesDX, loc.Y + tilesDY
+}
 /**
 //!DEPRECATED!
 //ONLY use when moving the world before drawing tiles or objects

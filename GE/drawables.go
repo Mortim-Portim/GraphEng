@@ -83,13 +83,13 @@ func (dp *Drawables) Remove(obj interface{}) (error, *Drawables) {
 type WObj struct {
 	img *DayNightAnim
 	layer int8
-	HitBox, DrawBox *Rectangle
+	Hitbox, Drawbox *Rectangle
 	frame, squareSize int
 	Name string
 }
 //Copys the WObj
 func (o *WObj) Copy() (o2 *WObj) {
-	o2 = &WObj{o.img.Copy(), o.layer, o.HitBox.Copy(), o.DrawBox.Copy(), o.frame, o.squareSize, o.Name}
+	o2 = &WObj{o.img.Copy(), o.layer, o.Hitbox.Copy(), o.Drawbox.Copy(), o.frame, o.squareSize, o.Name}
 	return
 }
 //Updates the animation
@@ -99,17 +99,17 @@ func (o *WObj) Update(frame int) {
 //Moves the WObj by delta
 func (o *WObj) MoveBy(dx,dy float64) {
 	if dx != 0 || dy != 0 {
-		x := o.HitBox.Min().X+dx;y := o.HitBox.Min().Y+dy
+		x := o.Hitbox.Min().X+dx;y := o.Hitbox.Min().Y+dy
 		o.SetTopLeft(x,y)
 	}
 }
 //Sets the WObjs top left to x and y
 func (o *WObj) SetTopLeft(x,y float64) {
-	o.HitBox.MoveTo(&Point{x,y})
+	o.Hitbox.MoveTo(&Point{x,y})
 	w,h := o.img.Size()
 	W := float64(w)/float64(o.squareSize); H := float64(h)/float64(o.squareSize)
-	o.DrawBox = GetRectangle(o.HitBox.Min().X-(W-o.HitBox.Bounds().X-1)/2, o.HitBox.Min().Y-(H-o.HitBox.Bounds().Y-1), 0,0)
-	o.DrawBox.SetBounds(&Point{W,H})
+	o.Drawbox = GetRectangle(o.Hitbox.Min().X-(W-o.Hitbox.Bounds().X)/2, o.Hitbox.Min().Y-(H-o.Hitbox.Bounds().Y), 0,0)
+	o.Drawbox.SetBounds(&Point{W,H})
 }
 //Sets the WObjs bottom right to x and y
 func (o *WObj) SetBottomRight(x,y float64) {
@@ -123,19 +123,17 @@ func (o *WObj) SetMiddle(x,y float64) {
 }
 //Returns the Position of the middle of the WObj
 func (o *WObj) GetMiddle() (float64, float64, int8) {
-	pnt := o.HitBox.Min()
-	w,h := o.Bounds()
-	return pnt.X+w/2,pnt.Y+h/2,o.layer
+	pnt := o.Hitbox.GetMiddle()
+	return pnt.X,pnt.Y,o.layer
 }
 //Returns the Position of the left top of the WObj
 func (o *WObj) GetTopLeft() (float64, float64) {
-	pnt := o.HitBox.Min()
+	pnt := o.Hitbox.Min()
 	return pnt.X, pnt.Y
 }
 func (o *WObj) GetBottomRight() (float64, float64) {
-	pnt := o.HitBox.Min()
-	w,h := o.Bounds()
-	return pnt.X+w, pnt.Y+h
+	pnt := o.Hitbox.Max()
+	return pnt.X, pnt.Y
 }
 //Sets the layer the WObj is drawn to
 func (o *WObj) SetLayer(l int8) {
@@ -143,18 +141,18 @@ func (o *WObj) SetLayer(l int8) {
 }
 //Returns the DrawBox of the WObj
 func (o *WObj) GetDrawBox() *Rectangle {
-	return o.DrawBox
+	return o.Drawbox
 }
 //Returns the real Bounds of the WObj
 func (o *WObj) Bounds() (float64, float64) {
-	bnds := o.HitBox.Bounds()
-	return bnds.X+1, bnds.Y+1
+	bnds := o.Hitbox.Bounds()
+	return bnds.X, bnds.Y
 }
 //Draws the WObj to the screen
 func (o *WObj) Draw(screen *ebiten.Image, lv int16, leftTopX, leftTopY, xStart, yStart, sqSize float64) {
-	y := (o.DrawBox.Min().Y-leftTopY)*sqSize
-	x := (o.DrawBox.Min().X-leftTopX)*sqSize
-	o.img.SetParams(x+xStart,y+yStart, float64(o.DrawBox.Bounds().X)*sqSize, float64(o.DrawBox.Bounds().Y)*sqSize)
+	y := (o.Drawbox.Min().Y-leftTopY)*sqSize
+	x := (o.Drawbox.Min().X-leftTopX)*sqSize
+	o.img.SetParams(x+xStart,y+yStart, float64(o.Drawbox.Bounds().X)*sqSize, float64(o.Drawbox.Bounds().Y)*sqSize)
 	o.img.LightLevel = lv
 	o.img.DrawAnim(screen)
 	o.frame ++
@@ -181,8 +179,8 @@ func GetWObjFromParams(img *ebiten.Image, p *Params, name string) (o *WObj) {
 	layer := int8(p.Get("layer"))
 	spW := int(p.Get("spriteWidth"))
 	uP := int(p.Get("updatePeriod"))
-	hitBoxW := p.Get("hitBoxWidth")-1
-	hitBoxH := p.Get("hitBoxHeight")-1
+	hitBoxW := p.Get("hitBoxWidth")
+	hitBoxH := p.Get("hitBoxHeight")
 	XPos := p.Get("XPos")
 	YPos := p.Get("YPos")
 	sqSize := int(p.Get("squareSize"))
@@ -234,7 +232,7 @@ func LoadAllWObjs(folderPath string) (map[string]*WObj, error) {
 }
 func GetWObj(img *DayNightAnim, HitboxW,HitboxH, x, y float64, squareSize int, layer int8, name string) (o *WObj) {
 	o = &WObj{img:img, layer:layer, squareSize:squareSize, Name:name}
-	o.HitBox = GetRectangle(x,y, x+HitboxW, y+HitboxH)
+	o.Hitbox = GetRectangle(x,y, x+HitboxW, y+HitboxH)
 	if img != nil {
 		o.img.Update(0)
 	}

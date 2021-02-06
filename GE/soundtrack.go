@@ -1,7 +1,9 @@
 package GE
 
 import (
+	"math/rand"
 	"time"
+	"fmt"
 )
 
 const STANDARD_FADE_TIME = 1.5
@@ -11,6 +13,8 @@ type SoundTrack struct {
 	current string
 	waitingForFading chan bool
 	waitingCount, maximumWaitingLength int
+	OnRepeat func() bool
+	NextTrack string
 }
 
 func LoadSoundTrack(path string, maximumWaitingLength int) (*SoundTrack, error) {
@@ -23,6 +27,7 @@ func LoadSoundTrack(path string, maximumWaitingLength int) (*SoundTrack, error) 
 	for _,f := range(files) {
 		s.Tracks[f], err = LoadSounds(path+f)
 		if err != nil {return nil, err}
+		s.Tracks[f].OnRepeat = s.onTrackRepeat
 	}
 	s.waitingForFading = make(chan bool)
 	go func(){
@@ -30,7 +35,32 @@ func LoadSoundTrack(path string, maximumWaitingLength int) (*SoundTrack, error) 
 	}()
 	return s,nil
 }
-
+func (t *SoundTrack) GetRandomTrack(seed int64) string {
+	rand.Seed(seed)
+	idx := rand.Intn(len(t.Tracks))
+	counter := 0
+	for st,_ := range(t.Tracks) {
+		if counter == idx {
+			return st
+		}
+		counter ++
+	}
+	return ""
+}
+func (t *SoundTrack) onTrackRepeat() (repeat bool) {
+	fmt.Println("Repeating track?")
+	repeat = true
+	if t.OnRepeat != nil {
+		repeat = t.OnRepeat()
+	}
+	_, ok := t.Tracks[t.NextTrack]
+	if ok && t.NextTrack != t.current {
+		t.Tracks[t.NextTrack].FadeToR(time.Now().UnixNano(), STANDARD_FADE_TIME, nil)
+		t.NextTrack = ""
+		return false
+	}
+	return repeat
+}
 func (t *SoundTrack) Play(name string) {
 	if name == t.current {
 		return

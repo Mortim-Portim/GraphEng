@@ -13,9 +13,13 @@ func (p *WorldStructure) ToBytes() ([]byte, error) {
 	if err1 != nil {
 		return nil, err1
 	}
+	regBs, err2 := p.RegionMat.Compress()
+	if err2 != nil {
+		return nil, err2
+	}
 	objBs := p.ObjectsToBytes()
 	lghBs := p.LightsToBytes()
-	changing := append([][]byte{tilBs}, objBs, lghBs)
+	changing := append([][]byte{tilBs}, objBs, lghBs, regBs)
 
 	mdxBs := cmp.Int64ToBytes(int64(p.middleX))
 	mdyBs := cmp.Int64ToBytes(int64(p.middleY))
@@ -47,6 +51,12 @@ func GetWorldStructureFromBytes(X, Y, W, H float64, data []byte, tile_path, stru
 	}
 	p.BytesToObjects(bs[6])
 	p.BytesToLights(bs[7])
+	regMat := GetMatrix(0, 0, 0)
+	err = regMat.Decompress(bs[8])
+	if err != nil {
+		return nil, err
+	}
+	p.RegionMat = regMat
 	p.SetMiddle(int(cmp.BytesToInt64(bs[0])), int(cmp.BytesToInt64(bs[1])), true)
 	p.SetLightStats(int16(cmp.BytesToInt16(bs[2])), int16(cmp.BytesToInt16(bs[3])), cmp.BytesToFloat64(bs[4]))
 	return p, nil

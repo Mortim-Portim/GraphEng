@@ -11,10 +11,11 @@ import (
 //Returns a WorldStructure object
 func GetWorldStructure(X, Y, W, H float64, WTiles, HTiles, ScreenWT, ScreenHT int) (p *WorldStructure) {
 	p = &WorldStructure{X: X, Y: Y, W: W, H: H, xTilesAbs: WTiles, yTilesAbs: HTiles}
-	p.TileMat = GetMatrix(WTiles, HTiles, 0)
-	p.LIdxMat = GetMatrix(WTiles, HTiles, -1)
-	p.ObjMat = GetMatrix(WTiles, HTiles, 0)
-	p.LightMat = GetMatrix(WTiles, HTiles, 0)
+	p.TileMat = 	GetMatrix(WTiles, HTiles, 0)
+	p.LIdxMat = 	GetMatrix(WTiles, HTiles, -1)
+	p.ObjMat = 		GetMatrix(WTiles, HTiles, 0)
+	p.LightMat = 	GetMatrix(WTiles, HTiles, 0)
+	p.RegionMat = 	GetMatrix(WTiles, HTiles, 0)
 	p.Add_Drawables = GetDrawables()
 	p.SO_Drawables = GetDrawables()
 	p.SetDisplayWH(ScreenWT, ScreenHT)
@@ -49,8 +50,13 @@ type WorldStructure struct {
 	//The standard light level
 	lightLevel, minLight, maxLight int16
 	deltaB, currentD               float64
-	//TileMat stores indexes of tiles, LightMat stores the lightlevel, ObjMat stores indexes of Objects
-	TileMat, LIdxMat, LightMat, ObjMat *Matrix
+	
+	//The current region of the Player
+	CurrentRegion int
+	OnRegionChange func(oldR, newR int)
+	
+	//TileMat stores indexes of tiles, LightMat stores the lightlevel, ObjMat stores indexes of Objects, RegionMat stores the index of the Region
+	TileMat, LIdxMat, LightMat, ObjMat, RegionMat *Matrix
 
 	//SetMiddle/Move
 	middleX, middleY int

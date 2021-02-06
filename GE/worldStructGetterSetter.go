@@ -53,6 +53,13 @@ func (p *WorldStructure) SetMiddle(xP, yP int, force bool) {
 		p.TileMat.CopyFocus(p.LIdxMat)
 		p.TileMat.CopyFocus(p.LightMat)
 		p.TileMat.CopyFocus(p.ObjMat)
+		r,err := p.RegionMat.GetAbs(xP,yP)
+		if err != nil && int(r) != p.CurrentRegion {
+			if p.OnRegionChange != nil {
+				p.OnRegionChange(p.CurrentRegion, int(r))
+			}
+			p.CurrentRegion = int(r)
+		}
 	}
 }
 //moves the view by dx and dy

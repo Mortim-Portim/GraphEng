@@ -52,9 +52,9 @@ func GetWorldStructureFromBytes(X, Y, W, H float64, data []byte, tile_path, stru
 	p.BytesToObjects(bs[6])
 	p.BytesToLights(bs[7])
 	regMat := GetMatrix(0, 0, 0)
-	err = regMat.Decompress(bs[8])
-	if err != nil {
-		return nil, err
+	if len(bs) >= 9 {
+		err = regMat.Decompress(bs[8])
+		if err != nil {return nil, err}
 	}
 	p.RegionMat = regMat
 	p.SetMiddle(int(cmp.BytesToInt64(bs[0])), int(cmp.BytesToInt64(bs[1])), true)

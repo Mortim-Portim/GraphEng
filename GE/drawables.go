@@ -32,23 +32,13 @@ func (d Drawables) Less(i, j int) bool {
 	x2,y2,layer2 := d[j].GetPos()
 	
 	if math.Abs(y1-y2) < 0.5 {
-		box1 := d[i].GetDrawBox()
-		box2 := d[j].GetDrawBox()
-		yB1 := box1.Bounds().Y
-		yB2 := box2.Bounds().Y
-		if math.Abs(yB1-yB2) < 0.5 {
-			if layer1 < layer2 {
-				return true
-			}else if layer1 > layer2 {
-				return false
-			}else{
-				return x1 < x2
-			}
-		}
-		if yB1 > yB2 {
+		if layer1 < layer2 {
 			return true
+		}else if layer1 > layer2 {
+			return false
+		}else{
+			return x1 < x2
 		}
-		return false
 	}
 	
 	return y1 < y2

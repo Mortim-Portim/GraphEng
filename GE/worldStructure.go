@@ -22,7 +22,6 @@ func GetWorldStructure(X, Y, W, H float64, WTiles, HTiles, ScreenWT, ScreenHT in
 	p.UpdateLightValue(p.Lights, true)
 	return
 }
-
 /**
 Saved:
 Objects
@@ -77,6 +76,15 @@ type WorldStructure struct {
 }
 func (p *WorldStructure) Size() (int, int) {
 	return p.xTilesAbs, p.yTilesAbs
+}
+func (p *WorldStructure) ScaleTo(w, h int) {
+	p.xTilesAbs = w
+	p.yTilesAbs = h
+	p.TileMat.ScaleTo(w,h, 0)
+	p.LIdxMat.ScaleTo(w,h, -1)
+	p.ObjMat.ScaleTo(w,h, 0)
+	p.LightMat.ScaleTo(w,h, 0)
+	p.RegionMat.ScaleTo(w,h, 0)
 }
 func (p *WorldStructure) Print() (out string) {
 	out = fmt.Sprintf("Tiles: %v, Structures: %v, Objects: %v, Lights: %v, Add_Drawables: %v, SO_Drawables: %v\n",

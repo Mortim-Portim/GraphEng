@@ -70,6 +70,15 @@ type Matrix struct {
 	focus *Rectangle
 }
 
+func (m *Matrix) ScaleTo(x,y int, v int64) {
+	nL := make([]int64, (m.W()-x)*(m.H()-y))
+	for i,_ := range(nL) {
+		nL[i] = v
+	}
+	m.x.SetInt64(int64(x))
+	m.y.SetInt64(int64(y))
+	m.list = append(m.list, nL...)
+}
 //Returns the width of the focused Matrix
 func (m *Matrix) W() int {
 	return int(m.focus.Bounds().X)

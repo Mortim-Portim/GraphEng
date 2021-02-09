@@ -31,7 +31,7 @@ func (d Drawables) Less(i, j int) bool {
 	x1,y1,layer1 := d[i].GetPos()
 	x2,y2,layer2 := d[j].GetPos()
 	
-	if math.Abs(y1-y2) < 0.5 {
+	if math.Abs(y1-y2) < 0.1 {
 		if layer1 < layer2 {
 			return true
 		}else if layer1 > layer2 {
@@ -74,12 +74,12 @@ type WObj struct {
 	img *DayNightAnim
 	layer int8
 	Hitbox, Drawbox *Rectangle
-	frame, squareSize int
+	squareSize int
 	Name string
 }
 //Copys the WObj
 func (o *WObj) Copy() (o2 *WObj) {
-	o2 = &WObj{o.img.Copy(), o.layer, o.Hitbox.Copy(), o.Drawbox.Copy(), o.frame, o.squareSize, o.Name}
+	o2 = &WObj{o.img.Copy(), o.layer, o.Hitbox.Copy(), o.Drawbox.Copy(), o.squareSize, o.Name}
 	return
 }
 //Updates the animation
@@ -145,7 +145,7 @@ func (o *WObj) Draw(screen *ebiten.Image, lv int16, leftTopX, leftTopY, xStart, 
 	o.img.SetParams(x+xStart,y+yStart, float64(o.Drawbox.Bounds().X)*sqSize, float64(o.Drawbox.Bounds().Y)*sqSize)
 	o.img.LightLevel = lv
 	o.img.DrawAnim(screen)
-	o.frame ++
+	//o.frame ++
 }
 //Sets the animation the WObj is using
 func (o *WObj) SetAnim(anim *DayNightAnim) {
@@ -174,9 +174,27 @@ func GetWObjFromParams(img *ebiten.Image, p *Params, name string) (o *WObj) {
 	XPos := p.Get("XPos")
 	YPos := p.Get("YPos")
 	sqSize := int(p.Get("squareSize"))
-	anim := GetDayNightAnim(1,1,1,1, spW, uP, img)
-	o = GetWObj(anim, hitBoxW, hitBoxH, XPos, YPos, sqSize, layer, name)
-	return
+	if img != nil {
+		return GetWObj(GetDayNightAnim(1,1,1,1, spW, uP, img), hitBoxW, hitBoxH, XPos, YPos, sqSize, layer, name)
+	}
+	return GetWObj(nil, hitBoxW, hitBoxH, XPos, YPos, sqSize, layer, name)
+}
+func GetEmptyWObjFromPath(name, path string) (*WObj, error) {
+	ps := &Params{}; err := ps.LoadFromFile(path+".txt")
+	if err != nil {return nil,err}
+	return GetWObjFromParams(nil, ps, name), nil
+}
+//provide at least on path
+func GetWObjFromPathAndAnim(name, path string, anim *DayNightAnim) (*WObj, error) {
+	p := &Params{}; err := p.LoadFromFile(path+".txt")
+	if err != nil {return nil,err}
+	layer := int8(p.Get("layer"))
+	hitBoxW := p.Get("hitBoxWidth")
+	hitBoxH := p.Get("hitBoxHeight")
+	XPos := p.Get("XPos")
+	YPos := p.Get("YPos")
+	sqSize := int(p.Get("squareSize"))
+	return GetWObj(anim, hitBoxW, hitBoxH, XPos, YPos, sqSize, layer, name), nil
 }
 //provide at least on path
 func GetWObjFromPath(name string, path ...string) (*WObj, error) {
@@ -225,8 +243,8 @@ func GetWObj(img *DayNightAnim, HitboxW,HitboxH, x, y float64, squareSize int, l
 	o.Hitbox = GetRectangle(x,y, x+HitboxW, y+HitboxH)
 	if img != nil {
 		o.img.Update(0)
+		o.SetTopLeft(x, y)
 	}
-	o.SetTopLeft(x, y)
 	return
 }
 

@@ -27,7 +27,9 @@ func (ps *Points) Fill(screen *ebiten.Image, col color.Color) {
 	}
 	path.Fill(screen, op)
 }
-
+func GetHorizontalBar(x,y,w,h float64) *Points {
+	return GetLineOfPoints(x,y+h/2, x+w, y+h/2, h/2)
+}
 func GetLineOfPoints(x1,y1, x2,y2, thickness float64) *Points {
 	ps := make([]*Vector, 4)
 	

@@ -78,6 +78,26 @@ func getTabView(Names []string, screens []UpdateAble, X, Y, W, H, TabH float64, 
 	}
 	return v
 }
+func getTabViewWithTwoImages(up, down []*ebiten.Image, screens []UpdateAble, X, Y, W, H, TabH float64, dis float64, curr int) (v *TabView) {
+	v = &TabView{X, Y, W, H, TabH,  nil, GetGroup(screens...), curr}
+	TabBtns := make([]UpdateAble, len(up))
+	for i,_ := range(up) {
+		img := &ImageObj{up[i], nil, W, H, X, Y, 0}
+		dark := ReduceColorImage(img.Img, ReduceColOnButtonDown)
+		TabBtns[i] = GetButton(img, dark)
+		TabBtns[i].(*Button).RegisterOnEvent(v.OnClick)
+		TabBtns[i].(*Button).Img.ScaleToOriginalSize()
+		TabBtns[i].(*Button).Img.ScaleToY(TabH)
+		TabBtns[i].(*Button).Data = i
+	}
+	v.TabBtns = GetGroup(TabBtns...)
+	for i,mmb := range(v.TabBtns.Members[1:]) {
+		tab := mmb.(*Button)
+		tabm1 := v.TabBtns.Members[i].(*Button)
+		tab.Img.X = (tabm1.Img.X+tabm1.Img.W+W*dis)
+	}
+	return v
+}
 func getTabViewWithImages(imgs []*ebiten.Image, screens []UpdateAble, X, Y, W, H, TabH float64, dis float64, curr int) (v *TabView) {
 	v = &TabView{X, Y, W, H, TabH,  nil, GetGroup(screens...), curr}
 	TabBtns := make([]UpdateAble, len(imgs))

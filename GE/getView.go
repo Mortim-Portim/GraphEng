@@ -10,7 +10,13 @@ import (
 )
 
 //BUTTONS -------------------------------------------------------------------------------------------------------------------------------
-
+func LoadButton(pathU, pathD string, X, Y, W, H float64) (*Button, error) {
+	up, err := LoadEbitenImg(pathU)
+	if err != nil {return nil, err}
+	down, err := LoadEbitenImg(pathD)
+	if err != nil {return nil, err}
+	return GetUpDownImageButton(up, down, X,Y,W,H), nil
+}
 //Returns a Button showing a ImageObj
 func GetButton(img *ImageObj, dark *ebiten.Image) *Button {
 	b := &Button{}
@@ -20,14 +26,16 @@ func GetButton(img *ImageObj, dark *ebiten.Image) *Button {
 	b.Active = true
 	return b
 }
-
 //Returns a Button with Text of a specific color on it
 func GetTextButton(str, downStr string, ttf *truetype.Font, X, Y, H float64, textCol, backCol color.Color) *Button {
 	img := GetTextImage(str, X, Y, H, ttf, textCol, backCol)
 	dark := GetTextImage(downStr, X, Y, H, ttf, textCol, ReduceColor(backCol, ReduceColOnButtonDown))
 	return GetButton(img, dark.Img)
 }
-
+func GetUpDownImageButton(up, down *ebiten.Image, X, Y, W, H float64) *Button {
+	img := &ImageObj{up, nil, W, H, X, Y, 0}
+	return GetButton(img, down)
+}
 //Returns a standard Button of an Image
 func GetImageButton(eimg *ebiten.Image, X, Y, W, H float64) *Button {
 	img := &ImageObj{eimg, nil, W, H, X, Y, 0}
@@ -82,6 +90,7 @@ type TabViewParams struct {
 
 	Nms  []string
 	Imgs []*ebiten.Image
+	Dark []*ebiten.Image
 }
 
 func (p *TabViewParams) fillDefault() {
@@ -105,8 +114,12 @@ func (p *TabViewParams) fillDefault() {
 //Returns a TabView Created using TabViewParams
 func GetTabView(p *TabViewParams) *TabView {
 	p.fillDefault()
-	if p.Imgs != nil {
-		return getTabViewWithImages(p.Imgs, p.Scrs, p.X, p.Y, p.W, p.H, p.TabH, p.Dis, p.Curr)
+	if len(p.Imgs) > 0 {
+		if len(p.Dark) > 0 {
+			return getTabViewWithTwoImages(p.Imgs, p.Dark, p.Scrs, p.X, p.Y, p.W, p.H, p.TabH, p.Dis, p.Curr)
+		}else{
+			return getTabViewWithImages(p.Imgs, p.Scrs, p.X, p.Y, p.W, p.H, p.TabH, p.Dis, p.Curr)
+		}
 	}
 	return getTabView(p.Nms, p.Scrs, p.X, p.Y, p.W, p.H, p.TabH, p.TTF, p.Text, p.Back, p.Dis, p.Curr)
 }

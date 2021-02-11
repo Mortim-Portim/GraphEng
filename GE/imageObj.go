@@ -266,6 +266,10 @@ func SaveImage(path string, img image.Image) error {
 func SaveEbitenImage(path string, img *ebiten.Image) error {
 	return SaveImage(path, (image.Image)(img))
 }
+func GetScaleOfEbitenImage(img *ebiten.Image) float64 {
+	w,h := img.Size()
+	return float64(w)/float64(h)
+}
 //Loads all Icons from a path with a list of sizes and a fileformat ("./64.png")
 func InitIcons(path string, sizes []int, fileformat string) ([]image.Image, error) {
 	imgs := make([]image.Image, len(sizes))

@@ -74,6 +74,9 @@ type WorldStructure struct {
 	xTilesAbs, yTilesAbs, xTilesS, yTilesS, middleDx, middleDy int
 	xStart, yStart, tileS                                      float64
 }
+func (p *WorldStructure) GetDrawer() *ImageObj {
+	return p.drawer
+}
 func (p *WorldStructure) Size() (int, int) {
 	return p.xTilesAbs, p.yTilesAbs
 }

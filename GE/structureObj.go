@@ -65,6 +65,7 @@ func (o *StructureObj) Draw(screen *ebiten.Image, lv int16, leftTopX, leftTopY, 
 	}
 }
 func (o *StructureObj) drawImg(img *DayNightAnim, screen *ebiten.Image, lv int16, leftTopX, leftTopY, sqSize, xStart, yStart float64) {
+	img.Update(o.frame)
 	y := (o.Drawbox.Min().Y-leftTopY)*sqSize
 	x := (o.Drawbox.Min().X-leftTopX)*sqSize
 	img.SetParams(x+xStart,y+yStart, float64(o.Drawbox.Bounds().X)*sqSize, float64(o.Drawbox.Bounds().Y)*sqSize)

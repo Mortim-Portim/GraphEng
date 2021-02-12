@@ -38,6 +38,9 @@ type ImageObj struct {
 	Img *ebiten.Image; OriginalImg *image.Image
 	W, H, X, Y, Angle float64
 }
+func (obj *ImageObj) SetBottomRight(x,y float64) {
+	obj.X = x-obj.W; obj.Y = y-obj.H
+}
 //Sets the middle of the Image to x,y
 func (obj *ImageObj) SetMiddle(x,y float64) {
 	obj.X = x-obj.W/2; obj.Y = y-obj.H/2

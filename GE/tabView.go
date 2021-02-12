@@ -83,7 +83,7 @@ func getTabViewWithTwoImages(up, down []*ebiten.Image, screens []UpdateAble, X, 
 	TabBtns := make([]UpdateAble, len(up))
 	for i,_ := range(up) {
 		img := &ImageObj{up[i], nil, W, H, X, Y, 0}
-		dark := ReduceColorImage(img.Img, ReduceColOnButtonDown)
+		dark := down[i]
 		TabBtns[i] = GetButton(img, dark)
 		TabBtns[i].(*Button).RegisterOnEvent(v.OnClick)
 		TabBtns[i].(*Button).Img.ScaleToOriginalSize()

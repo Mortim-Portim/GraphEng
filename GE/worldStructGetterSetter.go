@@ -53,6 +53,7 @@ func (p *WorldStructure) SetMiddle(xP, yP int, force bool) {
 		p.TileMat.CopyFocus(p.LIdxMat)
 		p.TileMat.CopyFocus(p.LightMat)
 		p.TileMat.CopyFocus(p.ObjMat)
+		p.TileMat.CopyFocus(p.RegionMat)
 		r,err := p.RegionMat.GetAbs(xP,yP)
 		if err != nil && int(r) != p.CurrentRegion {
 			if p.OnRegionChange != nil {

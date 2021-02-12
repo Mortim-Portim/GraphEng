@@ -37,7 +37,7 @@ var (
 	EditText_Back_Col = &(color.RGBA{40,40,40,200})
 	
 	ReduceColOnButtonDown = 100
-	MoveOnButtonDown = 1.0/20.0
+	MoveOnButtonDown = 0.0//1.0/20.0
 	
 	
 	TabBack_Col = &(color.RGBA{255,255,255,255})

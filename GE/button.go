@@ -8,10 +8,15 @@ type Button struct {
 	Img         *ImageObj
 	dark, light *ebiten.Image
 
-	LPressed, RPressed, LastL, LastR, Active, DrawDark bool
+	LPressed, RPressed, LastL, LastR, Active, DrawDark, ChangeDrawDarkOnLeft bool
 	onPressLeft, onPressRight                          func(b *Button)
 	Data                                               interface{}
 }
+
+/**
+TODO
+Use JustDown and check for other buttons that are pressed
+**/
 
 /**
 Button represents a struct, which should be updated every frame
@@ -22,7 +27,6 @@ It can be created from a Image or using Text
 
 Button implements UpdateAble
 **/
-
 func (b *Button) Reset() {
 	b.LPressed = false
 	b.RPressed = false
@@ -55,16 +59,18 @@ func (b *Button) Update(frame int) {
 		b.LPressed = false
 		b.RPressed = false
 		x, y := ebiten.CursorPosition()
-		if int(b.Img.X) <= x && x < int(b.Img.X+b.Img.W) && int(b.Img.Y) <= y && y < int(b.Img.Y+b.Img.H) {
-			if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
-				b.LPressed = true
-			}
-			if ebiten.IsMouseButtonPressed(ebiten.MouseButtonRight) {
-				b.RPressed = true
-			}
+		hasFocus := int(b.Img.X) <= x && x < int(b.Img.X+b.Img.W) && int(b.Img.Y) <= y && y < int(b.Img.Y+b.Img.H)
+		if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) && (hasFocus || b.LastL) {
+			b.LPressed = true
+		}
+		if ebiten.IsMouseButtonPressed(ebiten.MouseButtonRight) && (hasFocus || b.LastR) {
+			b.RPressed = true
 		}
 		if b.LPressed != b.LastL {
 			if b.onPressLeft != nil {
+				if b.ChangeDrawDarkOnLeft {
+					b.DrawDark = !b.DrawDark
+				}
 				b.onPressLeft(b)
 			}
 		}

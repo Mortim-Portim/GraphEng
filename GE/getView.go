@@ -10,12 +10,14 @@ import (
 )
 
 //BUTTONS -------------------------------------------------------------------------------------------------------------------------------
-func LoadButton(pathU, pathD string, X, Y, W, H float64) (*Button, error) {
+func LoadButton(pathU, pathD string, X, Y, W, H float64, ChangeDrawDarkOnLeft bool) (*Button, error) {
 	up, err := LoadEbitenImg(pathU)
 	if err != nil {return nil, err}
 	down, err := LoadEbitenImg(pathD)
 	if err != nil {return nil, err}
-	return GetUpDownImageButton(up, down, X,Y,W,H), nil
+	btn := GetUpDownImageButton(up, down, X,Y,W,H)
+	btn.ChangeDrawDarkOnLeft = ChangeDrawDarkOnLeft
+	return btn, nil
 }
 //Returns a Button showing a ImageObj
 func GetButton(img *ImageObj, dark *ebiten.Image) *Button {

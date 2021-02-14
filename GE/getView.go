@@ -127,7 +127,26 @@ func GetTabView(p *TabViewParams) *TabView {
 }
 
 //SCROLLBAR ------------------------------------------------------------------------------------------------------------------------------
-
+//Returns a horizontal ScrollBar
+func GetImageScrollbarFromPath(X, Y, W, H float64, bar, pointer string, min, max, current int, ttf *truetype.Font) (*ScrollBar, error) {
+	b := &ScrollBar{min: min, max: max, current: current, ttf: ttf}
+	bar_i, err := LoadEbitenImg(bar)
+	if err != nil {return nil, err}
+	pointer_i, err := LoadEbitenImg(pointer)
+	if err != nil {return nil, err}
+	b.Img = bar_i
+	b.X = X
+	b.Y = Y
+	b.W = W
+	b.H = H
+	b.pointer = &ImageObj{Y: Y - H/2, W: H * 2, H: H * 2}
+	b.value = &ImageObj{Y: Y - H/2, W: H * 2, H: H * 2}
+	b.pointer.Img = pointer_i
+	b.length = max - min
+	b.stepsize = W / float64(b.length)
+	b.UpdatePos()
+	return b, nil
+}
 //Returns a horizontal ScrollBar
 func GetImageScrollbar(X, Y, W, H float64, bar, pointer *ebiten.Image, min, max, current int, ttf *truetype.Font) (b *ScrollBar) {
 	b = &ScrollBar{min: min, max: max, current: current, ttf: ttf}

@@ -23,7 +23,7 @@ ScrollBar implements UpdateAble
 type ScrollBar struct {
 	ImageObj
 	pointer, value *ImageObj
-	focused bool
+	focused,hideValue bool
 	min, max, length, current int
 	stepsize, relAbsPos float64
 	ttf *truetype.Font
@@ -57,7 +57,9 @@ func (b *ScrollBar)	Update(frame int) {
 func (b *ScrollBar)	Draw(screen *ebiten.Image) {
 	b.DrawImageObj(screen)
 	b.pointer.DrawImageObj(screen)
-	b.value.DrawImageObj(screen)
+	if !b.hideValue {
+		b.value.DrawImageObj(screen)
+	}
 }
 func (b *ScrollBar) UpdatePos() {
 	b.relAbsPos = float64(b.current-b.min)
@@ -79,3 +81,5 @@ func (b *ScrollBar) CheckChange(x float64) {
 	}
 	b.UpdatePos()
 }
+func (b *ScrollBar)	HideValue() {b.hideValue = true}
+func (b *ScrollBar)	ShowValue() {b.hideValue = false}

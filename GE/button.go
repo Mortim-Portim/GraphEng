@@ -2,6 +2,7 @@ package GE
 
 import (
 	"github.com/hajimehoshi/ebiten"
+	"github.com/hajimehoshi/ebiten/inpututil"
 )
 
 type Button struct {
@@ -56,16 +57,19 @@ func (b *Button) Stop(screen *ebiten.Image, data interface{}) {
 }
 func (b *Button) Update(frame int) {
 	if b.Active {
-		b.LPressed = false
-		b.RPressed = false
 		x, y := ebiten.CursorPosition()
 		hasFocus := int(b.Img.X) <= x && x < int(b.Img.X+b.Img.W) && int(b.Img.Y) <= y && y < int(b.Img.Y+b.Img.H)
-		if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) && (hasFocus || b.LastL) {
+		if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) && hasFocus {
 			b.LPressed = true
+		}else if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
+			b.LPressed = false
 		}
-		if ebiten.IsMouseButtonPressed(ebiten.MouseButtonRight) && (hasFocus || b.LastR) {
+		if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonRight) && hasFocus {
 			b.RPressed = true
+		}else if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonRight) {
+			b.RPressed = false
 		}
+		
 		if b.LPressed != b.LastL {
 			if b.onPressLeft != nil {
 				if b.ChangeDrawDarkOnLeft {

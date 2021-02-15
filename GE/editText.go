@@ -115,7 +115,12 @@ func (t *EditText) UpdateImg() {
 	}
 	t.ImageObj = *GetTextImage(text, t.X, t.Y, t.H, t.ttf, col, EditText_Back_Col)
 }
-
+func (t *EditText) GetPlaceHolderText() string {
+	return t.placeHolderText
+}
+func (t *EditText) SetPlaceHolderText(text string) {
+	t.placeHolderText = text
+}
 func (t *EditText) SetText(text string) {
 	t.text = text
 }

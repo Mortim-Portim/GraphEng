@@ -116,7 +116,7 @@ func (p *Params) LoadFromFile(path string) error {
     	ps := strings.Split(line, ":")
     	if len(ps) >= 2 {
     		fl, err2 := strconv.ParseFloat(ps[1], 64)
-    		p.strs[ps[0]] = ps[1]
+    		p.strs[ps[0]] = strings.Join(ps[1:], ":")
     		if err2 == nil {
 	    		p.p[ps[0]] = fl
     		}

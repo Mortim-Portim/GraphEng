@@ -2,7 +2,6 @@ package GE
 
 import (
 	"github.com/hajimehoshi/ebiten"
-	"reflect"
 	"errors"
 	"strings"
 	"sort"
@@ -54,20 +53,25 @@ func (dp *Drawables) Add(obj Drawable) (*Drawables) {
 	*dp = append(*dp, obj)
 	return dp
 }
-func (dp *Drawables) Remove(obj interface{}) (error, *Drawables) {
-	objType := reflect.TypeOf(obj)
-	i := sort.Search(len(*dp), func(idx int) bool {
-			tp := reflect.TypeOf((*dp)[idx])
-			if !tp.AssignableTo(objType) {return false}
-			if (*dp)[idx] == obj {return true}
-			return false
-	})
-	if i < 0 || i >= len(*dp) {
-		return errors.New(fmt.Sprintf("Cannot remove %s, %v does not exist", objType.String(), obj)), nil
+func (dp *Drawables) Remove(obj Drawable) (error, *Drawables) {
+	idx := -1
+	for i := 0; i < len(*dp); i++ {
+		if AreInterfacesEqual((*dp)[i], obj) {
+			idx = i
+			break
+		}
 	}
-	(*dp)[i] = (*dp)[len(*dp)-1]
+	if idx < 0 || idx >= len(*dp) {
+		return errors.New(fmt.Sprintf("Cannot remove %p from %v does not exist", obj, *dp)), nil
+	}
+	(*dp)[idx] = (*dp)[len(*dp)-1]
 	(*dp) = (*dp)[:len(*dp)-1]
 	return nil, dp
+}
+func AreInterfacesEqual(i1 interface{}, i2 interface{}) bool {
+	pnt1 := fmt.Sprintf("%p",i1)
+	pnt2 := fmt.Sprintf("%p",i2)
+	return pnt1 == pnt2
 }
 
 type WObj struct {

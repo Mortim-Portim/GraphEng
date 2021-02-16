@@ -416,6 +416,10 @@ func ShitImDying(err error) {
 		panic(err)
 	}
 }
+/**
+var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to `file`")
+var memprofile = flag.String("memprofile", "", "write memory profile to `file`")
+**/
 var CPU_PROF_F *os.File
 func StartProfiling(cpuprofile *string) {
 	if *cpuprofile != "" {

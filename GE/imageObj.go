@@ -13,6 +13,9 @@ import (
 	"math"
 	"errors"
 )
+func NewImageObj(img *image.Image, eimg *ebiten.Image, X,Y,W,H, angle float64) *ImageObj {
+	return &ImageObj{eimg, img, W, H, X, Y, angle}
+}
 //Loads the Image in Original Resolution
 func LoadImgObj(path string, width, height, x, y, angle float64) (*ImageObj, error) {
 	err, img := LoadImg(path)

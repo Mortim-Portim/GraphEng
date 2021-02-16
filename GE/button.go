@@ -13,7 +13,12 @@ type Button struct {
 	onPressLeft, onPressRight                          func(b *Button)
 	Data                                               interface{}
 }
-
+func (b *Button) UpImg() *ebiten.Image {
+	return b.light
+}
+func (b *Button) DownImg() *ebiten.Image {
+	return b.dark
+}
 /**
 TODO
 Use JustDown and check for other buttons that are pressed
@@ -28,6 +33,9 @@ It can be created from a Image or using Text
 
 Button implements UpdateAble
 **/
+func (b *Button) Copy() *Button {
+	return &Button{b.Img.Copy(),b.dark,b.light,b.LPressed,b.RPressed,b.LastL,b.LastR,b.Active,b.DrawDark,b.ChangeDrawDarkOnLeft,b.onPressLeft,b.onPressRight,b.Data}
+}
 func (b *Button) Reset() {
 	b.LPressed = false
 	b.RPressed = false

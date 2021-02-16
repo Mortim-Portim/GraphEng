@@ -16,7 +16,7 @@ EditText should be called every frame and handels user text input
 A standard Text for an empty EditText can be supplied
 
 EditText only displays the following Runes:
-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz/.
+0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz/.:
 
 The maximum number of Runes contained by EditText is specified by MaxRunes
 

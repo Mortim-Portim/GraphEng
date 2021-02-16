@@ -12,7 +12,8 @@ import (
 	"runtime/debug"
 	"strings"
 	"time"
-
+	"log"
+	"runtime/pprof"
 	"github.com/golang/freetype/truetype"
 	"github.com/hajimehoshi/ebiten"
 	"github.com/hajimehoshi/ebiten/inpututil"
@@ -70,19 +71,42 @@ func ParseFont(path string) *truetype.Font {
 	return tt
 }
 
-//Draws text of the given font on an Image
-func MakePopUp(str string, size float64, ttf *truetype.Font, textCol, backCol color.Color) *ebiten.Image {
+var TTF_FACES = make(map[*truetype.Font]font.Face)
+func GetFace(ttf *truetype.Font) font.Face {
+	fc, ok := TTF_FACES[ttf]
+	if ok {return fc}
 	mplusNormalFont := truetype.NewFace(ttf, &truetype.Options{
-		Size:    size,
+		Size:    StandardFontSize,
 		DPI:     96,
 		Hinting: font.HintingFull,
 	})
-	w, h := MeasureString(str, mplusNormalFont)
+	TTF_FACES[ttf] = mplusNormalFont
+	return mplusNormalFont
+}
+//Draws text of the given font on an Image
+func MakePopUp(str string, ttf *truetype.Font, textCol, backCol color.Color) *ebiten.Image {
+	fnt := GetFace(ttf)
+	w, h := MeasureString(str, fnt)
 
 	popUpBack, _ := ebiten.NewImage(w, h, ebiten.FilterDefault)
 	popUpBack.Fill(backCol)
 	xP, yP := h/6, h/4*3
-	text.Draw(popUpBack, str, mplusNormalFont, int(xP), int(yP), textCol)
+	text.Draw(popUpBack, str, fnt, int(xP), int(yP), textCol)
+	return popUpBack
+}
+
+func MakePopUpOld(str string, size float64, ttf *truetype.Font, textCol, backCol color.Color) *ebiten.Image {
+	fnt := truetype.NewFace(ttf, &truetype.Options{
+		Size:    size,
+		DPI:     96,
+		Hinting: font.HintingFull,
+	})
+	w, h := MeasureString(str, fnt)
+
+	popUpBack, _ := ebiten.NewImage(w, h, ebiten.FilterDefault)
+	popUpBack.Fill(backCol)
+	xP, yP := h/6, h/4*3
+	text.Draw(popUpBack, str, fnt, int(xP), int(yP), textCol)
 	return popUpBack
 }
 
@@ -90,7 +114,7 @@ func MakePopUp(str string, size float64, ttf *truetype.Font, textCol, backCol co
 func GetTextImage(textStr string, X, Y, H float64, ttf *truetype.Font, txtCol, backCol color.Color) *ImageObj {
 	imgo := &ImageObj{H: H, X: X, Y: Y}
 	if len(textStr) > 0 {
-		textImg := MakePopUp(textStr, StandardFontSize, ttf, txtCol, &color.RGBA{0, 0, 0, 0})
+		textImg := MakePopUp(textStr, ttf, txtCol, &color.RGBA{0, 0, 0, 0})
 		w, h := textImg.Size()
 		W := float64(w) * H / float64(h)
 		imgo.W = W
@@ -275,6 +299,35 @@ func genVertices(X, Y, R float64, num int) *Points {
 	return &ps
 }
 
+func GetAllFiles(root string) ([]string, error) {
+	if root[len(root)-1:] != "/" {root += "/"}
+	var files []string
+	f, err := os.Open(root)
+	if err != nil {return files, err}
+	fileInfo, err := f.Readdir(-1)
+	f.Close()
+	if err != nil {return files, err}
+	err = AppendAllFilesInAllFolders(&files, root, fileInfo)
+	return files, nil
+}
+func AppendAllFilesInAllFolders(files *[]string, root string, folderFs []os.FileInfo) error {
+	if root[len(root)-1:] != "/" {root += "/"}
+	for _, file := range folderFs {
+		if !file.IsDir() {
+			*files = append(*files, root+file.Name())
+		}else{
+			path := root+file.Name()+"/"
+			f, err := os.Open(path)
+			if err != nil {return err}
+			fileInfo, err := f.Readdir(-1)
+			f.Close()
+			if err != nil {return err}
+			err = AppendAllFilesInAllFolders(files, path, fileInfo)
+			if err != nil {return err}
+		}
+	}
+	return nil
+}
 func OSReadDir(root string) ([]string, error) {
 	if root[len(root)-1:] != "/" {
 		root += "/"
@@ -361,5 +414,35 @@ func ShitImDying(err error) {
 			}
 		}()
 		panic(err)
+	}
+}
+var CPU_PROF_F *os.File
+func StartProfiling(cpuprofile *string) {
+	if *cpuprofile != "" {
+        f, err := os.Create(*cpuprofile)
+        if err != nil {
+            log.Fatal("could not create CPU profile: ", err)
+        }
+        CPU_PROF_F = f
+        if err := pprof.StartCPUProfile(CPU_PROF_F); err != nil {
+            log.Fatal("could not start CPU profile: ", err)
+        }
+    }
+}
+func StopProfiling(cpuprofile, memprofile *string) {
+	if *memprofile != "" {
+        f, err := os.Create(*memprofile)
+        if err != nil {
+            log.Fatal("could not create memory profile: ", err)
+        }
+        runtime.GC() // get up-to-date statistics
+        if err := pprof.WriteHeapProfile(f); err != nil {
+            log.Fatal("could not write memory profile: ", err)
+        }
+        f.Close()
+    }
+	if *cpuprofile != "" {
+		pprof.StopCPUProfile()
+		CPU_PROF_F.Close()
 	}
 }

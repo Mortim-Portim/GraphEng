@@ -35,6 +35,11 @@ func LoadSoundTrack(path string, maximumWaitingLength int) (*SoundTrack, error) 
 	}()
 	return s,nil
 }
+func (t *SoundTrack) GetCurrent() *AudioPlayer {
+	ap, ok := t.Tracks[t.current]
+	if ok {return ap}
+	return nil
+}
 func (t *SoundTrack) onTrackAlmostFinished() {
 	if t.OnFinished != nil {t.OnFinished()}
 	if t.NextTrack == t.current {t.NextTrack = ""}

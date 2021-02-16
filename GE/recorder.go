@@ -3,9 +3,9 @@ package GE
 import (
 	"github.com/hajimehoshi/ebiten"
 	"github.com/icza/mjpeg"
+	"runtime/debug"
 	"image/color"
 	"image/jpeg"
-	"runtime"
 	"bytes"
 	"fmt"
 	"os"
@@ -47,7 +47,7 @@ func (r *Recorder) NextFrame(img *ebiten.Image) {
 		r.current ++
 		if r.current >= r.frames {
 			r.current = 0
-			runtime.GC()
+			debug.FreeOSMemory()
 		}
 		//copys the background
 		newImg := DeepCopyEbitenImage(r.back)

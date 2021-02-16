@@ -23,7 +23,7 @@ func BoolsToBytes(bls ...bool) (bs []byte) {
 	}
 	return
 }
-func BytesToBool(bs []byte) (bls []bool) {
+func BytesToBools(bs []byte) (bls []bool) {
 	bls = make([]bool, len(bs)*8)
 	for i,b := range(bs) {
 		for i2 := 0; i2 < 8; i2++ {
@@ -110,6 +110,29 @@ func BoolToByte(b bool) byte {
 }
 func ByteToBool(b byte) (bool) {
 	return b == 0
+}
+//Converts an float64 into a [4]byte slice
+func Float32ToBytes(f float32) []byte {
+	return GetBytesOfVar(f)
+}
+//Converts a [4]byte slice into a float32
+func BytesToFloat32(bs []byte) (f float32) {
+	GetVarFromBytes(bs, &f)
+	return
+}
+func Float32sToBytes(fs ...float32) (bs []byte) {
+	bs = make([]byte, len(fs)*4)
+	for i,f := range(fs) {
+		copy(bs[i*4:i*4+4], Float32ToBytes(f))
+	}
+	return
+}
+func BytesToFloat32s(bs []byte) (fs []float32) {
+	fs = make([]float32, len(bs)/4)
+	for i,_ := range(fs) {
+		fs[i] = BytesToFloat32(bs[i*4:i*4+4])
+	}
+	return
 }
 //Converts an float64 into a [8]byte array
 func Float64ToBytes(f float64) []byte {

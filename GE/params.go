@@ -117,6 +117,7 @@ func (p *Params) LoadFromFile(path string) error {
     	if len(ps) >= 2 {
     		fl, err2 := strconv.ParseFloat(ps[1], 64)
     		p.strs[ps[0]] = strings.Join(ps[1:], ":")
+    		fmt.Printf("Loading Param '%s': %v = '%s'\n", ps[0], ps[1:], strings.Join(ps[1:], ":"))
     		if err2 == nil {
 	    		p.p[ps[0]] = fl
     		}
@@ -156,6 +157,13 @@ func (p *Params) SetS(key, val string) {
 func (p *Params) Set(key string, val float64) {
 	p.p[key] = val
 	p.strs[key] = fmt.Sprintf("%0.8f",val)
+}
+func (p *Params) SetBool(key string, val bool) {
+	if val {
+		p.SetS(key, "true")
+	}else{
+		p.SetS(key, "false")
+	}
 }
 //returns the boolean value
 func (p *Params) GetBool(key string, standard bool) bool {

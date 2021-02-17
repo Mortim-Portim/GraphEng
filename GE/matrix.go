@@ -1,13 +1,15 @@
 package GE
 
 import (
-	"errors"
 	"fmt"
+	"errors"
 	"io/ioutil"
 	"math/big"
 
 	cmp "github.com/mortim-portim/GraphEng/Compression"
 )
+
+var ERROR_COORDS_NOT_ON_MATRIX = errors.New("Coordinates not on matrix")
 
 /**
 Matrix is a struct that can store a 2 dimensional array of a maximum width and height of 65535
@@ -123,7 +125,7 @@ func (m *Matrix) Clone() *Matrix {
 //Returns the value of the matrix at the absolute x and y coordinates
 func (m *Matrix) GetAbs(x, y int) (int64, error) {
 	if x < 0 || y < 0 || x >= m.WAbs() || y >= m.HAbs() {
-		return 0, errors.New(fmt.Sprintf("Coordinates (%v:%v) not on matrix", x, y))
+		return 0, ERROR_COORDS_NOT_ON_MATRIX
 	}
 	return m.list[x+m.WAbs()*y], nil
 }
@@ -137,7 +139,7 @@ func (m *Matrix) SetAbs(x, y int, v int64) {
 }
 func (m *Matrix) XYtoIDX(x, y int) (int, error) {
 	if x >= m.WAbs() || y >= m.HAbs() {
-		return 0, errors.New(fmt.Sprintf("Coordinates (%v:%v) not on matrix", x, y))
+		return 0, ERROR_COORDS_NOT_ON_MATRIX
 	}
 	return x + m.WAbs()*y, nil
 }
@@ -146,7 +148,7 @@ func (m *Matrix) IDXtoXY(idx int) (int, int, error) {
 	x := idx % m.WAbs()
 	y := (idx - (idx % csm1)) / csm1
 	if x >= m.WAbs() || y >= m.HAbs() {
-		return 0, 0, errors.New(fmt.Sprintf("Coordinates (%v:%v) not on matrix", x, y))
+		return 0, 0, ERROR_COORDS_NOT_ON_MATRIX
 	}
 	return x, y, nil
 }
@@ -154,7 +156,7 @@ func (m *Matrix) IDXtoXY(idx int) (int, int, error) {
 //Returns the value of the matrix at the index
 func (m *Matrix) GetAbsByIdx(idx int) (int64, error) {
 	if idx < 0 || idx >= len(m.list) {
-		return 0, errors.New(fmt.Sprintf("Index: %v not on matrix with w:%v, h:%v, wAbs:%v, hAbs:%v, lx:%v, ly:%v", idx, int(m.focus.Bounds().X), int(m.focus.Bounds().Y), m.WAbs(), m.HAbs(), int(m.focus.Min().X), int(m.focus.Min().Y)))
+		return 0, fmt.Errorf("Index: %v not on matrix with w:%v, h:%v, wAbs:%v, hAbs:%v, lx:%v, ly:%v", idx, int(m.focus.Bounds().X), int(m.focus.Bounds().Y), m.WAbs(), m.HAbs(), int(m.focus.Min().X), int(m.focus.Min().Y))
 	}
 	return m.list[idx], nil
 }
@@ -163,7 +165,7 @@ func (m *Matrix) GetAbsByIdx(idx int) (int64, error) {
 func (m *Matrix) Get(x, y int) (int64, error) {
 	xl, yl := int(m.focus.Min().X)+x, int(m.focus.Min().Y)+y
 	if xl < 0 || xl >= m.WAbs() || yl < 0 || yl >= m.HAbs() {
-		return 0, errors.New(fmt.Sprintf("Coordinates (%v:%v) not on matrix with w:%v, h:%v, xl:%v, yl:%v, wAbs:%v, hAbs:%v, lx:%v, ly:%v", x, y, int(m.focus.Bounds().X), int(m.focus.Bounds().Y), xl, yl, m.WAbs(), m.HAbs(), int(m.focus.Min().X), int(m.focus.Min().Y)))
+		return 0, ERROR_COORDS_NOT_ON_MATRIX//fmt.Errorf("Coordinates (%v:%v) not on matrix with w:%v, h:%v, xl:%v, yl:%v, wAbs:%v, hAbs:%v, lx:%v, ly:%v", x, y, int(m.focus.Bounds().X), int(m.focus.Bounds().Y), xl, yl, m.WAbs(), m.HAbs(), int(m.focus.Min().X), int(m.focus.Min().Y))
 	}
 	idx := xl + m.WAbs()*yl
 	if idx >= len(m.list) {
@@ -216,7 +218,7 @@ func (m *Matrix) GetNearest(x, y int) (int64, error) {
 	if Y >= H {
 		return m.Get(x, m.H()-1)
 	}
-	return 0, errors.New(fmt.Sprintf("Should not be reached: x:%v, y:%v, w:%v, h:%v", X, Y, W, H))
+	return 0, fmt.Errorf("Should not be reached: x:%v, y:%v, w:%v, h:%v", X, Y, W, H)
 }
 
 //Sets the value of the focused matrix at the x and y coordinates

@@ -371,7 +371,7 @@ func main() {
 
 	g := &TestGame{newWrld, GE.GetNewRecorder(FPS*5, 1280, 720, FPS), nil, 0}
 
-	cf, err := TNE.GetEntityFactory("./res/creatures/", &g.frame, 3, nil)
+	cf, err := TNE.GetEntityFactory("./res/creatures/", &g.frame, 3)
 	GE.ShitImDying(err)
 
 	prepStart := time.Now()

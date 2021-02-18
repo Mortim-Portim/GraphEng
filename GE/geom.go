@@ -109,7 +109,13 @@ func (r *Rectangle) Bounds() *Point { return r.bounds }
 func (r *Rectangle) updateBounds() {
 	r.bounds = &Point{r.max.X - r.min.X, r.max.Y - r.min.Y}
 }
-
+func (r *Rectangle) Inside(r2 *Rectangle) bool {
+	if r.Min().X > r2.Min().X && r.Min().Y > r2.Min().Y && 
+		r.Max().X < r2.Max().X && r.Max().Y < r2.Max().Y {
+		return true
+	}
+	return false
+}
 func (r *Rectangle) Overlaps(r2 *Rectangle) bool {
 	// If one rectangle is on left side of other
 	if r.Min().X >= r2.Max().X || r2.Min().X >= r.Max().X {

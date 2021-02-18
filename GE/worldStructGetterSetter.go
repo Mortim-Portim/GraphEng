@@ -2,6 +2,8 @@ package GE
 
 import (
 	"math"
+	"time"
+	"fmt"
 )
 
 func (p *WorldStructure) MoveSmooth(dx, dy int, update, force bool) {
@@ -133,53 +135,33 @@ func (p *WorldStructure) AddStructObj(obj ...*StructureObj) {
 	}
 	p.Objects = append(p.Objects, obj...)
 }
-
+func GetStandardTimeToLvFunc(minL, maxL float64) func(secs int)(lv int16) {
+	return func(x int)int16{
+		return int16(minL+(maxL-minL)*0.5*(1+math.Sin((math.Pi/43200)*float64(x)-0.5*math.Pi)))
+	}
+}
 func (p *WorldStructure) SetLightLevel(newL int16) {
 	p.lightLevel = newL
-	if newL > p.maxLight {
-		p.lightLevel = p.maxLight
-		p.deltaB *= -1
-	}
-	if newL < p.minLight {
-		p.lightLevel = p.minLight
-		p.deltaB *= -1
-	}
-}
-//Updates the background lightlevel
-func (p *WorldStructure) UpdateLightLevel(ticks float64) {
-	p.currentD += p.deltaB*ticks
-	if math.Abs(p.currentD) >= 1 {
-		p.SetLightLevel(p.GetLightLevel()+int16(p.currentD))
-		p.currentD = 0
-	}
-}
-//Downdate the background lightlevel
-func (p *WorldStructure) DowndateLightLevel(ticks float64, count int) {
-	deltaB := p.deltaB
-	for i := 0; i < count; i++ {
-		p.currentD -= deltaB*ticks
-		if math.Abs(p.currentD) >= 1 {
-			p.lightLevel += int16(p.currentD)
-			if p.lightLevel > p.maxLight {
-				p.lightLevel = p.maxLight
-				deltaB *= -1
-			}
-			if p.lightLevel < p.minLight {
-				p.lightLevel = p.minLight
-				deltaB *= -1
-			}
-			p.currentD = 0
-		}
-	}
 }
 func (p *WorldStructure) GetLightLevel() int16 {
 	return p.lightLevel
 }
-
-func (p *WorldStructure) SetLightStats(min, max int16, lightChange float64) {
-	p.minLight = min
-	p.maxLight = max
-	p.lightLevel = max
-	p.deltaB = -lightChange
-	p.currentD = 0
+//Updates the background lightlevel
+func (p *WorldStructure) UpdateTime(t time.Duration) {
+	p.CurrentTime.Add(t)
+	p.SetLightLevel(p.TimeToLV(p.TimeToSec()))
+}
+func (p *WorldStructure) SetLightStats(maxLightLevel int16, f func(secs int)(lv int16)) {
+	p.TimeToLV = f
+	p.maxLightLevel = maxLightLevel
+	p.UpdateTime(0)
+}
+func (p *WorldStructure) TimeHM() string {
+	return fmt.Sprintf("%v:%v", p.CurrentTime.Hour(), p.CurrentTime.Minute())
+}
+func (p *WorldStructure) TimeToSec() int {
+	return HMStoS(p.CurrentTime.Clock())
+}
+func HMStoS(h,m,s int) int {
+	return h*60*60+m*60+s
 }

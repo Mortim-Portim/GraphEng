@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image/color"
 	"math"
+	"time"
 	"github.com/hajimehoshi/ebiten"
 	cmp "github.com/mortim-portim/GraphEng/Compression"
 )
@@ -20,6 +21,8 @@ func GetWorldStructure(X, Y, W, H float64, WTiles, HTiles, ScreenWT, ScreenHT in
 	p.SO_Drawables = GetDrawables()
 	p.SetDisplayWH(ScreenWT, ScreenHT)
 	p.UpdateLightValue(p.Lights, true)
+	zt := time.Date(1, 1, 1, 6, 0, 0, 0, time.FixedZone("UTC", 0))
+	p.CurrentTime = &zt
 	return
 }
 /**
@@ -47,8 +50,9 @@ type WorldStructure struct {
 	SO_Drawables  *Drawables
 
 	//The standard light level
-	lightLevel, minLight, maxLight int16
-	deltaB, currentD               float64
+	lightLevel, maxLightLevel int16
+	CurrentTime *time.Time
+	TimeToLV func(secs int)(lv int16)
 	
 	//The current region of the Player
 	CurrentRegion int
@@ -92,8 +96,8 @@ func (p *WorldStructure) ScaleTo(w, h int) {
 func (p *WorldStructure) Print() (out string) {
 	out = fmt.Sprintf("Tiles: %v, Structures: %v, Objects: %v, Lights: %v, Add_Drawables: %v, SO_Drawables: %v\n",
 		len(p.Tiles), len(p.Structures), len(p.Objects), len(p.Lights), p.Add_Drawables.Len(), p.SO_Drawables.Len())
-	out += fmt.Sprintf("LightLevel: %v, minL: %v, maxL: %v, deltaB: %v, currentD: %v, middleX: %v, middleY: %v\n",
-		p.lightLevel, p.minLight, p.maxLight, p.deltaB, p.currentD, p.middleX, p.middleY)
+	out += fmt.Sprintf("LightLevel: %v, CurrentTime: %v\n",
+		p.lightLevel, p.CurrentTime)
 	out += fmt.Sprintf("X:%v, Y:%v, W:%v, H:%v, xTsAbs: %v, yTsAbs: %v, xTs: %v, yTs: %v, middleDx: %v, middleDy: %v, xStart: %v, yStart: %v, tileS: %v\n",
 		p.X, p.Y, p.W, p.H, p.xTilesAbs, p.yTilesAbs, p.xTilesS, p.yTilesS, p.middleDx, p.middleDy, p.xStart, p.yStart, p.tileS)
 	out += fmt.Sprintf("TilesMat:\n%s\nLIdxMat:\n%s\nLightMat:\n%s\nObjMat:\n%s",
@@ -231,8 +235,8 @@ func (p *WorldStructure) calcLightValueForPoint(x, y int, ls []*Light) (v int64)
 		if err == nil {
 			v += lv
 		}
-		if p.maxLight != 0 && v > int64(p.maxLight) {
-			v = int64(p.maxLight)
+		if p.maxLightLevel != 0 && v > int64(p.maxLightLevel) {
+			v = int64(p.maxLightLevel)
 			return
 		}
 	}
@@ -290,7 +294,7 @@ func (p *WorldStructure) collidesWithObjs(x,y,w,h float64, idxs ...int) bool {
 			return true
 		}
 	}
-	return !r.Overlaps(GetRectangle(0,0,float64(p.xTilesAbs),float64(p.yTilesAbs)))
+	return !r.Inside(GetRectangle(0,0,float64(p.xTilesAbs),float64(p.yTilesAbs)))
 }
 func (p *WorldStructure) GetObjectsInField(X,Y,W,H int) (idxs []int) {
 	for x := X; x < X+W; x++ {

@@ -162,6 +162,10 @@ func (p *WorldStructure) TimeHM() string {
 func (p *WorldStructure) TimeToSec() int {
 	return HMStoS(p.CurrentTime.Clock())
 }
+func (p *WorldStructure) GetTimeRel() float64 {
+	return float64(p.TimeToSec())/43200.0
+}
+
 func HMStoS(h,m,s int) int {
 	return h*60*60+m*60+s
 }

@@ -7,8 +7,8 @@ import (
 func GetScrollPanelFromStrings(X,Y,W,H, buttonH, space float64, txtcolor, backcolor color.Color, names ...string) (sp *ScrollPanel) {
 	btns := make([]*Button, len(names))
 	for i,_ := range btns {
-		btns[i] = GetSizedTextButton(names[i], StandardFont, X, Y+float64(i)*(buttonH+space), W, H, txtcolor, backcolor)
-		
+		btns[i] = GetSizedTextButton(names[i], StandardFont, X, Y+float64(i)*(buttonH+space), W, buttonH, txtcolor, backcolor)
+		btns[i].Data = names[i]
 	}
 	return GetScrollPanel(X,Y,W,H, btns...)
 }
@@ -25,7 +25,9 @@ type ScrollPanel struct {
     content []*Button
     panel   *ImageObj
 }
-
+func (sp *ScrollPanel) Content() []*Button {
+	return sp.content
+}
 func (sp *ScrollPanel) Add(button *Button) {
     sp.content = append(sp.content, button)
     sp.Redraw()

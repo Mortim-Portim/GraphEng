@@ -34,7 +34,19 @@ func (g *Group) Add(members ...UpdateAble) {
 	}
 	g.Members = append(g.Members, members...)
 }
-
+func (g *Group) Set(member UpdateAble, idx int) {
+	if idx < 0 || idx >= len(g.Members) {
+		return
+	}
+	f_u, f_d := member.Init(g.InitScreen, g.InitData)
+	if f_u != nil {
+		g.UpdateFuncs[idx] = f_u
+	}
+	if f_d != nil {
+		g.DrawFuncs[idx] = f_d
+	}
+	g.Members[idx] = member
+}
 type Group struct {
 	Members     []UpdateAble
 	UpdateFuncs []UpdateFunc

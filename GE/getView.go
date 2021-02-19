@@ -46,12 +46,12 @@ func GetImageButton(eimg *ebiten.Image, X, Y, W, H float64) *Button {
 }
 
 func GetSizedTextButton(str string, ttf *truetype.Font, X, Y, W, H float64, textCol, backCol color.Color) *Button {
-	img, _ := ebiten.NewImage(int(W), int(H), ebiten.FilterDefault)
-	img.Fill(backCol)
-	tImg := GetTextImage(str, 0, 0, H, ttf, textCol, backCol)
+	light, _ := ebiten.NewImage(int(W), int(H), ebiten.FilterDefault)
+	light.Fill(backCol)
+	tImg := GetTextImage(str, 0, 0, H, ttf, textCol, color.RGBA{0,0,0,0})
 	tImg.X = (W-tImg.W)/2
-	tImg.Draw(img)
-	btn := GetButton(&ImageObj{img, nil, W, H, X, Y, 0}, nil)
+	tImg.Draw(light)
+	btn := GetImageButton(light, X,Y,W,H)
 	return btn
 }
 

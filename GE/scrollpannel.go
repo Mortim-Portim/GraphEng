@@ -2,9 +2,15 @@ package GE
 
 import (
     "github.com/hajimehoshi/ebiten"
+    "image/color"
 )
-func GetScrollPanelFromStrings(X,Y,W,H,  float64, names ...string) (sp *ScrollPanel) {
-	GetSizedTextButton(line, StandardFont, X, Y+float64(i)*(H+space), W, H, txtcolor, backcolor)
+func GetScrollPanelFromStrings(X,Y,W,H, buttonH, space float64, txtcolor, backcolor color.Color, names ...string) (sp *ScrollPanel) {
+	btns := make([]*Button, len(names))
+	for i,_ := range btns {
+		btns[i] = GetSizedTextButton(names[i], StandardFont, X, Y+float64(i)*(buttonH+space), W, H, txtcolor, backcolor)
+		
+	}
+	return GetScrollPanel(X,Y,W,H, btns...)
 }
 func GetScrollPanel(x, y, w, h float64, buttons ...*Button) (sp *ScrollPanel) {
     ebitimg := GetEmptyImage(int(w), int(h))

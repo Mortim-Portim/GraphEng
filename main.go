@@ -224,7 +224,7 @@ func (g *TestGame) Update(screen *ebiten.Image) error {
 		}
 	}
 
-	g.wrld.UpdateLightLevel(1)
+	g.wrld.UpdateTime(time.Minute/30)
 	u_lights := g.wrld.UpdateAllLightsIfNecassary()
 
 	//Around 8ms
@@ -337,8 +337,7 @@ func main() {
 
 	//Sets the start point
 	wrld.SetMiddle(14, 14, true)
-	wrld.SetLightStats(10, 255, 0.3)
-	wrld.SetLightLevel(15)
+	wrld.SetLightStats(220, GE.GetStandardTimeToLvFunc(30, 220))
 
 	//----------------------------------------------------------------------------------------------------------------------------------------------
 	//Saves the compressed world
@@ -363,15 +362,14 @@ func main() {
 
 	//Sets the start point
 	//newWrld.SetMiddle(14,14,true)
-	newWrld.SetLightStats(10, 255, 0.3)
-	newWrld.SetLightLevel(15)
+	newWrld.SetLightStats(220, GE.GetStandardTimeToLvFunc(30, 220))
 	//Creates a raster
 	//newWrld.GetFrame(2, 90)
 	newWrld.SetDisplayWH(32, 18)
 
 	g := &TestGame{newWrld, GE.GetNewRecorder(FPS*5, 1280, 720, FPS), nil, 0}
 
-	cf, err := TNE.GetEntityFactory("./res/creatures/", &g.frame, 3, nil)
+	cf, err := TNE.GetEntityFactory("./res/creatures/", &g.frame, 3)
 	GE.ShitImDying(err)
 
 	prepStart := time.Now()

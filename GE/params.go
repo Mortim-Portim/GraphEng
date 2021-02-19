@@ -134,7 +134,7 @@ func (p *Params) SaveToFile(path string) error {
 	if len(data) == 0 {
 		return nil
 	}
-	data = data[:len(data)-2]
+	data = data[:len(data)-1]
 	ioutil.WriteFile(path, []byte(data), 0644)
 	return nil
 }

@@ -3,7 +3,9 @@ package GE
 import (
     "github.com/hajimehoshi/ebiten"
 )
-
+func GetScrollPanelFromStrings(X,Y,W,H,  float64, names ...string) (sp *ScrollPanel) {
+	GetSizedTextButton(line, StandardFont, X, Y+float64(i)*(H+space), W, H, txtcolor, backcolor)
+}
 func GetScrollPanel(x, y, w, h float64, buttons ...*Button) (sp *ScrollPanel) {
     ebitimg := GetEmptyImage(int(w), int(h))
     panel := &ImageObj{ebitimg, nil, w, h, x, y, 0}

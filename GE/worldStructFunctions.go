@@ -6,8 +6,9 @@ import (
 
 	cmp "github.com/mortim-portim/GraphEng/Compression"
 )
+const ERROR_WRONG_WORLD_VERSION = "Wrong World Version: %v"
 
-//Converts the World into a []byte slice
+//Converts the World into a []byte slice (VERSION 1)
 func (p *WorldStructure) ToBytes() ([]byte, error) {
 	tilBs, err1 := p.TileMat.Compress()
 	if err1 != nil {
@@ -23,15 +24,23 @@ func (p *WorldStructure) ToBytes() ([]byte, error) {
 
 	mdxBs := cmp.Int64ToBytes(int64(p.middleX))
 	mdyBs := cmp.Int64ToBytes(int64(p.middleY))
-	minBs := cmp.Int16ToBytes(int16(p.minLight))
-	maxBs := cmp.Int16ToBytes(int16(p.maxLight))
-	delBs := cmp.Float64ToBytes(p.deltaB)
-	return cmp.CompressAll(changing, mdxBs, mdyBs, minBs, maxBs, delBs), nil
+	maxBs := cmp.Int16ToBytes(int16(p.maxLightLevel))
+	timBs, err := p.CurrentTime.MarshalBinary()
+	return append([]byte{1}, cmp.CompressAll(changing, mdxBs, mdyBs, maxBs, timBs)...), err
 }
 
 //Converts a []byte slice into a WorldStructure
 func GetWorldStructureFromBytes(X, Y, W, H float64, data []byte, tile_path, struct_path string) (*WorldStructure, error) {
-	bs := cmp.DecompressAll(data, []int{8, 8, 2, 2, 8})
+	version := data[0]; data = data[1:]
+	if version == 1 {
+		return GetWorldStructureFromBytesVERSION1(X, Y, W, H, data, tile_path, struct_path)
+	}
+	return nil, fmt.Errorf(ERROR_WRONG_WORLD_VERSION, version)
+}
+
+//Converts a []byte slice into a WorldStructure
+func GetWorldStructureFromBytesVERSION1(X, Y, W, H float64, data []byte, tile_path, struct_path string) (*WorldStructure, error) {
+	bs := cmp.DecompressAll(data, []int{8, 8, 2, 15})
 	tilMat := GetMatrix(0, 0, 0)
 	err := tilMat.Decompress(bs[5])
 	if err != nil {
@@ -58,7 +67,8 @@ func GetWorldStructureFromBytes(X, Y, W, H float64, data []byte, tile_path, stru
 	}
 	p.RegionMat = regMat
 	p.SetMiddle(int(cmp.BytesToInt64(bs[0])), int(cmp.BytesToInt64(bs[1])), true)
-	p.SetLightStats(int16(cmp.BytesToInt16(bs[2])), int16(cmp.BytesToInt16(bs[3])), cmp.BytesToFloat64(bs[4]))
+	p.maxLightLevel = int16(cmp.BytesToInt16(bs[2]))
+	p.CurrentTime.UnmarshalBinary(bs[3])
 	return p, nil
 }
 

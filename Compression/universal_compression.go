@@ -25,6 +25,9 @@ func Demerge(comp []byte, length []int) (BS [][]byte) {
 	}
 	currIdx := 0
 	for _,l := range(length) {
+		if currIdx+l > len(comp) {
+			break
+		}
 		BS = append(BS, comp[currIdx:currIdx+l])
 		currIdx += l
 	}

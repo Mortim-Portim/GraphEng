@@ -15,7 +15,7 @@ func GetButtonListFromStrings(text []string, X, Y, W, H, space float64, txtcolor
 		btn := GetSizedTextButton(line, StandardFont, X, Y+float64(i)*(H+space), W, H, txtcolor, backcolor)
 		btn.Data = i
 		btn.RegisterOnLeftEvent(func(btn *Button) {
-			if btn.LPressed {
+			if !btn.LPressed {
 				if !btnlist.clapped {
 					btnlist.MoveUpDown(btnlist.current - btn.Data.(int))
 				}
@@ -38,7 +38,9 @@ type ButtonList struct {
 	clapped bool
 	height  float64
 }
-
+func (l *ButtonList) GetCurrent() *Button {
+	return l.btns[l.current]
+}
 func (l *ButtonList) Reset() {
 	l.current = 0
 }

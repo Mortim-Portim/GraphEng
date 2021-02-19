@@ -262,7 +262,7 @@ func main() {
 	pathFMat.Set(2, 5, 10)
 	fmt.Println(pathFMat.Print())
 
-	nanos := 0
+	/*nanos := 0
 	for i := 0; i < 100; i++ {
 		stComp := time.Now()
 		GE.FindPathMat(pathFMat, [2]int{1, 1}, [2]int{8, 8}, true)
@@ -275,7 +275,7 @@ func main() {
 		pathFMat.Set(p[0], p[1], 888)
 		fmt.Println(p)
 	}
-	fmt.Println(pathFMat.Print())
+	fmt.Println(pathFMat.Print())*/
 
 	XT := 50
 	YT := 50

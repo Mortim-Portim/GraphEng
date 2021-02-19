@@ -11,10 +11,9 @@ var (
 )
 
 func DistanceFrom(p1, p2 [2]int) float64 {
-	dx := float64(p1[0] - p2[0])
-	dy := float64(p1[1] - p2[1])
-	val := math.Sqrt(dx*dx + dy*dy)
-	return val
+	dx := math.Abs(float64(p1[0] - p2[0]))
+	dy := math.Abs(float64(p1[1] - p2[1]))
+	return math.Sqrt(dx*dx + dy*dy)
 }
 
 // function for finding shortest path. it returns nodes have passed in shortest path.

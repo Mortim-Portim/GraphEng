@@ -46,7 +46,7 @@ func GetImageButton(eimg *ebiten.Image, X, Y, W, H float64) *Button {
 }
 
 func GetSizedTextButton(str string, ttf *truetype.Font, X, Y, W, H float64, textCol, backCol color.Color) *Button {
-	light, _ := ebiten.NewImage(int(W), int(H), ebiten.FilterDefault)
+	light := ebiten.NewImage(int(W), int(H))
 	light.Fill(backCol)
 	tImg := GetTextImage(str, 0, 0, H, ttf, textCol, color.RGBA{0,0,0,0})
 	tImg.X = (W-tImg.W)/2
@@ -163,12 +163,12 @@ func GetImageScrollbar(X, Y, W, H float64, bar, pointer *ebiten.Image, min, max,
 //Returns a standard horizontal ScrollBar
 func GetStandardScrollbar(X, Y, W, H float64, min, max, current int, ttf *truetype.Font) (b *ScrollBar) {
 
-	bar, _ := ebiten.NewImage(int(W), int(H), ebiten.FilterDefault)
+	bar := ebiten.NewImage(int(W), int(H))
 	bar.Fill(&color.RGBA{0, 0, 0, 0})
 	line := GetLineOfPoints(0, H/2, W, H/2, H/6)
 	line.Fill(bar, &color.RGBA{0, 200, 50, 255})
 
-	pointer, _ := ebiten.NewImage(int(H*2), int(H*2), ebiten.FilterDefault)
+	pointer := ebiten.NewImage(int(H*2), int(H*2))
 	pointer.Fill(&color.RGBA{0, 0, 0, 0})
 	pnts := genVertices(H, H, H, 100)
 	pnts.Fill(pointer, &color.RGBA{200, 0, 50, 255})

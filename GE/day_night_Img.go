@@ -103,10 +103,10 @@ func (i *DayNightImg) Copy() *DayNightImg {
 func (i *DayNightImg) ScaleOriginal(width, height float64) {
 	scaledImg := resize.Resize(uint(width), uint(height), *i.day.OriginalImg, resize.NearestNeighbor)
 	i.day.OriginalImg = &scaledImg
-	i.day.Img,_ = ImgToEbitenImg(&scaledImg)
+	i.day.Img = ImgToEbitenImg(&scaledImg)
 	scaledImg2 := resize.Resize(uint(width), uint(height), *i.night.OriginalImg, resize.NearestNeighbor)
 	i.night.OriginalImg = &scaledImg2
-	i.night.Img,_ = ImgToEbitenImg(&scaledImg2)
+	i.night.Img = ImgToEbitenImg(&scaledImg2)
 }
 func (i *DayNightImg) ScaleToOriginalSize() {
 	w,h := i.day.Img.Size()

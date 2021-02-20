@@ -21,8 +21,7 @@ func LoadImgObj(path string, width, height, x, y, angle float64) (*ImageObj, err
 	err, img := LoadImg(path)
 	if err != nil {return nil, err}
 	//scaledImg := resize.Resize(uint(width), uint(height), *img, resize.NearestNeighbor)
-	eimg, err := ImgToEbitenImg(img)
-	if err != nil {return nil, err}
+	eimg := ImgToEbitenImg(img)
 	return &ImageObj{eimg, img, width, height, x, y, angle}, nil
 }
 func LoadImgObjFromBytes(bs []byte, width, height, x, y, angle float64) (*ImageObj, error) {
@@ -76,7 +75,7 @@ func (obj *ImageObj) Copy() *ImageObj {
 func (obj *ImageObj) ScaleOriginal(width, height float64) {
 	scaledImg := resize.Resize(uint(width), uint(height), *obj.OriginalImg, resize.NearestNeighbor)
 	obj.OriginalImg = &scaledImg
-	obj.Img,_ = ImgToEbitenImg(&scaledImg)
+	obj.Img = ImgToEbitenImg(&scaledImg)
 }
 func (obj *ImageObj) ScaleToOriginalSize() {
 	w,h := obj.Img.Size()
@@ -105,7 +104,7 @@ func (obj *ImageObj) ScaleToY(newHeight float64) {
 func (obj *ImageObj) GetFrame(thickness float64, alpha uint8, scale float64) (frame *ImageObj) {
 	frame = &ImageObj{X:obj.X, Y:obj.Y, W:obj.W, H:obj.H}
 	
-	frameImg, _ := ebiten.NewImage(int(obj.W), int(obj.H), ebiten.FilterDefault)
+	frameImg := ebiten.NewImage(int(obj.W), int(obj.H))
 	frameImg.Fill(&color.RGBA{0,0,0,0})
 	
 	left := GetLineOfPoints(0,0, 0,obj.H, thickness)
@@ -219,9 +218,9 @@ func LoadImg(path string) (error, *image.Image) {
 	return nil, &img
 }
 //Converts an image.Image to an ebiten.Image
-func ImgToEbitenImg(img *image.Image) (*ebiten.Image, error) {	
-	gophersImage, err := ebiten.NewImageFromImage(*img, ebiten.FilterDefault)
-	return gophersImage, err
+func ImgToEbitenImg(img *image.Image) (*ebiten.Image) {	
+	gophersImage := ebiten.NewImageFromImage(*img)
+	return gophersImage
 }
 //Loads an ebiten.Image
 func LoadEbitenImg(path string) (*ebiten.Image, error) {	
@@ -229,23 +228,23 @@ func LoadEbitenImg(path string) (*ebiten.Image, error) {
 	if err != nil {
 		return nil, err
 	}
-	return ImgToEbitenImg(img)
+	return ImgToEbitenImg(img), nil
 }
 func LoadEbitenImgFromBytes(im []byte) (*ebiten.Image, error) {
 	img, _, err := image.Decode(bytes.NewReader(im))
 	if err != nil {
 		return nil, err
 	}
-	return ebiten.NewImageFromImage(img, ebiten.FilterDefault)
+	return ebiten.NewImageFromImage(img), nil
 }
 //Returns an empty image
 func GetEmptyImage(w,h int) (img *ebiten.Image) {
-	img, _ = ebiten.NewImage(w, h, ebiten.FilterDefault)
+	img = ebiten.NewImage(w, h)
 	img.Fill(color.RGBA{0,0,0,0})
 	return
 }
 func GetColoredImg(w,h int, col color.Color) (img *ebiten.Image) {
-	img, _ = ebiten.NewImage(w, h, ebiten.FilterDefault)
+	img = ebiten.NewImage(w, h)
 	img.Fill(col)
 	return
 }

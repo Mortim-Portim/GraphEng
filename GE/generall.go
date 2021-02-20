@@ -88,7 +88,7 @@ func MakePopUp(str string, ttf *truetype.Font, textCol, backCol color.Color) *eb
 	fnt := GetFace(ttf)
 	w, h := MeasureString(str, fnt)
 
-	popUpBack, _ := ebiten.NewImage(w, h, ebiten.FilterDefault)
+	popUpBack := ebiten.NewImage(w, h)
 	popUpBack.Fill(backCol)
 	xP, yP := h/6, h/4*3
 	text.Draw(popUpBack, str, fnt, int(xP), int(yP), textCol)
@@ -103,7 +103,7 @@ func MakePopUpOld(str string, size float64, ttf *truetype.Font, textCol, backCol
 	})
 	w, h := MeasureString(str, fnt)
 
-	popUpBack, _ := ebiten.NewImage(w, h, ebiten.FilterDefault)
+	popUpBack := ebiten.NewImage(w, h)
 	popUpBack.Fill(backCol)
 	xP, yP := h/6, h/4*3
 	text.Draw(popUpBack, str, fnt, int(xP), int(yP), textCol)
@@ -119,7 +119,7 @@ func GetTextImage(textStr string, X, Y, H float64, ttf *truetype.Font, txtCol, b
 		W := float64(w) * H / float64(h)
 		imgo.W = W
 
-		Back, _ := ebiten.NewImage(int(W), int(H), ebiten.FilterDefault)
+		Back := ebiten.NewImage(int(W), int(H))
 		Back.Fill(backCol)
 		imgo.Img = Back
 
@@ -129,7 +129,7 @@ func GetTextImage(textStr string, X, Y, H float64, ttf *truetype.Font, txtCol, b
 		//op.GeoM.Translate(H*0.25,0)
 		imgo.Img.DrawImage(textImg, op)
 	} else {
-		Back, _ := ebiten.NewImage(1, 1, ebiten.FilterDefault)
+		Back := ebiten.NewImage(1, 1)
 		Back.Fill(backCol)
 		imgo.Img = Back
 	}
@@ -232,7 +232,7 @@ func ReduceColor(col color.Color, delta int) color.Color {
 //Reduces the alpha value of an Image, making it more transparent
 func ReduceColorImage(img *ebiten.Image, val int) (reduced *ebiten.Image) {
 	W, H := img.Size()
-	Back, _ := ebiten.NewImage(W, H, ebiten.FilterDefault)
+	Back := ebiten.NewImage(W, H)
 	reduced = Back
 	op := &ebiten.DrawImageOptions{}
 	op.ColorM.Scale(1, 1, 1, float64(255-val)/255.0)

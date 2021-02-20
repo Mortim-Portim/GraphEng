@@ -14,7 +14,7 @@ const sampleRate = 48000
 var audioContext *audio.Context
 
 func InitAudioContext() {
-	audioContext,_ = audio.NewContext(sampleRate)
+	audioContext = audio.NewContext(sampleRate)
 }
 
 type Audio interface {
@@ -26,10 +26,10 @@ type Audio interface {
 	Current() time.Duration
 	Rewind() error
 	IsPlaying() bool
-	Pause() error
-	Play() error
-	Resume() error
-	PlayFromBeginning() error
+	Pause()
+	Play()
+	Resume()
+	PlayFromBeginning()
 	StopRepeating()
 	Repeat()
 }
@@ -66,15 +66,15 @@ func (p *AudioPlayer) Rewind() error {
 func (p *AudioPlayer) IsPlaying() bool {
 	return p.Ap.IsPlaying()
 }
-func (p *AudioPlayer) Pause() error {
+func (p *AudioPlayer) Pause(){
 	p.StopRepeating()
-	return p.Ap.Pause()
+	p.Ap.Pause()
 }
-func (p *AudioPlayer) Resume() error {
-	return p.Ap.Play()
+func (p *AudioPlayer) Resume() {
+	p.Ap.Play()
 }
-func (p *AudioPlayer) Play() (err error) {
-	err = p.Ap.Play()
+func (p *AudioPlayer) Play() {
+	p.Ap.Play()
 	go func() {
 		time.Sleep(p.finishedTime)
 		if p.OnFinished != nil && p.IsPlaying() {
@@ -83,10 +83,10 @@ func (p *AudioPlayer) Play() (err error) {
 	}()
 	return
 }
-func (p *AudioPlayer) PlayFromBeginning() error {
+func (p *AudioPlayer) PlayFromBeginning() {
 	p.SetVolume(p.StandardVolume)
 	p.Rewind()
-	return p.Play()
+	p.Play()
 }
 func (p *AudioPlayer) StopRepeating() {
 	p.repeating = false

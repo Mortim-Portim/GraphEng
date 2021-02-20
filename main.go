@@ -3,17 +3,10 @@ package main
 import (
 	"github.com/mortim-portim/GraphEng/GE"
 	"github.com/mortim-portim/TN_Engine/TNE"
-
 	"github.com/hajimehoshi/ebiten"
-
 	"fmt"
 	"time"
-
 	"github.com/mortim-portim/GraphEng/res"
-
-	"github.com/hajimehoshi/ebiten/ebitenutil"
-	//"image/color"
-	//cmp "marvin/GraphEng/Compression"
 )
 
 const (
@@ -170,49 +163,12 @@ func (g *TestGame) Init(screen *ebiten.Image) {
 var timeTaken int64
 var inputT, objT, lightUpT, lightDT, worldDT time.Duration
 
-func (g *TestGame) Update(screen *ebiten.Image) error {
-	startTime := time.Now()
+func (g *TestGame) Update() error {
 	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
 		x, y := ebiten.CursorPosition()
 		xt, yt := g.wrld.GetTileOfCoords(x, y)
 		fmt.Printf("You clicked at (%v|%v) tile (%v|%v)\n", x, y, xt, yt)
 	}
-	/**
-	g.player.SetIsMoving(false)
-	if g.frame%1 == 0 {
-		if ebiten.IsKeyPressed(ebiten.KeyA) {
-			g.wrld.MoveSmooth(-10,0,false,false)
-			g.player.SetIsMoving(true)
-		}
-		if ebiten.IsKeyPressed(ebiten.KeyD) {
-			g.wrld.MoveSmooth(10,0, false,false)
-			g.player.SetIsMoving(true)
-		}
-		if ebiten.IsKeyPressed(ebiten.KeyW) {
-			g.wrld.MoveSmooth(0,-10, false,false)
-			g.player.SetIsMoving(true)
-		}
-		if ebiten.IsKeyPressed(ebiten.KeyS) {
-			g.wrld.MoveSmooth(0,10, false,false)
-			g.player.SetIsMoving(true)
-		}
-	}
-	//g.wrld.MoveSmooth(-1,0,false,false)
-	_,dy := ebiten.Wheel()
-	if dy != 0 {
-		g.wrld.Lights[0].SetMaximumIntesity(g.wrld.Lights[0].GetMaximumIntesity()+int16(dy*10))
-	}
-
-	x,y := g.wrld.SmoothMiddle()
-	g.player.Update(nil)
-	g.player.SetTo(float64(x),float64(y))
-
-	//oX, oY,_ := g.player.GetPos()
-	//g.player.SetPosMD(oX,oY)
-
-	g.player.UpdateOrientation()
-	g.wrld.UpdateObjDrawables()
-	**/
 
 	if g.frame%100 < 50 {
 		for _, strct := range g.wrld.Structures {
@@ -225,8 +181,12 @@ func (g *TestGame) Update(screen *ebiten.Image) error {
 	}
 
 	g.wrld.UpdateTime(time.Minute/30)
-	u_lights := g.wrld.UpdateAllLightsIfNecassary()
+	g.wrld.UpdateAllLightsIfNecassary()
 
+	g.frame++
+	return nil
+}
+func (g *TestGame) Draw(screen *ebiten.Image) {
 	//Around 8ms
 	g.wrld.Draw(screen)
 
@@ -234,15 +194,6 @@ func (g *TestGame) Update(screen *ebiten.Image) error {
 		g.rec.Save("./res/out", nil)
 	}
 	g.rec.NextFrame(screen)
-
-	g.frame++
-	timeTaken = time.Now().Sub(startTime).Milliseconds()
-	fps := ebiten.CurrentTPS()
-	msg := fmt.Sprintf(`TPS: %0.2f, Updating took: %v at frame %v, ul:%v`, fps, timeTaken, g.frame-1, u_lights)
-	ebitenutil.DebugPrint(screen, msg)
-	GE.LogToFile(fmt.Sprintf("%0.2f;%0.2f;%v\n", ebiten.CurrentTPS(), ebiten.CurrentFPS(), timeTaken))
-	fmt.Println(msg)
-	return nil
 }
 func (g *TestGame) Layout(outsideWidth, outsideHeight int) (int, int) {
 	return screenWidth, screenHeight

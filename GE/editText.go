@@ -5,7 +5,7 @@ import (
 	"strings"
 	"strconv"
 	"image/color"
-	"github.com/atotto/clipboard"
+	"github.com/go-gl/glfw/v3.3/glfw"
 	"github.com/hajimehoshi/ebiten"
 	"github.com/golang/freetype/truetype"
 )
@@ -68,9 +68,13 @@ func (t *EditText) Update(frame int) {
 			t.text += newText
 		}
 		if repeatingKeyPressed(ebiten.KeyInsert) || areKeysPressed(ebiten.KeyV, ebiten.KeyControl) {
-			txt,_ := clipboard.ReadAll()
+			//txt,_ := clipboard.ReadAll()
+			txt := GetClipBoard()
 			t.imageNeedsUpdate = true
 			t.text += txt
+		}
+		if areKeysPressed(ebiten.KeyC, ebiten.KeyControl) {
+			SetClipBoard(t.text)
 		}
 		if repeatingKeyPressed(ebiten.KeyBackspace) {
 			if len(t.text) >= 1 {
@@ -140,6 +144,12 @@ func (t *EditText) SetUint8(i uint8) {
 func (t *EditText) GetUint8() uint8 {
 	i, _ := strconv.Atoi(t.GetText())
 	return uint8(i)
+}
+func GetClipBoard() string {
+	return glfw.GetClipboardString()
+}
+func SetClipBoard(s string) {
+	glfw.SetClipboardString(s)
 }
 func (t *EditText) CheckEasterEgg() {
 	if t.text == "hi123456" {

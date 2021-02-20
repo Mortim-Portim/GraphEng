@@ -40,6 +40,9 @@ type ImageObj struct {
 	Img *ebiten.Image; OriginalImg *image.Image
 	W, H, X, Y, Angle float64
 }
+func (obj *ImageObj) Rectangle() *Rectangle {
+	return GetRectangle(obj.X, obj.Y, obj.X+obj.W, obj.Y+obj.H)
+}
 func (obj *ImageObj) SetBottomRight(x,y float64) {
 	obj.X = x-obj.W; obj.Y = y-obj.H
 }

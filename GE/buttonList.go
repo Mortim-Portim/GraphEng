@@ -1,96 +1,77 @@
 package GE
 
 import (
-	"fmt"
+	//"fmt"
 	"image/color"
-
 	"github.com/hajimehoshi/ebiten"
 )
 
-func GetButtonListFromStrings(text []string, X, Y, W, H, space float64, txtcolor, backcolor color.Color) *ButtonList {
-	btns := make([]*Button, len(text))
-	btnlist := &ButtonList{clapped: true, height: H}
-
-	for i, line := range text {
-		btn := GetSizedTextButton(line, StandardFont, X, Y+float64(i)*(H+space), W, H, txtcolor, backcolor)
-		btn.Data = i
-		btn.RegisterOnLeftEvent(func(btn *Button) {
-			if !btn.LPressed {
-				if !btnlist.clapped {
-					btnlist.MoveUpDown(btnlist.current - btn.Data.(int))
-				}
-
-				btnlist.clapped = !btnlist.clapped
-				btnlist.current = btn.Data.(int)
-			}
-		})
-		btns[i] = btn
+func GetButtonListFromStrings(X,Y,W,H, BtnH, ySpace, ScrollH float64, textCol, backCol color.Color, strs ...string) *ButtonList {
+	btns := make([]*Button, len(strs))
+	for i,str := range strs {
+		btns[i] = GetTextButton(str, str, StandardFont, 0, 0, BtnH, textCol, backCol)
+		btns[i].Data = str
 	}
-
-	btnlist.btns = btns
-	return btnlist
+	return GetButtonList(X,Y,W,H,ySpace, ScrollH, btns...)
 }
-
+func GetButtonList(X,Y,W,H,ySpace,ScrollH float64, btns ...*Button) *ButtonList {
+	return &ButtonList{X,Y,W,H,ySpace, ScrollH, 0.0, btns, false}
+}
 type ButtonList struct {
+	X,Y,W,H,ySpace, ScrollH, currentDelta float64
 	btns []*Button
-
-	current, max int
-	clapped bool
-	height  float64
+	
+	PreRenderPerfect bool
 }
-func (l *ButtonList) GetCurrent() *Button {
-	return l.btns[l.current]
+func (l *ButtonList) Content() []*Button {
+	return l.btns
 }
 func (l *ButtonList) Reset() {
-	l.current = 0
+	l.currentDelta = 0
+	l.UpdateButtonPositions()
 }
 func (l *ButtonList) Init(screen *ebiten.Image, data interface{}) (UpdateFunc, DrawFunc) {
+	l.Reset()
 	return l.Update, l.Draw
 }
-func (l *ButtonList) Start(screen *ebiten.Image, data interface{}) { l.Reset() }
+func (l *ButtonList) Start(screen *ebiten.Image, data interface{}) {
+	l.Reset()
+}
 func (l *ButtonList) Stop(screen *ebiten.Image, data interface{})  {}
-
 func (l *ButtonList) Update(frame int) {
-	if !l.clapped {
-		_, dy := ebiten.Wheel()
+	x, y := ebiten.CursorPosition()
+    _, scroll := ebiten.Wheel()
+    hasFocus := int(l.X) <= x && x < int(l.X+l.W) && int(l.Y) <= y && y < int(l.Y+l.H)
 
-		if dy > 0 {
-			l.MoveUpDown(1)
-		}
-
-		if dy < 0 {
-			l.MoveUpDown(-1)
-		}
-	}
-
-	if l.clapped {
-		l.btns[l.current].Update(frame)
-	} else {
-		for i := l.current; i < len(l.btns); i++ {
-			l.btns[i].Update(frame)
-		}
+    if hasFocus && scroll != 0 {
+    	l.Scroll(float64(scroll))
+    	l.UpdateButtonPositions()
+    	l.SetActiveButtons()
+    }
+    for _,btn := range l.btns {
+		btn.Update(frame)
 	}
 }
-
 func (l *ButtonList) Draw(screen *ebiten.Image) {
-	if l.clapped {
-		l.btns[l.current].Draw(screen)
-	} else {
-		for i := l.current; i < len(l.btns); i++ {
-			l.btns[i].Draw(screen)
+	if !l.PreRenderPerfect {
+		for _,btn := range l.btns {
+			btn.Draw(screen)
 		}
 	}
 }
-
-func (l *ButtonList) MoveUpDown(Y int) {
-	fmt.Println(l.current, Y)
-	if l.current-Y < 0 {
-		return
-	}
-
+func (l *ButtonList) Scroll(dy float64) {
+	l.currentDelta -= dy*l.ScrollH
+}
+func (l *ButtonList) UpdateButtonPositions() {
+	Y := l.Y+l.ySpace+l.currentDelta
 	for _, btn := range l.btns {
-		btn.Img.Y += float64(Y) * l.height
+		btn.Img.X = l.X+l.ySpace; btn.Img.Y = Y
+		Y += btn.Img.H+l.ySpace
 	}
-
-	l.current -= Y
+}
+func (l *ButtonList) SetActiveButtons() {
+	rect := GetRectangle(l.X,l.Y,l.X+l.W*1000,l.Y+l.H)
+	for _,btn := range l.btns {
+		btn.Active = btn.Img.Rectangle().Overlaps(rect)
+	}
 }

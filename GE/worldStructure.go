@@ -5,6 +5,7 @@ import (
 	"image/color"
 	"math"
 	"time"
+
 	"github.com/hajimehoshi/ebiten"
 	cmp "github.com/mortim-portim/GraphEng/Compression"
 )
@@ -23,12 +24,14 @@ func GetWorldStructure(X, Y, W, H float64, WTiles, HTiles, ScreenWT, ScreenHT in
 	return
 }
 func (p *WorldStructure) ResetMatrixesFromTileMat() {
-	W := p.TileMat.WAbs();H := p.TileMat.HAbs()
-	p.LIdxMat = 	GetMatrix(W, H, -1)
-	p.ObjMat = 		GetMatrix(W, H, 0)
-	p.LightMat = 	GetMatrix(W, H, 0)
-	p.RegionMat = 	GetMatrix(W, H, 0)
+	W := p.TileMat.WAbs()
+	H := p.TileMat.HAbs()
+	p.LIdxMat = GetMatrix(W, H, -1)
+	p.ObjMat = GetMatrix(W, H, 0)
+	p.LightMat = GetMatrix(W, H, 0)
+	p.RegionMat = GetMatrix(W, H, 0)
 }
+
 /**
 Saved:
 Objects
@@ -55,13 +58,13 @@ type WorldStructure struct {
 
 	//The standard light level
 	lightLevel, maxLightLevel int16
-	CurrentTime *time.Time
-	TimeToLV func(secs int)(lv int16)
-	
+	CurrentTime               *time.Time
+	TimeToLV                  func(secs int) (lv int16)
+
 	//The current region of the Player
-	CurrentRegion int
+	CurrentRegion  int
 	OnRegionChange func(oldR, newR int)
-	
+
 	//TileMat stores indexes of tiles, LightMat stores the lightlevel, ObjMat stores indexes of Objects, RegionMat stores the index of the Region
 	TileMat, LIdxMat, LightMat, ObjMat, RegionMat *Matrix
 
@@ -82,6 +85,7 @@ type WorldStructure struct {
 	xTilesAbs, yTilesAbs, xTilesS, yTilesS, middleDx, middleDy int
 	xStart, yStart, tileS                                      float64
 }
+
 func (p *WorldStructure) GetDrawer() *ImageObj {
 	return p.drawer
 }
@@ -91,11 +95,11 @@ func (p *WorldStructure) Size() (int, int) {
 func (p *WorldStructure) ScaleTo(w, h int) {
 	p.xTilesAbs = w
 	p.yTilesAbs = h
-	p.TileMat.ScaleTo(w,h, 0)
-	p.LIdxMat.ScaleTo(w,h, -1)
-	p.ObjMat.ScaleTo(w,h, 0)
-	p.LightMat.ScaleTo(w,h, 0)
-	p.RegionMat.ScaleTo(w,h, 0)
+	p.TileMat.ScaleTo(w, h, 0)
+	p.LIdxMat.ScaleTo(w, h, -1)
+	p.ObjMat.ScaleTo(w, h, 0)
+	p.LightMat.ScaleTo(w, h, 0)
+	p.RegionMat.ScaleTo(w, h, 0)
 }
 func (p *WorldStructure) Print() (out string) {
 	out = fmt.Sprintf("Tiles: %v, Structures: %v, Objects: %v, Lights: %v, Add_Drawables: %v, SO_Drawables: %v\n",
@@ -104,8 +108,8 @@ func (p *WorldStructure) Print() (out string) {
 		p.lightLevel, p.CurrentTime)
 	out += fmt.Sprintf("X:%v, Y:%v, W:%v, H:%v, xTsAbs: %v, yTsAbs: %v, xTs: %v, yTs: %v, middleDx: %v, middleDy: %v, xStart: %v, yStart: %v, tileS: %v\n",
 		p.X, p.Y, p.W, p.H, p.xTilesAbs, p.yTilesAbs, p.xTilesS, p.yTilesS, p.middleDx, p.middleDy, p.xStart, p.yStart, p.tileS)
-	out += fmt.Sprintf("TilesMat:\n%s\nLIdxMat:\n%s\nLightMat:\n%s\nObjMat:\n%s",
-		p.TileMat.Print(), p.LIdxMat.Print(), p.LightMat.Print(), p.ObjMat.Print())
+	out += fmt.Sprintf("TilesMat:\n%s\nLIdxMat:\n%s\nLightMat:\n%s\nObjMat:\n%s\nRegionMat\n%s",
+		p.TileMat.Print(), p.LIdxMat.Print(), p.LightMat.Print(), p.ObjMat.Print(), p.RegionMat.Print())
 	return
 }
 
@@ -262,8 +266,8 @@ func (p *WorldStructure) UpdateObjDrawables() {
 	drawnObjs := make([]int, 0)
 	minP := p.ObjMat.Focus().Min()
 	maxP := p.ObjMat.Focus().Max()
-	for y := int(minP.Y-OBJ_MAX_SIZE); y < int(maxP.Y+OBJ_MAX_SIZE); y++ {
-		for x := int(minP.X-OBJ_MAX_SIZE); x < int(maxP.X+OBJ_MAX_SIZE); x++ {
+	for y := int(minP.Y - OBJ_MAX_SIZE); y < int(maxP.Y+OBJ_MAX_SIZE); y++ {
+		for x := int(minP.X - OBJ_MAX_SIZE); x < int(maxP.X+OBJ_MAX_SIZE); x++ {
 			mvi, err := p.ObjMat.GetAbs(x, y)
 			idx := int(math.Abs(float64(mvi)))
 			if idx != 0 && err == nil {
@@ -282,25 +286,27 @@ func (p *WorldStructure) AddDrawable(d Drawable) {
 	p.Add_Drawables = p.Add_Drawables.Add(d)
 }
 func FloatPosToIntPos(fx, fy float64) (int, int) {
-	return int(math.Round(fx-0.5)), int(math.Round(fy-0.5))
+	return int(math.Round(fx - 0.5)), int(math.Round(fy - 0.5))
 }
+
 const OBJ_MAX_SIZE = 20
+
 //Checks if an object obstructs the point
 func (p *WorldStructure) Collides(x, y, w, h float64) bool {
 	idxs := p.GetObjectsInField(int(x)-OBJ_MAX_SIZE, int(y)-OBJ_MAX_SIZE, int(w)+2*OBJ_MAX_SIZE, int(h)+2*OBJ_MAX_SIZE)
-	return p.collidesWithObjs(x,y,w,h, idxs...)
+	return p.collidesWithObjs(x, y, w, h, idxs...)
 }
-func (p *WorldStructure) collidesWithObjs(x,y,w,h float64, idxs ...int) bool {
-	r := GetRectangle(x,y,x+w,y+h)
-	for _,idx := range(idxs) {
+func (p *WorldStructure) collidesWithObjs(x, y, w, h float64, idxs ...int) bool {
+	r := GetRectangle(x, y, x+w, y+h)
+	for _, idx := range idxs {
 		obj := p.Objects[idx]
 		if r.Overlaps(obj.Hitbox) {
 			return true
 		}
 	}
-	return !r.Inside(GetRectangle(0,0,float64(p.xTilesAbs),float64(p.yTilesAbs)))
+	return !r.Inside(GetRectangle(0, 0, float64(p.xTilesAbs), float64(p.yTilesAbs)))
 }
-func (p *WorldStructure) GetObjectsInField(X,Y,W,H int) (idxs []int) {
+func (p *WorldStructure) GetObjectsInField(X, Y, W, H int) (idxs []int) {
 	for x := X; x < X+W; x++ {
 		for y := Y; y < Y+H; y++ {
 			v, err := p.ObjMat.GetAbs(x, y)
@@ -386,6 +392,7 @@ func (p *WorldStructure) GetTileOfCoordsFP(x, y float64) (xT, yT float64) {
 	loc := p.TileMat.Focus().Min()
 	return loc.X + tilesDX, loc.Y + tilesDY
 }
+
 /**
 //!DEPRECATED!
 //ONLY use when moving the world before drawing tiles or objects

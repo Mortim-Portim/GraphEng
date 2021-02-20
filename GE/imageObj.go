@@ -162,14 +162,14 @@ func (obj *ImageObj) DrawImageObj(screen *ebiten.Image) {
 	obj.PanicIfNil()
 	w, h := obj.Img.Size()
 	op := &ebiten.DrawImageOptions{}
-	xScale := obj.W / (float64)(w)
-	yScale := obj.H / (float64)(h)
 
-	op.GeoM.Translate(-float64(w)/2, -float64(h)/2)
-	op.GeoM.Rotate(float64(obj.Angle) * 2 * math.Pi / 360)
+	xScale := obj.W / float64(w)
+	yScale := obj.H / float64(h)
+	op.GeoM.Translate(-float64(w/2), -float64(h/2))
+	op.GeoM.Rotate(math.Round(obj.Angle) * 2 * math.Pi / 360)
 	op.GeoM.Scale(xScale, yScale)
+	op.GeoM.Translate(math.Round(obj.X+obj.W/2), math.Round(obj.Y+obj.H/2))
 
-	op.GeoM.Translate(obj.X+obj.W/2, obj.Y+obj.H/2)
 	screen.DrawImage(obj.Img, op)
 }
 
@@ -181,12 +181,12 @@ func (obj *ImageObj) DrawImageBlured(screen *ebiten.Image, box int, alphaScale f
 		for i := -box; i <= box; i++ {
 			w, h := obj.Img.Size()
 			op := &ebiten.DrawImageOptions{}
-			xScale := obj.W / (float64)(w)
-			yScale := obj.H / (float64)(h)
-			op.GeoM.Translate(-float64(w)/2, -float64(h)/2)
-			op.GeoM.Rotate(float64(obj.Angle) * 2 * math.Pi / 360)
+			xScale := obj.W / float64(w)
+			yScale := obj.H / float64(h)
+			op.GeoM.Translate(-float64(w/2), -float64(h/2))
+			op.GeoM.Rotate(math.Round(obj.Angle) * 2 * math.Pi / 360)
 			op.GeoM.Scale(xScale, yScale)
-			op.GeoM.Translate(obj.X+obj.W/2, obj.Y+obj.H/2)
+			op.GeoM.Translate(math.Round(obj.X+obj.W/2), math.Round(obj.Y+obj.H/2))
 
 			op.GeoM.Translate(float64(i), float64(j))
 			op.ColorM.Scale(1, 1, 1, alphaScale)
@@ -200,14 +200,12 @@ func (obj *ImageObj) DrawImageObjAlpha(screen *ebiten.Image, alpha float64) {
 	obj.PanicIfNil()
 	w, h := obj.Img.Size()
 	op := &ebiten.DrawImageOptions{}
-	xScale := obj.W / (float64)(w)
-	yScale := obj.H / (float64)(h)
-
-	op.GeoM.Translate(-float64(w)/2, -float64(h)/2)
-	op.GeoM.Rotate(float64(obj.Angle) * 2 * math.Pi / 360)
+	xScale := obj.W / float64(w)
+	yScale := obj.H / float64(h)
+	op.GeoM.Translate(-float64(w/2), -float64(h/2))
+	op.GeoM.Rotate(math.Round(obj.Angle) * 2 * math.Pi / 360)
 	op.GeoM.Scale(xScale, yScale)
-
-	op.GeoM.Translate(obj.X+obj.W/2, obj.Y+obj.H/2)
+	op.GeoM.Translate(math.Round(obj.X+obj.W/2), math.Round(obj.Y+obj.H/2))
 
 	op.ColorM.Scale(1, 1, 1, alpha)
 	screen.DrawImage(obj.Img, op)

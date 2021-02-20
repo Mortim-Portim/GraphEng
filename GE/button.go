@@ -10,15 +10,17 @@ type Button struct {
 	dark, light *ebiten.Image
 
 	LPressed, RPressed, LastL, LastR, Active, DrawDark, ChangeDrawDarkOnLeft bool
-	onPressLeft, onPressRight                          func(b *Button)
-	Data                                               interface{}
+	onPressLeft, onPressRight                                                func(b *Button)
+	Data                                                                     interface{}
 }
+
 func (b *Button) UpImg() *ebiten.Image {
 	return b.light
 }
 func (b *Button) DownImg() *ebiten.Image {
 	return b.dark
 }
+
 /**
 TODO
 Use JustDown and check for other buttons that are pressed
@@ -34,7 +36,7 @@ It can be created from a Image or using Text
 Button implements UpdateAble
 **/
 func (b *Button) Copy() *Button {
-	return &Button{b.Img.Copy(),b.dark,b.light,b.LPressed,b.RPressed,b.LastL,b.LastR,b.Active,b.DrawDark,b.ChangeDrawDarkOnLeft,b.onPressLeft,b.onPressRight,b.Data}
+	return &Button{b.Img.Copy(), b.dark, b.light, b.LPressed, b.RPressed, b.LastL, b.LastR, b.Active, b.DrawDark, b.ChangeDrawDarkOnLeft, b.onPressLeft, b.onPressRight, b.Data}
 }
 func (b *Button) Reset() {
 	b.LPressed = false
@@ -69,15 +71,15 @@ func (b *Button) Update(frame int) {
 		hasFocus := int(b.Img.X) <= x && x < int(b.Img.X+b.Img.W) && int(b.Img.Y) <= y && y < int(b.Img.Y+b.Img.H)
 		if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) && hasFocus {
 			b.LPressed = true
-		}else if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
+		} else if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
 			b.LPressed = false
 		}
 		if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonRight) && hasFocus {
 			b.RPressed = true
-		}else if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonRight) {
+		} else if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonRight) {
 			b.RPressed = false
 		}
-		
+
 		if b.LPressed != b.LastL {
 			if b.onPressLeft != nil {
 				if b.ChangeDrawDarkOnLeft {

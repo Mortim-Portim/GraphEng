@@ -286,6 +286,11 @@ func (m *Matrix) Fill(x1, y1, x2, y2 int, v int64) {
 		}
 	}
 }
+func (m *Matrix) FillAll(v int64) {
+	for i := range m.list {
+		m.list[i] = v
+	}
+}
 
 //Fills a Rectangle with a value
 func (m *Matrix) FillAbs(x1, y1, x2, y2 int, v int64) {

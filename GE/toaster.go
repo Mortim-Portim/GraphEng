@@ -1,35 +1,38 @@
 package GE
 
 import (
+	"image/color"
+
 	"github.com/golang/freetype/truetype"
 	"github.com/hajimehoshi/ebiten"
-	"image/color"
 )
 
 type toast struct {
-	imgO *ImageObj
+	imgO              *ImageObj
 	duration, counter int
 }
+
 func (t *toast) Update() {
-	t.counter ++
+	t.counter++
 }
 func (t *toast) TimeIsOver() bool {
 	return t.counter > t.duration
 }
 
 func GetNewToaster(XRES, YRES, RelScreenPos, RelToastH float64, TTF *truetype.Font, BackCol, TextCol color.Color) (t *Toaster) {
-	t = &Toaster{XRES:XRES, YRES:YRES, RelScreenPos:RelScreenPos, RelToastH:RelToastH, TTF:TTF, BackCol:BackCol, TextCol:TextCol}
+	t = &Toaster{XRES: XRES, YRES: YRES, RelScreenPos: RelScreenPos, RelToastH: RelToastH, TTF: TTF, BackCol: BackCol, TextCol: TextCol}
 	t.Start(nil, nil)
-	return 
+	return
 }
+
 type Toaster struct {
-	XRES, YRES float64
+	XRES, YRES              float64
 	RelScreenPos, RelToastH float64
-	TTF *truetype.Font
-	BackCol, TextCol color.Color
-	
+	TTF                     *truetype.Font
+	BackCol, TextCol        color.Color
+
 	xposm, tH float64
-	Toasts []*toast
+	Toasts    []*toast
 }
 
 func (t *Toaster) New(msg string, frames int) {
@@ -37,8 +40,8 @@ func (t *Toaster) New(msg string, frames int) {
 	imgO.SetMiddleX(t.xposm)
 	if imgO.X < 0 {
 		imgO.X = 0
-	}else if imgO.X+imgO.W > t.XRES {
-		imgO.X = t.XRES-imgO.W
+	} else if imgO.X+imgO.W > t.XRES {
+		imgO.X = t.XRES - imgO.W
 	}
 	t.Toasts = append(t.Toasts, &toast{imgO, frames, 0})
 }
@@ -49,24 +52,26 @@ func (t *Toaster) RemoveToast(i int) {
 }
 func (t *Toaster) Update(frame int) {
 	rems := 0
-	for idx, _ := range t.Toasts {
+	for idx := range t.Toasts {
 		t.Toasts[idx-rems].Update()
 		if t.Toasts[idx-rems].TimeIsOver() {
-			t.RemoveToast(idx-rems)
-			rems ++
+			t.RemoveToast(idx - rems)
+			rems++
 		}
 	}
 }
 func (t *Toaster) Draw(screen *ebiten.Image) {
-	for i,tst := range(t.Toasts) {
-		tst.imgO.Y = float64(i)*t.tH
+	for i, tst := range t.Toasts {
+		tst.imgO.Y = float64(i) * t.tH
 		tst.imgO.Draw(screen)
 	}
 }
 
 func (t *Toaster) Start(screen *ebiten.Image, data interface{}) {
-	t.xposm = t.XRES*t.RelScreenPos
-	t.tH = t.YRES*t.RelToastH
+	t.xposm = t.XRES * t.RelScreenPos
+	t.tH = t.YRES * t.RelToastH
 }
-func (t *Toaster) Init(screen *ebiten.Image, data interface{}) (UpdateFunc, DrawFunc) {return t.Update, t.Draw}
+func (t *Toaster) Init(screen *ebiten.Image, data interface{}) (UpdateFunc, DrawFunc) {
+	return t.Update, t.Draw
+}
 func (t *Toaster) Stop(screen *ebiten.Image, data interface{}) {}

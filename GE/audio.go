@@ -3,14 +3,14 @@ package GE
 import (
 	"os"
 	"time"
-	//"github.com/hajimehoshi/ebiten"
+
 	"github.com/hajimehoshi/ebiten/audio"
 	"github.com/hajimehoshi/ebiten/audio/mp3"
-	//"github.com/hajimehoshi/ebiten/ebitenutil"
 )
 
 //IMPORTANT: Call InitAudioContext() before creating a new Player
 const sampleRate = 48000
+
 var audioContext *audio.Context
 
 func InitAudioContext() {
@@ -35,13 +35,14 @@ type Audio interface {
 }
 
 type AudioPlayer struct {
-	Ap *audio.Player
-	repeating bool
+	Ap                  *audio.Player
+	repeating           bool
 	total, finishedTime time.Duration
-	
+
 	StandardVolume float64
-	OnFinished func()
+	OnFinished     func()
 }
+
 func (p *AudioPlayer) SetStandardVolume(v float64) {
 	p.StandardVolume = v
 }
@@ -66,7 +67,7 @@ func (p *AudioPlayer) Rewind() error {
 func (p *AudioPlayer) IsPlaying() bool {
 	return p.Ap.IsPlaying()
 }
-func (p *AudioPlayer) Pause(){
+func (p *AudioPlayer) Pause() {
 	p.StopRepeating()
 	p.Ap.Pause()
 }
@@ -94,10 +95,10 @@ func (p *AudioPlayer) StopRepeating() {
 func (p *AudioPlayer) Repeat() {
 	if !p.repeating {
 		p.repeating = true
-		go func(){
+		go func() {
 			for p.repeating {
 				remaining := p.total - p.Current()
-				time.Sleep(remaining+time.Millisecond)
+				time.Sleep(remaining + time.Millisecond)
 				if p.repeating {
 					p.PlayFromBeginning()
 				}
@@ -109,21 +110,27 @@ func (p *AudioPlayer) Repeat() {
 //Creates a new audio player
 func NewPlayer(filename string, StandardVolume float64, OnFinished func(), fT time.Duration) (*AudioPlayer, error) {
 	f, err := os.Open(filename)
-	if err != nil {return nil, err}
-	
+	if err != nil {
+		return nil, err
+	}
+
 	d, err := mp3.Decode(audioContext, f)
-	if err != nil {return nil, err}
+	if err != nil {
+		return nil, err
+	}
 
 	// Create an audio.Player that has one stream.
 	p, err := audio.NewPlayer(audioContext, d)
-	if err != nil {return nil, err}
+	if err != nil {
+		return nil, err
+	}
 	total := time.Second * time.Duration(d.Length()) / 4 / sampleRate
 	ap := &AudioPlayer{
-		Ap:p,
-		total:total,
-		StandardVolume:StandardVolume,
-		OnFinished:OnFinished,
-		finishedTime:total-fT,
+		Ap:             p,
+		total:          total,
+		StandardVolume: StandardVolume,
+		OnFinished:     OnFinished,
+		finishedTime:   total - fT,
 	}
 	return ap, nil
 }

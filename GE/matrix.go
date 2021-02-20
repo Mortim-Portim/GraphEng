@@ -1,8 +1,8 @@
 package GE
 
 import (
-	"fmt"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"math/big"
 
@@ -72,15 +72,16 @@ type Matrix struct {
 	focus *Rectangle
 }
 
-func (m *Matrix) ScaleTo(x,y int, v int64) {
+func (m *Matrix) ScaleTo(x, y int, v int64) {
 	nL := make([]int64, (m.W()-x)*(m.H()-y))
-	for i,_ := range(nL) {
+	for i := range nL {
 		nL[i] = v
 	}
 	m.x.SetInt64(int64(x))
 	m.y.SetInt64(int64(y))
 	m.list = append(m.list, nL...)
 }
+
 //Returns the width of the focused Matrix
 func (m *Matrix) W() int {
 	return int(m.focus.Bounds().X)
@@ -104,7 +105,7 @@ func (m *Matrix) HAbs() int {
 //Initializes m with a certain value
 func (m *Matrix) Init(standard int64) {
 	m.list = make([]int64, m.x.Int64()*m.y.Int64())
-	for i, _ := range m.list {
+	for i := range m.list {
 		m.list[i] = standard
 	}
 }
@@ -112,7 +113,7 @@ func (m *Matrix) Init(standard int64) {
 //Initializes m with the indexes (used for debugging)
 func (m *Matrix) InitIdx() {
 	m.list = make([]int64, m.x.Int64()*m.y.Int64())
-	for i, _ := range m.list {
+	for i := range m.list {
 		m.list[i] = int64(i)
 	}
 }
@@ -165,7 +166,7 @@ func (m *Matrix) GetAbsByIdx(idx int) (int64, error) {
 func (m *Matrix) Get(x, y int) (int64, error) {
 	xl, yl := int(m.focus.Min().X)+x, int(m.focus.Min().Y)+y
 	if xl < 0 || xl >= m.WAbs() || yl < 0 || yl >= m.HAbs() {
-		return 0, ERROR_COORDS_NOT_ON_MATRIX//fmt.Errorf("Coordinates (%v:%v) not on matrix with w:%v, h:%v, xl:%v, yl:%v, wAbs:%v, hAbs:%v, lx:%v, ly:%v", x, y, int(m.focus.Bounds().X), int(m.focus.Bounds().Y), xl, yl, m.WAbs(), m.HAbs(), int(m.focus.Min().X), int(m.focus.Min().Y))
+		return 0, ERROR_COORDS_NOT_ON_MATRIX //fmt.Errorf("Coordinates (%v:%v) not on matrix with w:%v, h:%v, xl:%v, yl:%v, wAbs:%v, hAbs:%v, lx:%v, ly:%v", x, y, int(m.focus.Bounds().X), int(m.focus.Bounds().Y), xl, yl, m.WAbs(), m.HAbs(), int(m.focus.Min().X), int(m.focus.Min().Y))
 	}
 	idx := xl + m.WAbs()*yl
 	if idx >= len(m.list) {
@@ -241,30 +242,42 @@ func (m *Matrix) AddAbs(x, y int, v int64) {
 	ov, _ := m.GetAbs(x, y)
 	m.SetAbs(x, y, int64(ov)+v)
 }
+
 //Swaps the value of two positions
-func (m *Matrix) Swap(x1,y1, x2,y2 int) error {
-	p1v, err := m.Get(x1,y1)
-	if err != nil {return err}
-	p2v, err := m.Get(x2,y2)
-	if err != nil {return err}
-	m.Set(x1,y1, p2v)
-	m.Set(x2,y2, p1v)
+func (m *Matrix) Swap(x1, y1, x2, y2 int) error {
+	p1v, err := m.Get(x1, y1)
+	if err != nil {
+		return err
+	}
+	p2v, err := m.Get(x2, y2)
+	if err != nil {
+		return err
+	}
+	m.Set(x1, y1, p2v)
+	m.Set(x2, y2, p1v)
 	return nil
 }
+
 //Swaps the value of two positions
-func (m *Matrix) SwapAbs(x1,y1, x2,y2 int) error {
-	p1v, err := m.GetAbs(x1,y1)
-	if err != nil {return err}
-	p2v, err := m.GetAbs(x2,y2)
-	if err != nil {return err}
-	m.SetAbs(x1,y1, p2v)
-	m.SetAbs(x2,y2, p1v)
+func (m *Matrix) SwapAbs(x1, y1, x2, y2 int) error {
+	p1v, err := m.GetAbs(x1, y1)
+	if err != nil {
+		return err
+	}
+	p2v, err := m.GetAbs(x2, y2)
+	if err != nil {
+		return err
+	}
+	m.SetAbs(x1, y1, p2v)
+	m.SetAbs(x2, y2, p1v)
 	return nil
 }
+
 //Clears the matrix
 func (m *Matrix) Clear(v int64) {
-	m.FillAbs(0,0,m.WAbs()-1, m.HAbs()-1, v)
+	m.FillAbs(0, 0, m.WAbs()-1, m.HAbs()-1, v)
 }
+
 //Fills a Rectangle with a value
 func (m *Matrix) Fill(x1, y1, x2, y2 int, v int64) {
 	for x := x1; x <= x2; x++ {
@@ -392,7 +405,7 @@ func (m *Matrix) FromBytes(bs []byte) {
 	m.list = cmp.BytesToInt64s(bs[:len(bs)-24])
 	is := cmp.BytesToInt16s(bs[len(bs)-24 : len(bs)-16])
 	m.x = cmp.BytesToBigInt(bs[len(bs)-16 : len(bs)-8])
-	m.y = cmp.BytesToBigInt(bs[len(bs)-8 : len(bs)])
+	m.y = cmp.BytesToBigInt(bs[len(bs)-8:])
 	m.focus = GetRectangle(float64(is[0]), float64(is[1]), float64(is[2]), float64(is[3]))
 
 	//Ensure backcompatibility

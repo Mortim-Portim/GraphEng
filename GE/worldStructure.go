@@ -12,11 +12,8 @@ import (
 //Returns a WorldStructure object
 func GetWorldStructure(X, Y, W, H float64, WTiles, HTiles, ScreenWT, ScreenHT int) (p *WorldStructure) {
 	p = &WorldStructure{X: X, Y: Y, W: W, H: H, xTilesAbs: WTiles, yTilesAbs: HTiles}
-	p.TileMat = 	GetMatrix(WTiles, HTiles, 0)
-	p.LIdxMat = 	GetMatrix(WTiles, HTiles, -1)
-	p.ObjMat = 		GetMatrix(WTiles, HTiles, 0)
-	p.LightMat = 	GetMatrix(WTiles, HTiles, 0)
-	p.RegionMat = 	GetMatrix(WTiles, HTiles, 0)
+	p.TileMat = GetMatrix(WTiles, HTiles, 0)
+	p.ResetMatrixesFromTileMat()
 	p.Add_Drawables = GetDrawables()
 	p.SO_Drawables = GetDrawables()
 	p.SetDisplayWH(ScreenWT, ScreenHT)
@@ -24,6 +21,13 @@ func GetWorldStructure(X, Y, W, H float64, WTiles, HTiles, ScreenWT, ScreenHT in
 	zt := time.Date(1, 1, 1, 6, 0, 0, 0, time.FixedZone("UTC", 0))
 	p.CurrentTime = &zt
 	return
+}
+func (p *WorldStructure) ResetMatrixesFromTileMat() {
+	W := p.TileMat.WAbs();H := p.TileMat.HAbs()
+	p.LIdxMat = 	GetMatrix(W, H, -1)
+	p.ObjMat = 		GetMatrix(W, H, 0)
+	p.LightMat = 	GetMatrix(W, H, 0)
+	p.RegionMat = 	GetMatrix(W, H, 0)
 }
 /**
 Saved:

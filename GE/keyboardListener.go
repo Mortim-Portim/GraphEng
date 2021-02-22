@@ -183,14 +183,24 @@ func GetKeyStateFast(key ebiten.Key) (state, change bool) {
 }
 
 //Returns the state and weather it just changed based on the Keys mapped ID
-func (l *KeyLi) GetMappedKeyState(ID int) (state, change bool) {
-	l.mL.Lock()
-	KeyID, ok := l.mapper[ID]
-	l.mL.Unlock()
-	if !ok {
-		KeyID = ID
+func (l *KeyLi) GetMappedKeyState(IDs ...int) (state, change bool) {
+	state = true
+	for _, ID := range IDs {
+		l.mL.Lock()
+		KeyID, ok := l.mapper[ID]
+		l.mL.Unlock()
+		if !ok {
+			KeyID = ID
+		}
+		s, c := l.GetRawKeyState(KeyID)
+		if !s {
+			state = false
+		}
+		if c {
+			change = true
+		}
 	}
-	return l.GetRawKeyState(KeyID)
+	return
 }
 
 //Returns the state and weather it just changed based on the Keys mapped ID

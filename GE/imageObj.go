@@ -294,6 +294,14 @@ func DeepCopyEbitenImage(img *ebiten.Image) (img2 *ebiten.Image) {
 	img2.DrawImage(img, op)
 	return
 }
+func DeepCopyScaleEbitenImage(img *ebiten.Image, w, h int) (img2 *ebiten.Image) {
+	ow, oh := img.Size()
+	img2 = GetEmptyImage(w, h)
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Scale(float64(w)/float64(ow), float64(h)/float64(oh))
+	img2.DrawImage(img, op)
+	return
+}
 
 //Takes time
 func SaveImage(path string, img image.Image) error {

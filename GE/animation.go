@@ -1,10 +1,10 @@
 package GE
 
 import (
-	"github.com/hajimehoshi/ebiten"
 	"image"
-)
 
+	"github.com/hajimehoshi/ebiten"
+)
 
 /**
 Animation struct to load and play animations
@@ -23,31 +23,33 @@ Animation implements UpdateAble
 **/
 type Animation struct {
 	ImageObj
-	sprites, current, spriteWidth, spriteHeight, UpdatePeriod int
-	
+	sprites, current, spriteWidth, spriteHeight, UpdatePeriod, lastFrame int
+
 	spriteSheet *ebiten.Image
 }
-func (a *Animation) Clone() (*Animation) {
-	return &Animation{a.ImageObj, a.sprites, a.current, a.spriteWidth, a.spriteHeight, a.UpdatePeriod, a.spriteSheet}
+
+func (a *Animation) Clone() *Animation {
+	return &Animation{a.ImageObj, a.sprites, a.current, a.spriteWidth, a.spriteHeight, a.UpdatePeriod, a.lastFrame, a.spriteSheet}
 }
 func (a *Animation) Init(screen *ebiten.Image, data interface{}) (UpdateFunc, DrawFunc) {
 	return a.Update, a.DrawImageObj
 }
 func (a *Animation) Start(screen *ebiten.Image, data interface{}) {}
-func (a *Animation) Stop(screen *ebiten.Image, data interface{}) {}
+func (a *Animation) Stop(screen *ebiten.Image, data interface{})  {}
 func (a *Animation) Update(frame int) {
-	if a.UpdatePeriod > 0 && frame%a.UpdatePeriod == 0 {
-		a.current ++
+	if a.UpdatePeriod > 0 && a.lastFrame != frame && frame%a.UpdatePeriod == 0 {
+		a.lastFrame = frame
+		a.current++
 		if a.current >= a.sprites || frame == 0 {
 			a.current = 0
 		}
 		a.Img = a.spriteSheet.SubImage(image.Rect(a.spriteWidth*a.current, 0, a.spriteWidth*(a.current+1), a.spriteHeight)).(*ebiten.Image)
-	}else if a.UpdatePeriod == 0 && a.Img == nil {
+	} else if a.UpdatePeriod == 0 && a.Img == nil {
 		a.Img = a.spriteSheet.SubImage(image.Rect(a.spriteWidth*a.current, 0, a.spriteWidth*(a.current+1), a.spriteHeight)).(*ebiten.Image)
 	}
 }
 func (a *Animation) SetTo(frame int) {
-	frame = frame%a.sprites
+	frame = frame % a.sprites
 	if a.current != frame {
 		a.current = frame
 		a.Img = a.spriteSheet.SubImage(image.Rect(a.spriteWidth*a.current, 0, a.spriteWidth*(a.current+1), a.spriteHeight)).(*ebiten.Image)

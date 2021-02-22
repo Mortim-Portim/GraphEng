@@ -160,8 +160,10 @@ func (p *WorldStructure) GetLightLevel() int16 {
 
 //Updates the background lightlevel
 func (p *WorldStructure) UpdateTime(t time.Duration) {
-	p.CurrentTime.Add(t)
-	p.SetLightLevel(p.TimeToLV(p.TimeToSec()))
+	newT := p.CurrentTime.Add(t)
+	p.CurrentTime = &newT
+	secs := p.TimeToSec()
+	p.SetLightLevel(p.TimeToLV(secs))
 }
 func (p *WorldStructure) SetLightStats(maxLightLevel int16, f func(secs int) (lv int16)) {
 	p.TimeToLV = f

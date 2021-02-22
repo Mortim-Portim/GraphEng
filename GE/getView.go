@@ -1,24 +1,27 @@
 package GE
 
 import (
-	"github.com/hajimehoshi/ebiten"
-	//"github.com/hajimehoshi/ebiten/text"
-	//"github.com/hajimehoshi/ebiten/ebitenutil"
-	"github.com/golang/freetype/truetype"
-	//"golang.org/x/image/font"
 	"image/color"
+
+	"github.com/golang/freetype/truetype"
+	"github.com/hajimehoshi/ebiten"
 )
 
 //BUTTONS -------------------------------------------------------------------------------------------------------------------------------
 func LoadButton(pathU, pathD string, X, Y, W, H float64, ChangeDrawDarkOnLeft bool) (*Button, error) {
 	up, err := LoadEbitenImg(pathU)
-	if err != nil {return nil, err}
+	if err != nil {
+		return nil, err
+	}
 	down, err := LoadEbitenImg(pathD)
-	if err != nil {return nil, err}
-	btn := GetUpDownImageButton(up, down, X,Y,W,H)
+	if err != nil {
+		return nil, err
+	}
+	btn := GetUpDownImageButton(up, down, X, Y, W, H)
 	btn.ChangeDrawDarkOnLeft = ChangeDrawDarkOnLeft
 	return btn, nil
 }
+
 //Returns a Button showing a ImageObj
 func GetButton(img *ImageObj, dark *ebiten.Image) *Button {
 	b := &Button{}
@@ -28,6 +31,7 @@ func GetButton(img *ImageObj, dark *ebiten.Image) *Button {
 	b.Active = true
 	return b
 }
+
 //Returns a Button with Text of a specific color on it
 func GetTextButton(str, downStr string, ttf *truetype.Font, X, Y, H float64, textCol, backCol color.Color) *Button {
 	img := GetTextImage(str, X, Y, H, ttf, textCol, backCol)
@@ -38,6 +42,7 @@ func GetUpDownImageButton(up, down *ebiten.Image, X, Y, W, H float64) *Button {
 	img := &ImageObj{up, nil, W, H, X, Y, 0}
 	return GetButton(img, down)
 }
+
 //Returns a standard Button of an Image
 func GetImageButton(eimg *ebiten.Image, X, Y, W, H float64) *Button {
 	img := &ImageObj{eimg, nil, W, H, X, Y, 0}
@@ -48,10 +53,10 @@ func GetImageButton(eimg *ebiten.Image, X, Y, W, H float64) *Button {
 func GetSizedTextButton(str string, ttf *truetype.Font, X, Y, W, H float64, textCol, backCol color.Color) *Button {
 	light := ebiten.NewImage(int(W), int(H))
 	light.Fill(backCol)
-	tImg := GetTextImage(str, 0, 0, H, ttf, textCol, color.RGBA{0,0,0,0})
-	tImg.X = (W-tImg.W)/2
+	tImg := GetTextImage(str, 0, 0, H, ttf, textCol, color.RGBA{0, 0, 0, 0})
+	tImg.X = (W - tImg.W) / 2
 	tImg.Draw(light)
-	btn := GetImageButton(light, X,Y,W,H)
+	btn := GetImageButton(light, X, Y, W, H)
 	return btn
 }
 
@@ -115,7 +120,7 @@ func GetTabView(p *TabViewParams) *TabView {
 	if len(p.Imgs) > 0 {
 		if len(p.Dark) > 0 {
 			return getTabViewWithTwoImages(p.Imgs, p.Dark, p.Scrs, p.X, p.Y, p.W, p.H, p.TabH, p.Dis, p.Curr)
-		}else{
+		} else {
 			return getTabViewWithImages(p.Imgs, p.Scrs, p.X, p.Y, p.W, p.H, p.TabH, p.Dis, p.Curr)
 		}
 	}
@@ -127,9 +132,13 @@ func GetTabView(p *TabViewParams) *TabView {
 func GetImageScrollbarFromPath(X, Y, W, H float64, bar, pointer string, min, max, current int, ttf *truetype.Font) (*ScrollBar, error) {
 	b := &ScrollBar{min: min, max: max, current: current, ttf: ttf}
 	bar_i, err := LoadEbitenImg(bar)
-	if err != nil {return nil, err}
+	if err != nil {
+		return nil, err
+	}
 	pointer_i, err := LoadEbitenImg(pointer)
-	if err != nil {return nil, err}
+	if err != nil {
+		return nil, err
+	}
 	b.Img = bar_i
 	b.X = X
 	b.Y = Y
@@ -143,6 +152,7 @@ func GetImageScrollbarFromPath(X, Y, W, H float64, bar, pointer string, min, max
 	b.UpdatePos()
 	return b, nil
 }
+
 //Returns a horizontal ScrollBar
 func GetImageScrollbar(X, Y, W, H float64, bar, pointer *ebiten.Image, min, max, current int, ttf *truetype.Font) (b *ScrollBar) {
 	b = &ScrollBar{min: min, max: max, current: current, ttf: ttf}
@@ -179,9 +189,13 @@ func GetStandardScrollbar(X, Y, W, H float64, min, max, current int, ttf *truety
 //ANIMATION ------------------------------------------------------------------------------------------------------------------------------
 
 //Returns an Animation
-func GetAnimation(X, Y, W, H float64, spriteWidth, updatePeriod int, sprites *ebiten.Image) (anim *Animation) {
+func GetAnimation(X, Y, W, H float64, spriteWidth int, fps float64, sprites *ebiten.Image) (anim *Animation) {
+	uP := 0
+	if fps > 0 {
+		uP = int(FPS / fps)
+	}
 	w, h := sprites.Size()
-	anim = &Animation{ImageObj{X: X, Y: Y, W: W, H: H}, int(float64(w) / float64(spriteWidth)), 0, spriteWidth, h, updatePeriod, sprites}
+	anim = &Animation{ImageObj{X: X, Y: Y, W: W, H: H}, int(float64(w) / float64(spriteWidth)), 0, spriteWidth, h, uP, -1, sprites}
 	anim.Update(0)
 	return
 }
@@ -190,18 +204,26 @@ func GetAnimation(X, Y, W, H float64, spriteWidth, updatePeriod int, sprites *eb
 func GetAnimationFromParams(X, Y, W, H float64, p *Params, img *ebiten.Image) (anim *Animation) {
 	w, h := img.Size()
 	spriteWidth := p.Get("spriteWidth")
-	updatePeriod := p.Get("updatePeriod")
-	anim = &Animation{ImageObj{X: X, Y: Y, W: W, H: H}, int(float64(w) / float64(spriteWidth)), 0, int(spriteWidth), h, int(updatePeriod), img}
+	fps := p.Get("fps")
+	uP := 0
+	if fps > 0 {
+		uP = int(FPS / fps)
+	}
+	anim = &Animation{ImageObj{X: X, Y: Y, W: W, H: H}, int(float64(w) / float64(spriteWidth)), 0, int(spriteWidth), h, uP, -1, img}
 	anim.Update(0)
 	return
 }
 
 //Returns an DayNightAnimation
-func GetDayNightAnim(X, Y, W, H float64, spriteWidth, updatePeriod int, sprites *ebiten.Image) (anim *DayNightAnim) {
+func GetDayNightAnim(X, Y, W, H float64, spriteWidth int, fps float64, sprites *ebiten.Image) (anim *DayNightAnim) {
+	uP := 0
+	if fps > 0 {
+		uP = int(FPS / fps)
+	}
 	w, h := sprites.Size()
 	dnimg := &DayNightImg{&ImageObj{}, &ImageObj{}}
 	dnimg.SetParams(X, Y, W, H)
-	anim = &DayNightAnim{dnimg, int(float64(w) / float64(spriteWidth)), 0, spriteWidth, h, updatePeriod, 255, sprites}
+	anim = &DayNightAnim{dnimg, int(float64(w) / float64(spriteWidth)), 0, spriteWidth, h, uP, -1, 255, sprites}
 	anim.Update(0)
 	return
 }
@@ -215,5 +237,5 @@ func GetDayNightAnimFromParams(X, Y, W, H float64, pPath, imgPath string) (*DayN
 	if err != nil {
 		return nil, err
 	}
-	return GetDayNightAnim(X, Y, W, H, int(p.Get("spriteWidth")), int(p.Get("updatePeriod")), img), nil
+	return GetDayNightAnim(X, Y, W, H, int(p.Get("spriteWidth")), p.Get("fps"), img), nil
 }

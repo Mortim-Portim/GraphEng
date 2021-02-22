@@ -4,16 +4,17 @@ import (
 	"fmt"
 	"image/color"
 	"io/ioutil"
+	"log"
 	"math"
 	"math/rand"
 	"os"
 	"os/exec"
 	"runtime"
 	"runtime/debug"
+	"runtime/pprof"
 	"strings"
 	"time"
-	"log"
-	"runtime/pprof"
+
 	"github.com/golang/freetype/truetype"
 	"github.com/hajimehoshi/ebiten"
 	"github.com/hajimehoshi/ebiten/inpututil"
@@ -24,6 +25,8 @@ import (
 
 const allLetters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz/.:"
 const StandardFontSize = 64
+
+var FPS float64 = 30
 
 var StandardFont *truetype.Font
 
@@ -44,7 +47,8 @@ type UpdateAble interface {
 }
 
 //Initializes the Standard Font (use "" to load standard font), the Random generator, the audio context and the parameter
-func Init(FontPath string) {
+func Init(FontPath string, fps float64) {
+	FPS = fps
 	if len(FontPath) > 0 {
 		StandardFont = ParseFont(FontPath)
 	} else {
@@ -72,9 +76,12 @@ func ParseFont(path string) *truetype.Font {
 }
 
 var TTF_FACES = make(map[*truetype.Font]font.Face)
+
 func GetFace(ttf *truetype.Font) font.Face {
 	fc, ok := TTF_FACES[ttf]
-	if ok {return fc}
+	if ok {
+		return fc
+	}
 	mplusNormalFont := truetype.NewFace(ttf, &truetype.Options{
 		Size:    StandardFontSize,
 		DPI:     96,
@@ -83,6 +90,7 @@ func GetFace(ttf *truetype.Font) font.Face {
 	TTF_FACES[ttf] = mplusNormalFont
 	return mplusNormalFont
 }
+
 //Draws text of the given font on an Image
 func MakePopUp(str string, ttf *truetype.Font, textCol, backCol color.Color) *ebiten.Image {
 	fnt := GetFace(ttf)
@@ -156,9 +164,9 @@ func GetTextLinesImages(textStr string, X, Y, lineHeight float64, ttf *truetype.
 
 // repeatingKeyPressed return true when key is pressed considering the repeat state.
 func repeatingKeyPressed(key ebiten.Key) bool {
-	const (
-		delay    = 20
-		interval = 3
+	var (
+		delay    = int(0.6 * FPS)
+		interval = int(0.1 * FPS)
 	)
 	d := inpututil.KeyPressDuration(key)
 	if d == 1 {
@@ -300,30 +308,44 @@ func genVertices(X, Y, R float64, num int) *Points {
 }
 
 func GetAllFiles(root string) ([]string, error) {
-	if root[len(root)-1:] != "/" {root += "/"}
+	if root[len(root)-1:] != "/" {
+		root += "/"
+	}
 	var files []string
 	f, err := os.Open(root)
-	if err != nil {return files, err}
+	if err != nil {
+		return files, err
+	}
 	fileInfo, err := f.Readdir(-1)
 	f.Close()
-	if err != nil {return files, err}
+	if err != nil {
+		return files, err
+	}
 	err = AppendAllFilesInAllFolders(&files, root, fileInfo)
 	return files, nil
 }
 func AppendAllFilesInAllFolders(files *[]string, root string, folderFs []os.FileInfo) error {
-	if root[len(root)-1:] != "/" {root += "/"}
+	if root[len(root)-1:] != "/" {
+		root += "/"
+	}
 	for _, file := range folderFs {
 		if !file.IsDir() {
 			*files = append(*files, root+file.Name())
-		}else{
-			path := root+file.Name()+"/"
+		} else {
+			path := root + file.Name() + "/"
 			f, err := os.Open(path)
-			if err != nil {return err}
+			if err != nil {
+				return err
+			}
 			fileInfo, err := f.Readdir(-1)
 			f.Close()
-			if err != nil {return err}
+			if err != nil {
+				return err
+			}
 			err = AppendAllFilesInAllFolders(files, path, fileInfo)
-			if err != nil {return err}
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil
@@ -416,35 +438,37 @@ func ShitImDying(err error) {
 		panic(err)
 	}
 }
+
 /**
 var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to `file`")
 var memprofile = flag.String("memprofile", "", "write memory profile to `file`")
 **/
 var CPU_PROF_F *os.File
+
 func StartProfiling(cpuprofile *string) {
 	if *cpuprofile != "" {
-        f, err := os.Create(*cpuprofile)
-        if err != nil {
-            log.Fatal("could not create CPU profile: ", err)
-        }
-        CPU_PROF_F = f
-        if err := pprof.StartCPUProfile(CPU_PROF_F); err != nil {
-            log.Fatal("could not start CPU profile: ", err)
-        }
-    }
+		f, err := os.Create(*cpuprofile)
+		if err != nil {
+			log.Fatal("could not create CPU profile: ", err)
+		}
+		CPU_PROF_F = f
+		if err := pprof.StartCPUProfile(CPU_PROF_F); err != nil {
+			log.Fatal("could not start CPU profile: ", err)
+		}
+	}
 }
 func StopProfiling(cpuprofile, memprofile *string) {
 	if *memprofile != "" {
-        f, err := os.Create(*memprofile)
-        if err != nil {
-            log.Fatal("could not create memory profile: ", err)
-        }
-        runtime.GC() // get up-to-date statistics
-        if err := pprof.WriteHeapProfile(f); err != nil {
-            log.Fatal("could not write memory profile: ", err)
-        }
-        f.Close()
-    }
+		f, err := os.Create(*memprofile)
+		if err != nil {
+			log.Fatal("could not create memory profile: ", err)
+		}
+		runtime.GC() // get up-to-date statistics
+		if err := pprof.WriteHeapProfile(f); err != nil {
+			log.Fatal("could not write memory profile: ", err)
+		}
+		f.Close()
+	}
 	if *cpuprofile != "" {
 		pprof.StopCPUProfile()
 		CPU_PROF_F.Close()

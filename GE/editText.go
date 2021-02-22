@@ -2,12 +2,13 @@ package GE
 
 import (
 	"fmt"
-	"strings"
-	"strconv"
 	"image/color"
+	"strconv"
+	"strings"
+
 	"github.com/go-gl/glfw/v3.3/glfw"
-	"github.com/hajimehoshi/ebiten"
 	"github.com/golang/freetype/truetype"
+	"github.com/hajimehoshi/ebiten"
 )
 
 /**
@@ -26,15 +27,16 @@ EditText implements UpdateAble
 type EditText struct {
 	ImageObj
 	text, placeHolderText string
-	counter, MaxRunes int
-	ttf *truetype.Font
-	colors []color.Color
-	
+	counter, MaxRunes     int
+	ttf                   *truetype.Font
+	colors                []color.Color
+
 	currentColor int
-	
-	IsSelected, imageNeedsUpdate,Underscore bool
-	OnChange func(t *EditText)
+
+	IsSelected, imageNeedsUpdate, Underscore bool
+	OnChange                                 func(t *EditText)
 }
+
 func (t *EditText) RegisterOnChange(OnChange func(*EditText)) {
 	t.OnChange = OnChange
 }
@@ -46,10 +48,12 @@ func (t *EditText) Init(screen *ebiten.Image, data interface{}) (UpdateFunc, Dra
 	return t.Update, t.Draw
 }
 func (t *EditText) Start(screen *ebiten.Image, data interface{}) {}
-func (t *EditText) Stop(screen *ebiten.Image, data interface{}) {}
+func (t *EditText) Stop(screen *ebiten.Image, data interface{})  {}
 func (t *EditText) Update(frame int) {
 	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
-		xi,yi := ebiten.CursorPosition(); x := float64(xi); y := float64(yi)
+		xi, yi := ebiten.CursorPosition()
+		x := float64(xi)
+		y := float64(yi)
 		if x > t.X && x < t.X+t.W && y > t.Y && y < t.Y+t.H {
 			t.IsSelected = true
 		}
@@ -82,13 +86,13 @@ func (t *EditText) Update(frame int) {
 				t.imageNeedsUpdate = true
 			}
 		}
-		if t.counter%30 == 0 {
+		if t.counter%int(FPS) == 0 {
 			t.Underscore = !t.Underscore
 			t.imageNeedsUpdate = true
 		}
 		t.counter++
-		if t.counter > 30 {
-			t.counter -= 30
+		if t.counter > int(FPS) {
+			t.counter -= int(FPS)
 		}
 	}
 	if t.imageNeedsUpdate {

@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/go-gl/glfw/v3.3/glfw"
+	"github.com/atotto/clipboard"
 	"github.com/golang/freetype/truetype"
 	"github.com/hajimehoshi/ebiten"
 )
@@ -152,10 +152,11 @@ func (t *EditText) GetUint8() uint8 {
 	return uint8(i)
 }
 func GetClipBoard() string {
-	return glfw.GetClipboardString()
+	str, _ := clipboard.ReadAll()
+	return str
 }
 func SetClipBoard(s string) {
-	glfw.SetClipboardString(s)
+	clipboard.WriteAll(s)
 }
 func (t *EditText) CheckEasterEgg() {
 	if t.text == "hi123456" {

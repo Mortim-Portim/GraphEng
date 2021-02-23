@@ -93,6 +93,12 @@ func (obj *ImageObj) PutInBounds(x1, y1, x2, y2 float64) {
 	obj.W = x2 - x1
 	obj.H = y2 - y1
 }
+func (obj *ImageObj) SetXYWH(X, Y, W, H float64) {
+	obj.X = X
+	obj.Y = Y
+	obj.W = W
+	obj.H = H
+}
 
 //Returns Information
 func (obj *ImageObj) Print() string {

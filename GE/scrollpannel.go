@@ -31,6 +31,11 @@ type ScrollPanel struct {
 func (sp *ScrollPanel) Content() []*Button {
 	return sp.content
 }
+
+func (sp *ScrollPanel) SetContent(btns []*Button) {
+	sp.content = btns
+}
+
 func (sp *ScrollPanel) Add(button *Button) {
 	sp.content = append(sp.content, button)
 	sp.Redraw()

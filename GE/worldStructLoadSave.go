@@ -18,8 +18,8 @@ func (p *WorldStructure) ToBytes() []byte {
 	objBs := p.ObjectsToBytes()
 	lghBs := p.LightsToBytes()
 	changing := [][]byte{tilBs, objBs, lghBs, regBs}
-	mdxBs, mdyBs, maxBs, timBs := p.StatsToBytes()
-	return append([]byte{TO_BYTES_FUNC_VERSION}, cmp.CompressAll(changing, mdxBs, mdyBs, maxBs, timBs)...)
+	mdxBs, mdyBs, minBs, maxBs, timBs := p.StatsToBytes()
+	return append([]byte{TO_BYTES_FUNC_VERSION}, cmp.CompressAll(changing, mdxBs, mdyBs, minBs, maxBs, timBs)...)
 }
 
 func SetWorldStructFromBytes(p *WorldStructure, data []byte) error {
@@ -35,8 +35,8 @@ func SetWorldStructFromBytes(p *WorldStructure, data []byte) error {
 
 var WorldStructureLoader = map[byte]func([]byte, *WorldStructure) error{
 	1: func(data []byte, p *WorldStructure) error {
-		bs := cmp.DecompressAll(data, []int{8, 8, 2, 15})
-		err := p.TileMatFromBytes(bs[4])
+		bs := cmp.DecompressAll(data, []int{8, 8, 2, 2, 15})
+		err := p.TileMatFromBytes(bs[5])
 		if err != nil {
 			return err
 		}
@@ -44,9 +44,9 @@ var WorldStructureLoader = map[byte]func([]byte, *WorldStructure) error{
 		p.xTilesAbs = p.TileMat.WAbs()
 		p.yTilesAbs = p.TileMat.HAbs()
 		p.SetDisplayWH(int(p.TileMat.Focus().Bounds().X)-2, int(p.TileMat.Focus().Bounds().Y)-2)
-		p.BytesToObjects(bs[5])
-		p.BytesToLights(bs[6])
-		err = p.RegionMatFromBytes(bs[7])
+		p.BytesToObjects(bs[6])
+		p.BytesToLights(bs[7])
+		err = p.RegionMatFromBytes(bs[8])
 		if err != nil {
 			return err
 		}
@@ -124,10 +124,11 @@ func (p *WorldStructure) RegionMatFromBytes(bs []byte) error {
 	return p.RegionMat.Decompress(bs)
 }
 
-//(8),(8),(2),(15)
-func (p *WorldStructure) StatsToBytes() (mdxBs, mdyBs, maxBs, timBs []byte) {
+//(8),(8),(2),(2),(15)
+func (p *WorldStructure) StatsToBytes() (mdxBs, mdyBs, minBs, maxBs, timBs []byte) {
 	mdxBs = cmp.Int64ToBytes(int64(p.middleX))
 	mdyBs = cmp.Int64ToBytes(int64(p.middleY))
+	minBs = cmp.Int16ToBytes(int16(p.minLightLevel))
 	maxBs = cmp.Int16ToBytes(int16(p.maxLightLevel))
 	var err error
 	timBs, err = p.CurrentTime.MarshalBinary()
@@ -135,7 +136,7 @@ func (p *WorldStructure) StatsToBytes() (mdxBs, mdyBs, maxBs, timBs []byte) {
 	return
 }
 func (p *WorldStructure) StatsFromBytes(bs [][]byte) {
+	CheckErr(p.CurrentTime.UnmarshalBinary(bs[4]))
 	p.SetMiddle(int(cmp.BytesToInt64(bs[0])), int(cmp.BytesToInt64(bs[1])), true)
-	p.maxLightLevel = int16(cmp.BytesToInt16(bs[2]))
-	p.CurrentTime.UnmarshalBinary(bs[3])
+	p.SetLightStats(int16(cmp.BytesToInt16(bs[2])), int16(cmp.BytesToInt16(bs[3])))
 }

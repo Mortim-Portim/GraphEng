@@ -55,9 +55,9 @@ type WorldStructure struct {
 	SO_Drawables  *Drawables
 
 	//The standard light level
-	lightLevel, maxLightLevel int16
-	CurrentTime               *time.Time
-	TimeToLV                  func(secs int) (lv int16)
+	lightLevel, maxLightLevel, minLightLevel int16
+	CurrentTime                              *time.Time
+	TimeToLV                                 func(secs int) (lv int16)
 
 	//The current region of the Player
 	CurrentRegion  int

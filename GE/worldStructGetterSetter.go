@@ -163,11 +163,16 @@ func (p *WorldStructure) UpdateTime(t time.Duration) {
 	newT := p.CurrentTime.Add(t)
 	p.CurrentTime = &newT
 	secs := p.TimeToSec()
-	p.SetLightLevel(p.TimeToLV(secs))
+	if p.TimeToLV != nil {
+		p.SetLightLevel(p.TimeToLV(secs))
+	} else {
+		fmt.Println("NO Lightlevel function !!!!!!!!!!!!!!!!!!!!!!!")
+	}
 }
-func (p *WorldStructure) SetLightStats(maxLightLevel int16, f func(secs int) (lv int16)) {
-	p.TimeToLV = f
+func (p *WorldStructure) SetLightStats(minLightLevel, maxLightLevel int16) {
+	p.TimeToLV = GetStandardTimeToLvFunc(float64(minLightLevel), float64(maxLightLevel))
 	p.maxLightLevel = maxLightLevel
+	p.minLightLevel = minLightLevel
 	p.UpdateTime(0)
 }
 func (p *WorldStructure) TimeHM() string {

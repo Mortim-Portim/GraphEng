@@ -5,8 +5,8 @@ import (
 )
 
 /**
-Group represents a fixed group of structs implementing UpdateAble
-all members of the group can be Initialized, Started, Stopped, Updated and Drawn using one function call
+Group represents a group of structs implementing UpdateAble
+all members of the group can be Started, Stopped, Updated and Drawn using one function call
 
 Example:
 A EditText and Animation form a group, that is always updated and drawn at the same time
@@ -47,6 +47,7 @@ func (g *Group) Set(member UpdateAble, idx int) {
 	}
 	g.Members[idx] = member
 }
+
 type Group struct {
 	Members     []UpdateAble
 	UpdateFuncs []UpdateFunc

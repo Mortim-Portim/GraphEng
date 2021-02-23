@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"math/big"
 
-	cmp "github.com/mortim-portim/GraphEng/Compression"
+	cmp "github.com/mortim-portim/GraphEng/compression"
 )
 
 var ERROR_COORDS_NOT_ON_MATRIX = errors.New("Coordinates not on matrix")

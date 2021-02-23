@@ -6,6 +6,12 @@ import (
 	"github.com/hajimehoshi/ebiten"
 )
 
+/**
+DayNightAnim represents an Animtation, that can be drawn using different light levels
+see DayNightImg for further infos
+
+DayNightAnim implements UpdateAble
+**/
 type DayNightAnim struct {
 	*DayNightImg
 	sprites, current, spriteWidth, spriteHeight, UpdatePeriod, lastFrame int

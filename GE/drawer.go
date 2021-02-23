@@ -8,9 +8,7 @@ import (
 )
 
 /**
-Points are a slice of vectors, that can be drawn as a polygon using a specific color
-
-This is currently only used to draw simple forms such as a Circle
+Points represents a slice of vectors, that can be drawn as a polygon using a specific color
 **/
 
 type Points []*Vector

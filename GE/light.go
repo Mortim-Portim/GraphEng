@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"math"
 
-	cmp "github.com/mortim-portim/GraphEng/Compression"
+	cmp "github.com/mortim-portim/GraphEng/compression"
 )
 
 const LIGHT_DIS_FACTOR = 20

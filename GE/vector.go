@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math"
 
-	cmp "github.com/mortim-portim/GraphEng/Compression"
+	cmp "github.com/mortim-portim/GraphEng/compression"
 )
 
 func GetVectorFromRot(a float64) (v *Vector) {

@@ -5,6 +5,15 @@ import (
 	"github.com/hajimehoshi/ebiten/inpututil"
 )
 
+/**
+Button represents a struct, which should be updated every frame
+
+Button calls onPressLeft() or onPressRight() if being clicked by the mouse
+
+It can be created from a Image or using Text
+
+Button implements UpdateAble
+**/
 type Button struct {
 	Img         *ImageObj
 	dark, light *ebiten.Image
@@ -20,21 +29,6 @@ func (b *Button) UpImg() *ebiten.Image {
 func (b *Button) DownImg() *ebiten.Image {
 	return b.dark
 }
-
-/**
-TODO
-Use JustDown and check for other buttons that are pressed
-**/
-
-/**
-Button represents a struct, which should be updated every frame
-
-Button calls onPressLeft() or onPressRight() if being clicked by the mouse
-
-It can be created from a Image or using Text
-
-Button implements UpdateAble
-**/
 func (b *Button) Copy() *Button {
 	return &Button{b.Img.Copy(), b.dark, b.light, b.LPressed, b.RPressed, b.LastL, b.LastR, b.Active, b.DrawDark, b.ChangeDrawDarkOnLeft, b.onPressLeft, b.onPressRight, b.Data}
 }

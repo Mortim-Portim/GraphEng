@@ -10,9 +10,12 @@ import (
 	"github.com/hajimehoshi/ebiten"
 )
 
-//type GetYPos func()(y float64, isBack bool)
-//type Draw func(screen *ebiten.Image, x, y float64, lv int16, xStart, yStart, sqSize float64)
+/**
+Drawables represents a list of Drawable, that can be drawn in a worldstructure and have a position in it
+they can be sorted in order to draw the top ones first
 
+WObj implements Drawable and represents any object, that has a DayNightAnim and a position in the worldstructure
+**/
 func GetDrawables() *Drawables {
 	d := Drawables(make([]Drawable, 0))
 	return &d
@@ -179,7 +182,7 @@ func (o *WObj) SetAnim(anim *DayNightAnim) {
 Params.txt:
 squareSize:		[1-NaN]
 spriteWidth: 	[1-NaN]
-updatePeriod: 	[0-NaN]
+fps: 	        [0-NaN]
 hitBoxWidth:	[1-NaN]
 hitBoxHeight:	[1-NaN]
 XPos:			[0-NaN]

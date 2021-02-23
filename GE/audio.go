@@ -17,6 +17,9 @@ func InitAudioContext() {
 	audioContext = audio.NewContext(sampleRate)
 }
 
+/**
+Interface to play music and sounds
+**/
 type Audio interface {
 	SetStandardVolume(v float64)
 	GetStandardVolume() float64

@@ -8,6 +8,11 @@ import (
 
 const STANDARD_FADE_TIME = 1.5
 
+/**
+SountTrack represents a whole collection of songs
+One song at the time is played and can fade into the next one
+**/
+
 type SoundTrack struct {
 	Tracks                             map[string]*AudioPlayer
 	current                            string

@@ -11,10 +11,13 @@ import (
 	"github.com/icza/mjpeg"
 )
 
-//if ebiten.IsKeyPressed(ebiten.KeyC) && !g.rec.IsSaving() {
-//		g.rec.Save("./res/out")
-//	}
-//	g.rec.NextFrame(screen)
+/**
+Recorder can log a specific number of *ebiten.Images and on demand save them as a ".avi" file or ".png"
+the screen images should be added each frame and are rescaled automatically
+
+be careful with high resolutions and long recording times, as the images will be stored in the RAM
+when saving the CPU as well as the GPU might be heavily used for a long time
+**/
 func GetNewRecorder(frames, XRES, YRES, fps int) (r *Recorder) {
 	r = &Recorder{frames: frames, current: 0, fps: fps, XRES: XRES, YRES: YRES}
 	r.video = make([]*ebiten.Image, frames)

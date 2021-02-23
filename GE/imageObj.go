@@ -16,6 +16,10 @@ import (
 	"github.com/nfnt/resize"
 )
 
+/**
+ImageObj represents an *ebiten.Image together with screen coords, a custom width and height and an angel
+ImageObj can be drawn using the Draw()
+**/
 func NewImageObj(img *image.Image, eimg *ebiten.Image, X, Y, W, H, angle float64) (iobj *ImageObj) {
 	if img == nil {
 		oimg := (image.Image)(eimg)

@@ -7,6 +7,9 @@ import (
 	"github.com/hajimehoshi/ebiten"
 )
 
+/**
+This file contains getter for the most important UI objects
+**/
 //BUTTONS -------------------------------------------------------------------------------------------------------------------------------
 func LoadButton(pathU, pathD string, X, Y, W, H float64, ChangeDrawDarkOnLeft bool) (*Button, error) {
 	up, err := LoadEbitenImg(pathU)

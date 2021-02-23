@@ -5,12 +5,13 @@ import (
 )
 
 type ForceUpdater func(f *Force)
+
 func fUD(f *Force) {
 	if f.Count <= 0 {
 		f.amount = 0
 		f.inActive = true
 	}
-	f.Count --
+	f.Count--
 	return
 }
 func fU(f *Force) {
@@ -25,16 +26,17 @@ func fUAlwaysActive(f *Force) {
 
 type Force struct {
 	direction *Vector
-	amount float64
-	inActive bool
-	Count int
-	Update func(f *Force)
+	amount    float64
+	inActive  bool
+	Count     int
+	Update    func(f *Force)
 }
+
 func getStandardForce() *Force {
 	f := Force{}
 	f.amount = 0
 	f.Count = 0
-	f.direction = &Vector{0,0,0}
+	f.direction = &Vector{0, 0, 0}
 	return &f
 }
 func GetNewPlainForce() *Force {
@@ -50,7 +52,7 @@ func GetNewPlainForceAlwaysActive() *Force {
 func GetNewPlainForceDir(x, y, z float64) *Force {
 	f := getStandardForce()
 	f.Update = fU
-	f.SetForceVec(&Vector{x,y,z})
+	f.SetForceVec(&Vector{x, y, z})
 	return f
 }
 func GetNewPlainForceOfDuration(duration int) *Force {
@@ -78,7 +80,7 @@ func (f *Force) SetForceVec(v *Vector) {
 	f.amount = v.Absolute()
 	f.direction = v.Normalize()
 }
-func (f *Force) GetForceVec() *Vector {	
+func (f *Force) GetForceVec() *Vector {
 	if f.direction == nil {
 		f.direction = &Vector{}
 	}
@@ -88,10 +90,10 @@ func (f *Force) GetAcc(mass float64) *Vector {
 	if mass == 0 {
 		panic("Cannot calculate Acceleration for Mass=0")
 	}
-	return f.GetForceVec().Mul(1.0/mass)
+	return f.GetForceVec().Mul(1.0 / mass)
 }
 func (f *Force) Copy() *Force {
-	return &Force{direction:f.direction.Copy(), amount:f.amount, inActive:f.inActive, Count:f.Count, Update:f.Update}
+	return &Force{direction: f.direction.Copy(), amount: f.amount, inActive: f.inActive, Count: f.Count, Update: f.Update}
 }
 
 func (f *Force) GetInfos() string {

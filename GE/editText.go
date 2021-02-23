@@ -19,6 +19,8 @@ A standard Text for an empty EditText can be supplied
 EditText only displays the following Runes:
 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz/.:
 
+text can also be copied into and out from an EditText using Ctr+V or Ctr+C
+
 The maximum number of Runes contained by EditText is specified by MaxRunes
 
 EditText implements UpdateAble

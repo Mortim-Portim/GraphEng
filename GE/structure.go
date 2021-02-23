@@ -6,6 +6,10 @@ import (
 	"github.com/hajimehoshi/ebiten"
 )
 
+/**
+Structure represents a class of immobile objects, that are part of the worldstructure (StructureObj)
+a Structure can be loaded from the filesystem and than used to build a StructureObj
+**/
 type Structure struct {
 	squareSize                   int
 	Collides                     bool
@@ -19,7 +23,7 @@ type Structure struct {
 /**
 Params.txt:
 spriteWidth: 	[1-NaN]
-updatePeriod: 	[0-NaN]
+fps: 	        [0-NaN]
 hitBoxWidth:	[0-NaN]
 hitBoxHeight:	[0-NaN]
 Collides:		[true/false]

@@ -4,29 +4,35 @@ import (
 	"fmt"
 	"math"
 
-	cmp "github.com/mortim-portim/GraphEng/Compression"
+	cmp "github.com/mortim-portim/GraphEng/compression"
 )
 
+/**
+Point is a coordinate in a 2d space
+
+Rectangle is defined by two points (in the upper left and bottom right corner)
+**/
 type Point struct {
 	X, Y float64
 }
+
 func (p *Point) String() string {
 	return fmt.Sprintf("(%v|%v)", p.X, p.Y)
 }
 func (p *Point) Length() float64 {
-	return math.Sqrt(p.X*p.X+p.Y*p.Y)
+	return math.Sqrt(p.X*p.X + p.Y*p.Y)
 }
 func (p *Point) Normalize() *Point {
-	return p.Mul(1.0/p.Length())
+	return p.Mul(1.0 / p.Length())
 }
 func (p *Point) Add(p2 *Point) *Point {
-	return &Point{p.X+p2.X, p.Y+p2.Y}
+	return &Point{p.X + p2.X, p.Y + p2.Y}
 }
 func (p *Point) Sub(p2 *Point) *Point {
-	return &Point{p.X-p2.X, p.Y-p2.Y}
+	return &Point{p.X - p2.X, p.Y - p2.Y}
 }
 func (p *Point) Mul(val float64) *Point {
-	return &Point{p.X*val, p.Y*val}
+	return &Point{p.X * val, p.Y * val}
 }
 func (p *Point) ToVec() *Vector {
 	return &Vector{p.X, p.Y, 0}
@@ -127,7 +133,7 @@ func (r *Rectangle) updateBounds() {
 	r.bounds = &Point{r.max.X - r.min.X, r.max.Y - r.min.Y}
 }
 func (r *Rectangle) Inside(r2 *Rectangle) bool {
-	if r.Min().X > r2.Min().X && r.Min().Y > r2.Min().Y && 
+	if r.Min().X > r2.Min().X && r.Min().Y > r2.Min().Y &&
 		r.Max().X < r2.Max().X && r.Max().Y < r2.Max().Y {
 		return true
 	}
@@ -159,14 +165,14 @@ func RectangleFromBytes(bs []byte) (r *Rectangle) {
 }
 func RectanglesToLines(rs ...*Rectangle) (ls []*Line) {
 	ls = make([]*Line, len(rs)*4)
-	for i,r := range rs {
+	for i, r := range rs {
 		LT := r.Min()
 		RB := r.Max()
 		LB := &Point{LT.X, RB.Y}
 		RT := &Point{RB.X, LT.Y}
 		ls[i*4+0] = NewLine(LT, RT)
-		ls[i*4+1] =	NewLine(RT, RB)
-		ls[i*4+2] =	NewLine(RB, LB)
+		ls[i*4+1] = NewLine(RT, RB)
+		ls[i*4+2] = NewLine(RB, LB)
 		ls[i*4+3] = NewLine(LB, LT)
 	}
 	return
@@ -176,35 +182,42 @@ func GetOrderedRectangleI(p1, p2 [2]int) *Rectangle {
 }
 
 func GetOrderedRectangleF(p1, p2 [2]float64) *Rectangle {
-	minX := p1[0];maxX := p2[0]
-	minY := p1[1];maxY := p2[1]
+	minX := p1[0]
+	maxX := p2[0]
+	minY := p1[1]
+	maxY := p2[1]
 	if p1[0] > p2[0] {
-		minX = p2[0];maxX = p1[0]
+		minX = p2[0]
+		maxX = p1[0]
 	}
 	if p1[1] > p2[1] {
-		minY = p2[1];maxY = p1[1]
+		minY = p2[1]
+		maxY = p1[1]
 	}
 	return GetRectangle(minX, minY, maxX, maxY)
 }
 
 type Line struct {
-	p1,p2,n *Point
+	p1, p2, n *Point
 }
+
 func (l *Line) String() string {
 	return fmt.Sprintf("P1:%s, P2:%s, N:%s", l.p1.String(), l.p2.String(), l.n.String())
 }
-func NewLine(p1,p2 *Point) *Line {
-	return &Line{p1,p2,p2.Sub(p1)}
+func NewLine(p1, p2 *Point) *Line {
+	return &Line{p1, p2, p2.Sub(p1)}
 }
 func (l *Line) Get(r float64) *Point {
 	return l.p1.Add(l.n.Mul(r))
 }
+
 const MIN_NORM_VEC_DIFF = 0.0001
+
 func (l1 *Line) Collides(l2 *Line) (r1, r2 float64, c bool) {
 	c = l1.n.Normalize().Sub(l2.n.Normalize()).Length() > MIN_NORM_VEC_DIFF
 	if c {
-		r1 = (l2.n.Y*(l2.p1.X - l1.p1.X)-l2.n.X*(l2.p1.Y + l1.p1.Y))/(l1.n.X*l2.n.Y - l2.n.X*l1.n.Y)
-		r2 = (l1.n.Y*r1-l2.p1.Y+l1.p1.Y)/l2.n.Y
+		r1 = (l2.n.Y*(l2.p1.X-l1.p1.X) - l2.n.X*(l2.p1.Y+l1.p1.Y)) / (l1.n.X*l2.n.Y - l2.n.X*l1.n.Y)
+		r2 = (l1.n.Y*r1 - l2.p1.Y + l1.p1.Y) / l2.n.Y
 	}
 	return
 }
@@ -212,8 +225,8 @@ func (l1 *Line) CollidesWithRectangles(rs ...*Rectangle) (float64, bool) {
 	ls := RectanglesToLines(rs...)
 	r := 1.0
 	c := false
-	for _,l2 := range ls {
-		nr,_,colls := l1.Collides(l2)
+	for _, l2 := range ls {
+		nr, _, colls := l1.Collides(l2)
 		if colls && nr <= r && nr >= 0 {
 			r = nr
 			c = true

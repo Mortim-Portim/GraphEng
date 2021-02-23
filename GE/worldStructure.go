@@ -7,9 +7,16 @@ import (
 	"time"
 
 	"github.com/hajimehoshi/ebiten"
-	cmp "github.com/mortim-portim/GraphEng/Compression"
+	cmp "github.com/mortim-portim/GraphEng/compression"
 )
 
+/**
+WorldStructure represents a static World consisting out of ground tiles and objects
+
+to add moving Objects to the WorldStructure add them to Add_Drawables
+
+a WorldStructure saved and loaded provided, that the structure and tiles folder contain the same tiles
+**/
 //Returns a WorldStructure object
 func GetWorldStructure(X, Y, W, H float64, WTiles, HTiles, ScreenWT, ScreenHT int) (p *WorldStructure) {
 	p = &WorldStructure{X: X, Y: Y, W: W, H: H, xTilesAbs: WTiles, yTilesAbs: HTiles}
@@ -32,15 +39,6 @@ func (p *WorldStructure) ResetMatrixesFromTileMat() {
 	p.RegionMat = GetMatrix(W, H, 0)
 }
 
-/**
-Saved:
-Objects
-Lights
-TileMat
-middleX, middleY
-minLight, maxLight
-deltaB
-**/
 type WorldStructure struct {
 	//Tiles and Structures should be the same on all devices
 	Tiles      []*Tile

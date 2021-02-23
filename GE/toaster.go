@@ -7,6 +7,11 @@ import (
 	"github.com/hajimehoshi/ebiten"
 )
 
+/**
+Toaster represents a Factory for Toasts(small messages, that are displayed only for a limited time)
+A Toast can be timed using a specific number of frames or a channel that signals when the toast is supposed to stop displaying
+**/
+
 type Toast interface {
 	ImageObj() *ImageObj
 	Update()

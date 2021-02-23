@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	cmp "github.com/mortim-portim/GraphEng/Compression"
+	cmp "github.com/mortim-portim/GraphEng/compression"
 )
 
 const ERROR_WRONG_WORLD_VERSION = "Wrong World Version: %v"

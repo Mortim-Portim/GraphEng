@@ -133,6 +133,9 @@ func (o *WObj) GetMiddle() (float64, float64, int8) {
 	pnt := o.Hitbox.GetMiddle()
 	return pnt.X, pnt.Y, o.layer
 }
+func (o *WObj) GetPos() (float64, float64, int8) {
+	return o.GetMiddle()
+}
 
 //Returns the Position of the left top of the WObj
 func (o *WObj) GetTopLeft() (float64, float64) {

@@ -97,6 +97,14 @@ func (i *DayNightImg) SetMiddleX(x float64) {
 	i.night.X = i.day.X
 }
 
+func (i *DayNightImg) SetRotation(angle float64) {
+	i.day.Angle = angle
+	i.night.Angle = angle
+}
+func (i *DayNightImg) Rotation() float64 {
+	return i.day.Angle
+}
+
 //Sets the middle of the Image to y
 func (i *DayNightImg) SetMiddleY(y float64) {
 	i.day.Y = y - i.day.H/2

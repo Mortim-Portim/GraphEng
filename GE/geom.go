@@ -197,6 +197,32 @@ func GetOrderedRectangleF(p1, p2 [2]float64) *Rectangle {
 	return GetRectangle(minX, minY, maxX, maxY)
 }
 
+func GetPolygon(pnts ...*Point) (p *Polygon) {
+	if len(pnts) <= 2 {
+		return
+	}
+	p = &Polygon{make([]*Line, len(pnts))}
+	for i, pnt := range pnts {
+		if i != len(pnts)-1 {
+			p.lines[i] = NewLine(pnt, pnts[i+1])
+		} else {
+			p.lines[i] = NewLine(pnt, pnts[0])
+		}
+	}
+	return
+}
+func PolygonsToLines(ps ...*Polygon) (ls []*Line) {
+	ls = make([]*Line, 0)
+	for _, p := range ps {
+		ls = append(ls, p.lines...)
+	}
+	return
+}
+
+type Polygon struct {
+	lines []*Line
+}
+
 type Line struct {
 	p1, p2, n *Point
 }
@@ -222,7 +248,12 @@ func (l1 *Line) Collides(l2 *Line) (r1, r2 float64, c bool) {
 	return
 }
 func (l1 *Line) CollidesWithRectangles(rs ...*Rectangle) (float64, bool) {
-	ls := RectanglesToLines(rs...)
+	return l1.CollidesWithLines(RectanglesToLines(rs...)...)
+}
+func (l1 *Line) CollidesWithPolygons(ps ...*Polygon) (float64, bool) {
+	return l1.CollidesWithLines(PolygonsToLines(ps...)...)
+}
+func (l1 *Line) CollidesWithLines(ls ...*Line) (float64, bool) {
 	r := 1.0
 	c := false
 	for _, l2 := range ls {

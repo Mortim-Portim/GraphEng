@@ -226,7 +226,7 @@ func GetDayNightAnim(X, Y, W, H float64, spriteWidth int, fps float64, sprites *
 	w, h := sprites.Size()
 	dnimg := &DayNightImg{&ImageObj{}, &ImageObj{}}
 	dnimg.SetParams(X, Y, W, H)
-	anim = &DayNightAnim{dnimg, int(float64(w) / float64(spriteWidth)), 0, spriteWidth, h, uP, -1, 255, sprites}
+	anim = &DayNightAnim{dnimg, int(float64(w) / float64(spriteWidth)), 0, spriteWidth, h, uP, -1, 255, sprites, nil}
 	anim.Update(0)
 	return
 }

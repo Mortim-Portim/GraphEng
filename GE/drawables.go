@@ -3,7 +3,6 @@ package GE
 import (
 	"errors"
 	"fmt"
-	"math"
 	"sort"
 	"strings"
 
@@ -31,19 +30,16 @@ type Drawables []Drawable
 func (d Drawables) Len() int      { return len(d) }
 func (d Drawables) Swap(i, j int) { d[i], d[j] = d[j], d[i] }
 func (d Drawables) Less(i, j int) bool {
-	x1, y1, layer1 := d[i].GetPos()
-	x2, y2, layer2 := d[j].GetPos()
+	_, y1, layer1 := d[i].GetPos()
+	_, y2, layer2 := d[j].GetPos()
 
-	if math.Abs(y1-y2) < 0.1 {
+	if d[i].GetDrawBox().Overlaps(d[j].GetDrawBox()) {
 		if layer1 < layer2 {
 			return true
 		} else if layer1 > layer2 {
 			return false
-		} else {
-			return x1 < x2
 		}
 	}
-
 	return y1 < y2
 }
 func (d Drawables) Sort() {
@@ -86,6 +82,15 @@ type WObj struct {
 	Name            string
 }
 
+func (o *WObj) ListenForNextAnimFinish(fnc func()) {
+	o.img.OnAnimFinished = func(a *DayNightAnim) {
+		fnc()
+		a.OnAnimFinished = nil
+	}
+}
+func (o *WObj) RestartAnim() {
+	o.img.current = 0
+}
 func (o *WObj) GetAnim() *DayNightAnim { return o.img }
 
 //Copys the WObj

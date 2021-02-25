@@ -175,6 +175,16 @@ func (v *Vector) GetInfos() string {
 func (v *Vector) ToBytes() []byte {
 	return append(append(cmp.Float64ToBytes(v.X), cmp.Float64ToBytes(v.Y)...), cmp.Float64ToBytes(v.Z)...)
 }
+func (v *Vector) XYToBytes() []byte {
+	return append(cmp.Float64ToBytes(v.X), cmp.Float64ToBytes(v.Y)...)
+}
+func XYVectorFromBytes(bs []byte) (v *Vector) {
+	v = &Vector{}
+	v.X = cmp.BytesToFloat64(bs[:8])
+	v.Y = cmp.BytesToFloat64(bs[8:])
+	v.Z = 0
+	return
+}
 func VectorFromBytes(bs []byte) (v *Vector) {
 	v = &Vector{}
 	v.X = cmp.BytesToFloat64(bs[:8])

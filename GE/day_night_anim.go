@@ -17,10 +17,11 @@ type DayNightAnim struct {
 	sprites, current, spriteWidth, spriteHeight, UpdatePeriod, lastFrame int
 	LightLevel                                                           int16
 	spriteSheet                                                          *ebiten.Image
+	OnAnimFinished                                                       func(a *DayNightAnim)
 }
 
 func (a *DayNightAnim) Copy() *DayNightAnim {
-	return &DayNightAnim{a.DayNightImg.Clone(), a.sprites, a.current, a.spriteWidth, a.spriteHeight, a.UpdatePeriod, a.lastFrame, a.LightLevel, a.spriteSheet}
+	return &DayNightAnim{a.DayNightImg.Clone(), a.sprites, a.current, a.spriteWidth, a.spriteHeight, a.UpdatePeriod, a.lastFrame, a.LightLevel, a.spriteSheet, a.OnAnimFinished}
 }
 func (a *DayNightAnim) Init(screen *ebiten.Image, data interface{}) (UpdateFunc, DrawFunc) {
 	return a.Update, a.DrawAnim
@@ -33,6 +34,9 @@ func (a *DayNightAnim) Update(frame int) {
 		a.current++
 		if a.current >= a.sprites {
 			a.current = 0
+			if a.OnAnimFinished != nil {
+				a.OnAnimFinished(a)
+			}
 		}
 		a.DayNightImg.SetDay(a.spriteSheet.SubImage(image.Rect(a.spriteWidth*a.current, 0, a.spriteWidth*(a.current+1), a.spriteHeight/2)).(*ebiten.Image))
 		a.DayNightImg.SetNight(a.spriteSheet.SubImage(image.Rect(a.spriteWidth*a.current, a.spriteHeight/2, a.spriteWidth*(a.current+1), a.spriteHeight)).(*ebiten.Image))

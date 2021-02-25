@@ -2,10 +2,31 @@ package GE
 
 import (
 	"fmt"
+	"math/rand"
+	"time"
 )
+
+//Generates a random number including l and u
+func RandomInt(l, u int) int {
+	rand.Seed(time.Now().UnixNano())
+	return rand.Intn(u-l+1) + l
+}
+
+func RandomFloat(l, u float64) float64 {
+	return rand.Float64()*(u-l+1) + l
+}
 
 type ForceUpdater func(f *Force)
 
+func GetRandomUF(min, max, deltaAngle, deltaAmount float64) func(*Force) {
+	return func(f *Force) {
+		f.direction.RotateZ(RandomFloat(-deltaAngle, deltaAngle))
+		f.amount += RandomFloat(-deltaAmount, deltaAmount)
+		if f.amount > max || f.amount < min {
+			f.amount = (max + min) / 2
+		}
+	}
+}
 func fUD(f *Force) {
 	if f.Count <= 0 {
 		f.amount = 0

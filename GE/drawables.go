@@ -86,6 +86,8 @@ type WObj struct {
 	Name            string
 }
 
+func (o *WObj) GetAnim() *DayNightAnim { return o.img }
+
 //Copys the WObj
 func (o *WObj) Copy() (o2 *WObj) {
 	o2 = &WObj{o.img.Copy(), o.layer, o.Hitbox.Copy(), o.Drawbox.Copy(), o.squareSize, o.Name}

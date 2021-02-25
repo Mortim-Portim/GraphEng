@@ -383,11 +383,16 @@ func (p *WorldStructure) GetTileOfCoords(x, y int) (xT, yT int) {
 	return int(loc.X + tilesDX), int(loc.Y + tilesDY)
 }
 func (p *WorldStructure) GetTileOfCoordsFP(x, y float64) (xT, yT float64) {
+	fmt.Printf("Clicked at (%0.2f|%0.2f)\n", x, y)
 	x -= p.xStart
 	y -= p.yStart
+	fmt.Printf("Minus start (%0.2f|%0.2f)\n", x, y)
 	tilesDX := x / p.tileS
-	tilesDY := x / p.tileS
+	tilesDY := y / p.tileS
+	fmt.Printf("DX,DY: (%0.2f|%0.2f)\n", tilesDX, tilesDY)
 	loc := p.TileMat.Focus().Min()
+	fmt.Printf("Loc: (%0.2f|%0.2f)\n", loc.X, loc.Y)
+	fmt.Printf("Final: (%0.2f|%0.2f)\n", loc.X+tilesDX, loc.Y+tilesDY)
 	return loc.X + tilesDX, loc.Y + tilesDY
 }
 

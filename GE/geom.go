@@ -16,6 +16,26 @@ type Point struct {
 	X, Y float64
 }
 
+func (p1 *Point) MinWithP2(p2 *Point) (p3 *Point) {
+	p3 = p1.Copy()
+	if p2.X < p3.X {
+		p3.X = p2.X
+	}
+	if p2.Y < p3.Y {
+		p3.Y = p2.Y
+	}
+	return
+}
+func (p1 *Point) MaxWithP2(p2 *Point) (p3 *Point) {
+	p3 = p1.Copy()
+	if p2.X > p3.X {
+		p3.X = p2.X
+	}
+	if p2.Y > p3.Y {
+		p3.Y = p2.Y
+	}
+	return
+}
 func (p *Point) String() string {
 	return fmt.Sprintf("(%v|%v)", p.X, p.Y)
 }
@@ -92,6 +112,11 @@ type Rectangle struct {
 	min, max, bounds *Point
 }
 
+func (r *Rectangle) BoundingRect(r2 *Rectangle) (r3 *Rectangle) {
+	min := r.Min().MinWithP2(r2.Min())
+	max := r.Max().MaxWithP2(r2.Max())
+	return &Rectangle{min, max, max.Sub(min)}
+}
 func (r *Rectangle) Print() string {
 	return fmt.Sprintf("Min: %s, Max: %s, Bounds: %s", r.Min().Print(), r.Max().Print(), r.Bounds().Print())
 }
@@ -221,6 +246,26 @@ func PolygonsToLines(ps ...*Polygon) (ls []*Line) {
 
 type Polygon struct {
 	lines []*Line
+}
+
+func (p *Polygon) GetBounds() *Rectangle {
+	min := p.lines[0].p1.Copy()
+	max := p.lines[0].p1.Copy()
+	for _, l := range p.lines {
+		min = l.p1.MinWithP2(min)
+		min = l.p2.MinWithP2(min)
+		max = l.p1.MaxWithP2(max)
+		max = l.p2.MaxWithP2(max)
+	}
+	return &Rectangle{min, max, &Point{max.X - min.X, max.Y - min.Y}}
+}
+func (p *Polygon) GetMiddle() (pnt *Point) {
+	for _, l := range p.lines {
+		pnt.Add(l.p1)
+		pnt.Add(l.p2)
+	}
+	pnt.Mul(1.0 / float64(len(p.lines)))
+	return
 }
 
 type Line struct {

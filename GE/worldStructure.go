@@ -38,6 +38,14 @@ func (p *WorldStructure) ResetMatrixesFromTileMat() {
 	p.LightMat = GetMatrix(W, H, 0)
 	p.RegionMat = GetMatrix(W, H, 0)
 }
+func (p *WorldStructure) IterateOverCollidablesInRect(rec *Rectangle, fnc func(dw Drawable)) {
+	p.IterateOverDrawablesInRect(rec, func(so *StructureObj) {
+		fnc(so)
+	})
+	for _, dw := range *p.Add_Drawables {
+		fnc(dw)
+	}
+}
 
 type WorldStructure struct {
 	//Tiles and Structures should be the same on all devices
@@ -261,24 +269,25 @@ func (p *WorldStructure) UpdateObjMat() {
 //ONLY use after moving the world to a different position
 func (p *WorldStructure) UpdateObjDrawables() {
 	*p.SO_Drawables = *p.Add_Drawables
-	drawnObjs := make([]int, 0)
-	minP := p.ObjMat.Focus().Min()
-	maxP := p.ObjMat.Focus().Max()
+	p.IterateOverDrawablesInRect(p.ObjMat.Focus(), func(obj *StructureObj) {
+		p.SO_Drawables = p.SO_Drawables.Add(obj)
+	})
+	p.SO_Drawables.Sort()
+}
+func (p *WorldStructure) IterateOverDrawablesInRect(rec *Rectangle, fnc func(so *StructureObj)) {
+	minP := rec.Min()
+	maxP := rec.Max()
 	for y := int(minP.Y - OBJ_MAX_SIZE); y < int(maxP.Y+OBJ_MAX_SIZE); y++ {
 		for x := int(minP.X - OBJ_MAX_SIZE); x < int(maxP.X+OBJ_MAX_SIZE); x++ {
 			mvi, err := p.ObjMat.GetAbs(x, y)
 			idx := int(math.Abs(float64(mvi)))
 			if idx != 0 && err == nil {
 				idx -= 1
-				obj := p.Objects[idx]
-				if !containsI(drawnObjs, int(idx)) {
-					p.SO_Drawables = p.SO_Drawables.Add(obj)
-					drawnObjs = append(drawnObjs, int(idx))
-				}
+				fnc(p.Objects[idx])
 			}
 		}
 	}
-	p.SO_Drawables.Sort()
+	return
 }
 func (p *WorldStructure) AddDrawable(d Drawable) {
 	p.Add_Drawables = p.Add_Drawables.Add(d)

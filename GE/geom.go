@@ -64,7 +64,7 @@ func (p *Point) Equals(p2 *Point) bool {
 	return false
 }
 func (p *Point) Print() string {
-	return fmt.Sprintf("X:%v, Y:%v", p.X, p.Y)
+	return fmt.Sprintf("(%v|%v)", p.X, p.Y)
 }
 func (p *Point) Copy() *Point {
 	return &Point{p.X, p.Y}

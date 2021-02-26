@@ -300,6 +300,18 @@ func BytesToInt16(b []byte) int16 {
 	return int16(int64(binary.LittleEndian.Uint16(b)) - 32768)
 }
 
+//Uint32ToBytes (i uint32) (b []byte) - Converts an uint32 into a [4]byte array
+func Uint32ToBytes(i uint32) (b []byte) {
+	b = make([]byte, 4)
+	binary.LittleEndian.PutUint32(b, i)
+	return
+}
+
+//BytesToUint32 (b []byte) uint32 - Converts a [4]byte array into an uint32
+func BytesToUint32(b []byte) uint32 {
+	return binary.LittleEndian.Uint32(b)
+}
+
 //Int16sToBytes (is ...int16) (bs []byte) - Converts a slice of ints into a []byte slice
 func Int16sToBytes(is ...int16) (bs []byte) {
 	bs = make([]byte, 2*len(is))

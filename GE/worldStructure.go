@@ -392,83 +392,10 @@ func (p *WorldStructure) GetTileOfCoords(x, y int) (xT, yT int) {
 	return int(loc.X + tilesDX), int(loc.Y + tilesDY)
 }
 func (p *WorldStructure) GetTileOfCoordsFP(x, y float64) (xT, yT float64) {
-	fmt.Printf("Clicked at (%0.2f|%0.2f)\n", x, y)
 	x -= p.xStart
 	y -= p.yStart
-	fmt.Printf("Minus start (%0.2f|%0.2f)\n", x, y)
 	tilesDX := x / p.tileS
 	tilesDY := y / p.tileS
-	fmt.Printf("DX,DY: (%0.2f|%0.2f)\n", tilesDX, tilesDY)
 	loc := p.TileMat.Focus().Min()
-	fmt.Printf("Loc: (%0.2f|%0.2f)\n", loc.X, loc.Y)
-	fmt.Printf("Final: (%0.2f|%0.2f)\n", loc.X+tilesDX, loc.Y+tilesDY)
 	return loc.X + tilesDX, loc.Y + tilesDY
 }
-
-/**
-//!DEPRECATED!
-//ONLY use when moving the world before drawing tiles or objects
-func (p *WorldStructure) DrawLights(update bool) {
-	t_LightIdx_s := time.Now()
-	ls := make([]*Light, 0)
-	for x := -LIGHT_COMP_RADIUS; x < p.CurrentLightMat.W()+LIGHT_COMP_RADIUS; x++ {
-		for y := -LIGHT_COMP_RADIUS; y < p.CurrentLightMat.H()+LIGHT_COMP_RADIUS; y++ {
-			idx,err := p.LIdxMat.Get(x,y)
-			if int(idx) >= 0 && int(idx) < len(p.Lights) && err == nil {
-				ls = append(ls, p.Lights[idx])
-			}
-		}
-	}
-	if update {
-		p.UpdateLights(ls)
-	}
-	fmt.Println(time.Now().Sub(t_LightIdx_s))
-	pnt := p.TileMat.Focus().Min()
-	for x := 0; x < p.TileMat.W(); x++ {
-		for y := 0; y < p.TileMat.H(); y++ {
-			p.CurrentLightMat.SetAbs(x,y, p.GetLightValueForPoint(x+int(pnt.X), y+int(pnt.Y), ls, int16(p.lightLevel)))
-		}
-	}
-}
-//!DEPRECATED!
-//Draw the top first
-//Draws The World Ground Tiles and the Objects form the layer which is currently in the middle of the screen
-func (p *WorldStructure) DrawBack(screen *ebiten.Image) {
-	p.drawTiles(screen)
-	drawnObjs := make([]int,0)
-	for y := 0; y < p.ObjMat.H(); y++ {
-		for x := 0; x < p.ObjMat.W(); x++ {
-			mvi,err := p.ObjMat.Get(x, y)
-			idx := int(math.Abs(float64(mvi)))
-			if idx != 0 && err == nil {
-				idx -= 1
-				obj := p.Objects[idx]
-				if obj.Background && !containsI(drawnObjs, int(idx)){
-					lv,_ := p.CurrentLightMat.GetAbs(x, y)
-					obj.DrawStructObj(screen, p.ObjMat.Focus().Min(), p.tileS, p.xStart, p.yStart, lv)
-					drawnObjs = append(drawnObjs, int(idx))
-				}
-			}
-		}
-	}
-}
-//!DEPRECATED!
-func (p *WorldStructure) DrawFront(screen *ebiten.Image) {
-	drawnObjs := make([]int,0)
-	for y := 0; y < p.ObjMat.H(); y++ {
-		for x := 0; x < p.ObjMat.W(); x++ {
-			mvi,err := p.ObjMat.Get(x, y)
-			idx := int(math.Abs(float64(mvi)))
-			if idx != 0 && err == nil {
-				idx -= 1
-				obj := p.Objects[idx]
-				if !obj.Background && !containsI(drawnObjs, int(idx)){
-					lv,_ := p.CurrentLightMat.GetAbs(x,y)
-					obj.DrawStructObj(screen, p.ObjMat.Focus().Min(), p.tileS, p.xStart, p.yStart, lv)
-					drawnObjs = append(drawnObjs, int(idx))
-				}
-			}
-		}
-	}
-}
-**/

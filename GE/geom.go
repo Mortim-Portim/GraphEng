@@ -42,17 +42,36 @@ func (p *Point) String() string {
 func (p *Point) Length() float64 {
 	return math.Sqrt(p.X*p.X + p.Y*p.Y)
 }
+func (p *Point) NormalizeP() *Point {
+	p.MulP(1.0 / p.Length())
+	return p
+}
+func (p *Point) AddP(p2 *Point) *Point {
+	p.X += p2.X
+	p.Y += p2.Y
+	return p
+}
+func (p *Point) SubP(p2 *Point) *Point {
+	p.X -= p2.X
+	p.Y -= p2.Y
+	return p
+}
+func (p *Point) MulP(val float64) *Point {
+	p.X *= val
+	p.Y *= val
+	return p
+}
 func (p *Point) Normalize() *Point {
-	return p.Mul(1.0 / p.Length())
+	return p.Copy().NormalizeP()
 }
 func (p *Point) Add(p2 *Point) *Point {
-	return &Point{p.X + p2.X, p.Y + p2.Y}
+	return p.Copy().AddP(p2)
 }
 func (p *Point) Sub(p2 *Point) *Point {
-	return &Point{p.X - p2.X, p.Y - p2.Y}
+	return p.Copy().SubP(p2)
 }
 func (p *Point) Mul(val float64) *Point {
-	return &Point{p.X * val, p.Y * val}
+	return p.Copy().MulP(val)
 }
 func (p *Point) ToVec() *Vector {
 	return &Vector{p.X, p.Y, 0}
@@ -124,9 +143,8 @@ func (r *Rectangle) Copy() *Rectangle {
 	return &Rectangle{r.min.Copy(), r.max.Copy(), r.bounds.Copy()}
 }
 func (r *Rectangle) MoveTo(pnt *Point) {
-	w, h := r.Bounds().X, r.Bounds().Y
-	r.SetMin(pnt)
-	r.SetBounds(&Point{w, h})
+	r.min = pnt
+	r.max = r.min.Add(r.bounds)
 }
 func (r *Rectangle) MoveBy(dx, dy float64) {
 	r.min.X += dx
@@ -143,13 +161,15 @@ func (r *Rectangle) SetMax(max *Point) {
 	r.updateBounds()
 }
 func (r *Rectangle) SetBounds(bounds *Point) {
-	r.SetMax(&Point{r.min.X + bounds.X, r.min.Y + bounds.Y})
+	r.max = r.min.Add(bounds)
+	r.bounds = bounds
 }
 func (r *Rectangle) GetMiddle() *Point {
 	return &Point{r.min.X + r.bounds.X/2, r.min.Y + r.bounds.Y/2}
 }
 func (r *Rectangle) SetMiddle(pnt *Point) {
-	r.SetMin(&Point{pnt.X - r.Bounds().X/2, pnt.Y - r.Bounds().Y/2})
+	r.min = &Point{pnt.X - r.bounds.X/2, pnt.Y - r.bounds.Y/2}
+	r.max = r.min.Add(r.bounds)
 }
 func (r *Rectangle) Min() *Point    { return r.min }
 func (r *Rectangle) Max() *Point    { return r.max }
@@ -261,10 +281,10 @@ func (p *Polygon) GetBounds() *Rectangle {
 }
 func (p *Polygon) GetMiddle() (pnt *Point) {
 	for _, l := range p.lines {
-		pnt.Add(l.p1)
-		pnt.Add(l.p2)
+		pnt.AddP(l.p1)
+		pnt.AddP(l.p2)
 	}
-	pnt.Mul(1.0 / float64(len(p.lines)))
+	pnt.MulP(1.0 / float64(len(p.lines)))
 	return
 }
 

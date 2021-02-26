@@ -5,7 +5,6 @@ import (
 	"compress/gzip"
 	"encoding/binary"
 	"io/ioutil"
-	"math"
 	"math/big"
 )
 
@@ -37,49 +36,49 @@ func BytesToBools(bs []byte) (bls []bool) {
 	return
 }
 
-//Float2DToBytesRound (f1, f2 float64) (bs []byte) - converts two float64 to byte[6]
-func Float2DToBytesRound(f1, f2 float64) (bs []byte) {
-	bs = append(FloatToBytesRound(f1), FloatToBytesRound(f2)...)
-	return
-}
+// //Float2DToBytesRound (f1, f2 float64) (bs []byte) - converts two float64 to byte[6]
+// func Float2DToBytesRound(f1, f2 float64) (bs []byte) {
+// 	bs = append(FloatToBytesRound(f1), FloatToBytesRound(f2)...)
+// 	return
+// }
 
-//BytesToFloat2DRound (bs []byte) (f1, f2 float64) - converts byte[6] to float64
-func BytesToFloat2DRound(bs []byte) (f1, f2 float64) {
-	f1 = BytesToFloatRound(bs[0:3])
-	f2 = BytesToFloatRound(bs[3:6])
-	return
-}
+// //BytesToFloat2DRound (bs []byte) (f1, f2 float64) - converts byte[6] to float64
+// func BytesToFloat2DRound(bs []byte) (f1, f2 float64) {
+// 	f1 = BytesToFloatRound(bs[0:3])
+// 	f2 = BytesToFloatRound(bs[3:6])
+// 	return
+// }
 
-//FloatToBytesRound (f float64) (bs []byte) - Converts a float64 in [0;2^16] with a precision of 1/127 to byte[3]
-func FloatToBytesRound(f float64) (bs []byte) {
-	ff := math.Round(f)
-	fr := (f - ff) * 255
-	bs = UInt16ToBytes(uint16(ff))
-	bs = append(bs, Int8ToBytes(int8(fr))...)
-	return
-}
+// //FloatToBytesRound (f float64) (bs []byte) - Converts a float64 in [0;2^16] with a precision of 1/127 to byte[3]
+// func FloatToBytesRound(f float64) (bs []byte) {
+// 	ff := math.Round(f)
+// 	fr := (f - ff) * 255
+// 	bs = UInt16ToBytes(uint16(ff))
+// 	bs = append(bs, Int8ToBytes(int8(fr))...)
+// 	return
+// }
 
-//BytesToFloatRound (bs []byte) (f float64) - Converts byte[3] into a float64 in [0;2^16] with a precision of 1/127
-func BytesToFloatRound(bs []byte) (f float64) {
-	f = float64(BytesToUInt16(bs[0:2]))
-	f += float64(BytesToInt8(bs[2:3])) / 255
-	return
-}
+// //BytesToFloatRound (bs []byte) (f float64) - Converts byte[3] into a float64 in [0;2^16] with a precision of 1/127
+// func BytesToFloatRound(bs []byte) (f float64) {
+// 	f = float64(BytesToUInt16(bs[0:2]))
+// 	f += float64(BytesToInt8(bs[2:3])) / 255
+// 	return
+// }
 
-//FloatToBytesRoundFP (f float64) (bs []byte) - Converts a float64 in [0;255] with a precision of 1/65535 to byte[3]
-func FloatToBytesRoundFP(f float64) (bs []byte) {
-	ff := math.Floor(f)
-	fr := int16((f - ff) * 65535)
-	bs = append(Int16ToBytes(fr), byte(ff))
-	return
-}
+// //FloatToBytesRoundFP (f float64) (bs []byte) - Converts a float64 in [0;255] with a precision of 1/65535 to byte[3]
+// func FloatToBytesRoundFP(f float64) (bs []byte) {
+// 	ff := math.Floor(f)
+// 	fr := int16((f - ff) * 65535)
+// 	bs = append(Int16ToBytes(fr), byte(ff))
+// 	return
+// }
 
-//BytesToFloatRoundFP (bs []byte) (f float64) - Converts byte[3] into a float64 in [0;255] with a precision of 1/65535
-func BytesToFloatRoundFP(bs []byte) (f float64) {
-	f = float64(BytesToInt16(bs[0:2])) / 65535
-	f += float64(bs[2])
-	return
-}
+// //BytesToFloatRoundFP (bs []byte) (f float64) - Converts byte[3] into a float64 in [0;255] with a precision of 1/65535
+// func BytesToFloatRoundFP(bs []byte) (f float64) {
+// 	f = float64(BytesToInt16(bs[0:2])) / 65535
+// 	f += float64(bs[2])
+// 	return
+// }
 
 //UInt16ToBytes (i uint16) (b []byte) - converts a uint16 to [2]byte
 func UInt16ToBytes(i uint16) (b []byte) {
@@ -93,27 +92,27 @@ func BytesToUInt16(b []byte) uint16 {
 	return binary.LittleEndian.Uint16(b)
 }
 
-//UInt64ToBytes (i uint64) (b []byte) - converts a uint16 to [2]byte
+//UInt64ToBytes (i uint64) (b []byte) - converts a uint64 to [8]byte
 func UInt64ToBytes(i uint64) (b []byte) {
-	b = make([]byte, 2)
+	b = make([]byte, 8)
 	binary.LittleEndian.PutUint64(b, i)
 	return
 }
 
-//BytesToUInt64 (b []byte) uint64 - converts a [2]byte to uint16
+//BytesToUInt64 (b []byte) uint64 - converts a [8]byte to uint64
 func BytesToUInt64(b []byte) uint64 {
 	return binary.LittleEndian.Uint64(b)
 }
 
-//Int8ToBytes (i int8) []byte - converts a int8 to [1]byte
-func Int8ToBytes(i int8) []byte {
-	return []byte{byte(int(i) + 128)}
-}
+// //Int8ToBytes (i int8) []byte - converts a int8 to [1]byte
+// func Int8ToBytes(i int8) []byte {
+// 	return []byte{byte(int(i) + 128)}
+// }
 
-//BytesToInt8 (b []byte) int8 - converts a [1]byte to int8
-func BytesToInt8(b []byte) int8 {
-	return int8(int(b[0]) - 128)
-}
+// //BytesToInt8 (b []byte) int8 - converts a [1]byte to int8
+// func BytesToInt8(b []byte) int8 {
+// 	return int8(int(b[0]) - 128)
+// }
 
 //BoolToByte (b bool) byte - converts one bool into one byte
 func BoolToByte(b bool) byte {
@@ -181,43 +180,43 @@ func BytesToFloat64(bs []byte) (f float64) {
 	return
 }
 
-//Float64sToBytes (fs ...float64) (bs []byte) - converts multiple float64 into bytes
-func Float64sToBytes(fs ...float64) (bs []byte) {
-	lenFs := len(fs)
-	done := make(chan bool)
-	bs = make([]byte, lenFs*8)
-	for i, f := range fs {
-		start := i * 8
-		val := f
-		go func() {
-			copy(bs[start:start+8], Float64ToBytes(val))
-			done <- true
-		}()
-	}
-	for i := 0; i < lenFs; i++ {
-		<-done
-	}
-	return
-}
+// //Float64sToBytes (fs ...float64) (bs []byte) - converts multiple float64 into bytes
+// func Float64sToBytes(fs ...float64) (bs []byte) {
+// 	lenFs := len(fs)
+// 	done := make(chan bool)
+// 	bs = make([]byte, lenFs*8)
+// 	for i, f := range fs {
+// 		start := i * 8
+// 		val := f
+// 		go func() {
+// 			copy(bs[start:start+8], Float64ToBytes(val))
+// 			done <- true
+// 		}()
+// 	}
+// 	for i := 0; i < lenFs; i++ {
+// 		<-done
+// 	}
+// 	return
+// }
 
-//BytesToFloat64s (bs []byte) (fs []float64) - converts bytes into multiple float64
-func BytesToFloat64s(bs []byte) (fs []float64) {
-	lenFs := len(bs) / 8
-	done := make(chan bool)
-	fs = make([]float64, lenFs)
-	for i := range fs {
-		start := i * 8
-		idx := i
-		go func() {
-			fs[idx] = BytesToFloat64(bs[start : start+8])
-			done <- true
-		}()
-	}
-	for i := 0; i < lenFs; i++ {
-		<-done
-	}
-	return
-}
+// //BytesToFloat64s (bs []byte) (fs []float64) - converts bytes into multiple float64
+// func BytesToFloat64s(bs []byte) (fs []float64) {
+// 	lenFs := len(bs) / 8
+// 	done := make(chan bool)
+// 	fs = make([]float64, lenFs)
+// 	for i := range fs {
+// 		start := i * 8
+// 		idx := i
+// 		go func() {
+// 			fs[idx] = BytesToFloat64(bs[start : start+8])
+// 			done <- true
+// 		}()
+// 	}
+// 	for i := 0; i < lenFs; i++ {
+// 		<-done
+// 	}
+// 	return
+// }
 
 //Int64ToBytes (i int64) (b []byte) - Converts an int64 into a [8]byte array
 func Int64ToBytes(i int64) (b []byte) {
@@ -334,42 +333,42 @@ func BytesToInt16s(bs []byte) (is []int16) {
 	return
 }
 
-//Int16s2DToBytes (is ...[]int16) (bs []byte) - Converts a 2d slice of ints into a []byte slice
-func Int16s2DToBytes(is ...[]int16) (bs []byte) {
-	bs = make([]byte, 0)
-	bs = append(bs, Int64ToBytes(int64(len(is[0])))...)
+// //Int16s2DToBytes (is ...[]int16) (bs []byte) - Converts a 2d slice of ints into a []byte slice
+// func Int16s2DToBytes(is ...[]int16) (bs []byte) {
+// 	bs = make([]byte, 0)
+// 	bs = append(bs, Int64ToBytes(int64(len(is[0])))...)
 
-	for _, il := range is {
-		bs = append(bs, Int16sToBytes(il...)...)
-	}
+// 	for _, il := range is {
+// 		bs = append(bs, Int16sToBytes(il...)...)
+// 	}
 
-	return
-}
+// 	return
+// }
 
-//BytesToInt16s2D (bs []byte) (is [][]int16) - Converts a []byte slice into a 2d slice of ints
-func BytesToInt16s2D(bs []byte) (is [][]int16) {
-	is = make([][]int16, 0)
-	xl := int(BytesToInt64(bs[:8])) * 2
-	bs = bs[8:]
+// //BytesToInt16s2D (bs []byte) (is [][]int16) - Converts a []byte slice into a 2d slice of ints
+// func BytesToInt16s2D(bs []byte) (is [][]int16) {
+// 	is = make([][]int16, 0)
+// 	xl := int(BytesToInt64(bs[:8])) * 2
+// 	bs = bs[8:]
 
-	for true {
-		bts := bs[:xl]
-		is = append(is, BytesToInt16s(bts))
-		if xl >= len(bs) {
-			break
-		}
-		bs = bs[xl:]
-	}
-	return
-}
+// 	for true {
+// 		bts := bs[:xl]
+// 		is = append(is, BytesToInt16s(bts))
+// 		if xl >= len(bs) {
+// 			break
+// 		}
+// 		bs = bs[xl:]
+// 	}
+// 	return
+// }
 
-//AppendInt16ToBytes (i int16, bs []byte) []byte - Appends an int16 to a []byte slice
-func AppendInt16ToBytes(i int16, bs []byte) []byte {
-	ib := Int16ToBytes(i)
-	bs = append(bs, ib[0])
-	bs = append(bs, ib[1])
-	return bs
-}
+// //AppendInt16ToBytes (i int16, bs []byte) []byte - Appends an int16 to a []byte slice
+// func AppendInt16ToBytes(i int16, bs []byte) []byte {
+// 	ib := Int16ToBytes(i)
+// 	bs = append(bs, ib[0])
+// 	bs = append(bs, ib[1])
+// 	return bs
+// }
 
 //CompressBytes (bs []byte) ([]byte, error) - Compresses a []byte slice using gzip
 func CompressBytes(bs []byte) ([]byte, error) {

@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"math/big"
 
 	cmp "github.com/mortim-portim/GraphEng/compression"
 )
@@ -57,17 +56,15 @@ subMatrix with focus (3,2,15,12)
 //Returns a Matrix of width=x, height=y and initial value=v
 func GetMatrix(x, y int, v int64) (m *Matrix) {
 	m = &Matrix{}
-	m.x = &big.Int{}
-	m.y = &big.Int{}
-	m.x.SetInt64(int64(x))
-	m.y.SetInt64(int64(y))
+	m.x = uint64(x)
+	m.y = uint64(y)
 	m.Init(v)
 	m.ResetFocus()
 	return
 }
 
 type Matrix struct {
-	x, y  *big.Int
+	x, y  uint64
 	list  []int64
 	focus *Rectangle
 }
@@ -77,8 +74,8 @@ func (m *Matrix) ScaleTo(x, y int, v int64) {
 	for i := range nL {
 		nL[i] = v
 	}
-	m.x.SetInt64(int64(x))
-	m.y.SetInt64(int64(y))
+	m.x = uint64(x)
+	m.y = uint64(y)
 	m.list = append(m.list, nL...)
 }
 
@@ -94,17 +91,17 @@ func (m *Matrix) H() int {
 
 //Returns the absolute width of the Matrix
 func (m *Matrix) WAbs() int {
-	return int(m.x.Int64())
+	return int(m.x)
 }
 
 //Returns the absolute height of the Matrix
 func (m *Matrix) HAbs() int {
-	return int(m.y.Int64())
+	return int(m.y)
 }
 
 //Initializes m with a certain value
 func (m *Matrix) Init(standard int64) {
-	m.list = make([]int64, m.x.Int64()*m.y.Int64())
+	m.list = make([]int64, m.WAbs()*m.HAbs())
 	for i := range m.list {
 		m.list[i] = standard
 	}
@@ -112,7 +109,7 @@ func (m *Matrix) Init(standard int64) {
 
 //Initializes m with the indexes (used for debugging)
 func (m *Matrix) InitIdx() {
-	m.list = make([]int64, m.x.Int64()*m.y.Int64())
+	m.list = make([]int64, m.WAbs()*m.HAbs())
 	for i := range m.list {
 		m.list[i] = int64(i)
 	}
@@ -330,7 +327,7 @@ func (m *Matrix) AddToAllAbs(v int64) {
 
 //Resets the focus (0,0, m.x, m.y)
 func (m *Matrix) ResetFocus() {
-	m.focus = GetRectangle(0, 0, float64(m.x.Int64()), float64(m.y.Int64()))
+	m.focus = GetRectangle(0, 0, float64(m.WAbs()), float64(m.HAbs()))
 }
 
 //Sets the focus of the matrix
@@ -400,8 +397,8 @@ func (m *Matrix) Print() string {
 func (m *Matrix) ToBytes() []byte {
 	b := cmp.Int64sToBytes(m.list...)
 	b = append(b, cmp.Int16sToBytes(int16(m.focus.Min().X), int16(m.focus.Min().Y), int16(m.focus.Max().X), int16(m.focus.Max().Y))...)
-	b = append(b, cmp.BigIntToBytes(m.x)...)
-	b = append(b, cmp.BigIntToBytes(m.y)...)
+	b = append(b, cmp.UInt64ToBytes(m.x)...)
+	b = append(b, cmp.UInt64ToBytes(m.y)...)
 	return b
 }
 
@@ -409,8 +406,8 @@ func (m *Matrix) ToBytes() []byte {
 func (m *Matrix) FromBytes(bs []byte) {
 	m.list = cmp.BytesToInt64s(bs[:len(bs)-24])
 	is := cmp.BytesToInt16s(bs[len(bs)-24 : len(bs)-16])
-	m.x = cmp.BytesToBigInt(bs[len(bs)-16 : len(bs)-8])
-	m.y = cmp.BytesToBigInt(bs[len(bs)-8:])
+	m.x = cmp.BytesToUInt64(bs[len(bs)-16 : len(bs)-8])
+	m.y = cmp.BytesToUInt64(bs[len(bs)-8:])
 	m.focus = GetRectangle(float64(is[0]), float64(is[1]), float64(is[2]), float64(is[3]))
 
 	//Ensure backcompatibility

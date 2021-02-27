@@ -10,7 +10,7 @@ func (p *WorldStructure) MoveSmooth(dx, dy int, update, force bool) {
 	p.MoveMiddleDelta(-dx, -dy)
 	mX, mY := p.GetMiddleDelta()
 	ts := int(p.tileS)
-	if math.Abs(float64(mX)) >= p.tileS {
+	if IntAbs(mX) >= ts {
 		if mX < 0 {
 			p.Move(1, 0, update, force)
 			p.middleDx += ts
@@ -20,7 +20,7 @@ func (p *WorldStructure) MoveSmooth(dx, dy int, update, force bool) {
 		}
 
 	}
-	if math.Abs(float64(mY)) >= p.tileS {
+	if IntAbs(mY) >= ts {
 		if mY < 0 {
 			p.Move(0, 1, update, force)
 			p.middleDy += ts

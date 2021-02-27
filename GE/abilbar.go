@@ -9,7 +9,7 @@ import (
 //Creates an bar to display stats
 //img:				backgrundimage
 //x, y, w			size of image
-//dx, dy, dw, dh:	size of the bar, x and y relativ to the image pos
+//dx, dy, dw, dh:	size of the bar, x and y relativ to the image pos and will be scaled like the imgage
 //color:			color of the bar
 func GetAbilbar(img *ebiten.Image, x, y, w, dx, dy, dw, dh float64, barcolor, backcol color.Color) *Abilbar {
 	imgobj := EbitenImgToImgObj(img)

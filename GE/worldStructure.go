@@ -280,7 +280,7 @@ func (p *WorldStructure) IterateOverDrawablesInRect(rec *Rectangle, fnc func(so 
 	for y := int(minP.Y - OBJ_MAX_SIZE); y < int(maxP.Y+OBJ_MAX_SIZE); y++ {
 		for x := int(minP.X - OBJ_MAX_SIZE); x < int(maxP.X+OBJ_MAX_SIZE); x++ {
 			mvi, err := p.ObjMat.GetAbs(x, y)
-			idx := int(math.Abs(float64(mvi)))
+			idx := Int64Abs(mvi)
 			if idx != 0 && err == nil {
 				idx -= 1
 				fnc(p.Objects[idx])

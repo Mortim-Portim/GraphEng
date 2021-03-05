@@ -53,6 +53,13 @@ type Force struct {
 	Update    func(f *Force)
 }
 
+func GetResultingForce(fs ...*Force) (f *Force) {
+	f = GetNewPlainForceAlwaysActive()
+	for _, fa := range fs {
+		f.SetForceVec(fa.GetForceVec().Add(f.GetForceVec()))
+	}
+	return
+}
 func getStandardForce() *Force {
 	f := Force{}
 	f.amount = 0
@@ -71,8 +78,7 @@ func GetNewPlainForceAlwaysActive() *Force {
 	return f
 }
 func GetNewPlainForceDir(x, y, z float64) *Force {
-	f := getStandardForce()
-	f.Update = fU
+	f := GetNewPlainForce()
 	f.SetForceVec(&Vector{x, y, z})
 	return f
 }
@@ -93,6 +99,14 @@ func GetNewForce(updater ForceUpdater, v *Vector) *Force {
 	f.SetForceVec(v)
 	f.Update = updater
 	return f
+}
+func GetNewForceWithDurationAndDir(duration int, v *Vector) *Force {
+	f := GetNewPlainForceOfDuration(duration)
+	f.SetForceVec(v)
+	return f
+}
+func GetNewRandomForce(minV, maxV float64) *Force {
+	return GetNewForce(fU, GetRandomVector(minV, maxV))
 }
 func (f *Force) SetForceVec(v *Vector) {
 	if v == nil {

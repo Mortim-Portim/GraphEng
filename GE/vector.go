@@ -192,7 +192,7 @@ func VectorFromBytes(bs []byte) (v *Vector) {
 	v.Z = cmp.BytesToFloat64(bs[16:])
 	return
 }
-func GetRandomVector() *Vector {
+func GetRandomVector(min, max float64) *Vector {
 	angle := RandomFloat(0, 360)
-	return GetVectorFromRot(angle)
+	return GetVectorFromRot(angle).Mul(RandomFloat(min, max))
 }

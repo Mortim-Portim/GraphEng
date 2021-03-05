@@ -3,6 +3,7 @@ package GE
 import (
 	"errors"
 	"fmt"
+	"image"
 	"io/ioutil"
 
 	cmp "github.com/mortim-portim/GraphEng/compression"
@@ -60,6 +61,14 @@ func GetMatrix(x, y int, v int64) (m *Matrix) {
 	m.y = uint64(y)
 	m.Init(v)
 	m.ResetFocus()
+	return
+}
+func GetMatrixFromImage(img *image.Gray) (m *Matrix) {
+	m = &Matrix{}
+	m.x = uint64(img.Bounds().Dx())
+	m.y = uint64(img.Bounds().Dy())
+	m.ResetFocus()
+	m.FillFromImage(img)
 	return
 }
 
@@ -286,6 +295,15 @@ func (m *Matrix) Fill(x1, y1, x2, y2 int, v int64) {
 func (m *Matrix) FillAll(v int64) {
 	for i := range m.list {
 		m.list[i] = v
+	}
+}
+func (m *Matrix) FillFromImage(img *image.Gray) {
+	for x := 0; x < int(m.x); x++ {
+		for y := 0; y < int(m.y); y++ {
+			if (image.Point{x, y}.In(img.Rect)) {
+				m.SetAbs(x, y, int64(img.GrayAt(x, y).Y))
+			}
+		}
 	}
 }
 

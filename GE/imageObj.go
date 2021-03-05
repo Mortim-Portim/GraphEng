@@ -30,7 +30,7 @@ func NewImageObj(img *image.Image, eimg *ebiten.Image, X, Y, W, H, angle float64
 
 //Loads the Image in Original Resolution
 func LoadImgObj(path string, width, height, x, y, angle float64) (*ImageObj, error) {
-	err, img := LoadImg(path)
+	img, err := LoadImg(path)
 	if err != nil {
 		return nil, err
 	}
@@ -252,16 +252,16 @@ func DrawImageOnImage(dst, src *ebiten.Image, x, y float64) {
 }
 
 //Loads an image.Image
-func LoadImg(path string) (error, *image.Image) {
+func LoadImg(path string) (*image.Image, error) {
 	f, err := os.Open(path)
 	if err != nil {
-		return err, nil
+		return nil, err
 	}
 	img, format, err2 := image.Decode(f)
 	if err2 != nil {
-		return errors.New(fmt.Sprintf("%v, Format: %s", err2, format)), nil
+		return nil, errors.New(fmt.Sprintf("%v, Format: %s", err2, format))
 	}
-	return nil, &img
+	return &img, nil
 }
 
 //Converts an image.Image to an ebiten.Image
@@ -272,7 +272,7 @@ func ImgToEbitenImg(img *image.Image) *ebiten.Image {
 
 //Loads an ebiten.Image
 func LoadEbitenImg(path string) (*ebiten.Image, error) {
-	err, img := LoadImg(path)
+	img, err := LoadImg(path)
 	if err != nil {
 		return nil, err
 	}
@@ -339,7 +339,7 @@ func GetScaleOfEbitenImage(img *ebiten.Image) float64 {
 func InitIcons(path string, sizes []int, fileformat string) ([]image.Image, error) {
 	imgs := make([]image.Image, len(sizes))
 	for i := range imgs {
-		err, img := LoadImg(fmt.Sprintf("%s/%v.%s", path, sizes[i], fileformat))
+		img, err := LoadImg(fmt.Sprintf("%s/%v.%s", path, sizes[i], fileformat))
 		if err != nil {
 			return nil, err
 		}

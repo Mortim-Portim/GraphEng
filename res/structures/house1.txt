@@ -1,0 +1,8 @@
+spriteWidth:    65
+fps:            0
+hitBoxWidth:    4
+hitBoxHeight:   2.5
+Collides:       true
+squareSize:     16
+layer:			10
+understandable: false

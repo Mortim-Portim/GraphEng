@@ -17,7 +17,7 @@ house
 
 
 folderPath
-	--> index.txt
+	--> #index.txt
 	--> tree.png
 	--> house.png
 **/

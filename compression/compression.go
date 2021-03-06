@@ -180,43 +180,43 @@ func BytesToFloat64(bs []byte) (f float64) {
 	return
 }
 
-// //Float64sToBytes (fs ...float64) (bs []byte) - converts multiple float64 into bytes
-// func Float64sToBytes(fs ...float64) (bs []byte) {
-// 	lenFs := len(fs)
-// 	done := make(chan bool)
-// 	bs = make([]byte, lenFs*8)
-// 	for i, f := range fs {
-// 		start := i * 8
-// 		val := f
-// 		go func() {
-// 			copy(bs[start:start+8], Float64ToBytes(val))
-// 			done <- true
-// 		}()
-// 	}
-// 	for i := 0; i < lenFs; i++ {
-// 		<-done
-// 	}
-// 	return
-// }
+//Float64sToBytes (fs ...float64) (bs []byte) - converts multiple float64 into bytes
+func Float64sToBytes(fs ...float64) (bs []byte) {
+	lenFs := len(fs)
+	done := make(chan bool)
+	bs = make([]byte, lenFs*8)
+	for i, f := range fs {
+		start := i * 8
+		val := f
+		go func() {
+			copy(bs[start:start+8], Float64ToBytes(val))
+			done <- true
+		}()
+	}
+	for i := 0; i < lenFs; i++ {
+		<-done
+	}
+	return
+}
 
-// //BytesToFloat64s (bs []byte) (fs []float64) - converts bytes into multiple float64
-// func BytesToFloat64s(bs []byte) (fs []float64) {
-// 	lenFs := len(bs) / 8
-// 	done := make(chan bool)
-// 	fs = make([]float64, lenFs)
-// 	for i := range fs {
-// 		start := i * 8
-// 		idx := i
-// 		go func() {
-// 			fs[idx] = BytesToFloat64(bs[start : start+8])
-// 			done <- true
-// 		}()
-// 	}
-// 	for i := 0; i < lenFs; i++ {
-// 		<-done
-// 	}
-// 	return
-// }
+//BytesToFloat64s (bs []byte) (fs []float64) - converts bytes into multiple float64
+func BytesToFloat64s(bs []byte) (fs []float64) {
+	lenFs := len(bs) / 8
+	done := make(chan bool)
+	fs = make([]float64, lenFs)
+	for i := range fs {
+		start := i * 8
+		idx := i
+		go func() {
+			fs[idx] = BytesToFloat64(bs[start : start+8])
+			done <- true
+		}()
+	}
+	for i := 0; i < lenFs; i++ {
+		<-done
+	}
+	return
+}
 
 //Int64ToBytes (i int64) (b []byte) - Converts an int64 into a [8]byte array
 func Int64ToBytes(i int64) (b []byte) {

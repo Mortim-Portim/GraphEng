@@ -17,8 +17,8 @@ func GetParticle(frame, frameTime, fps int, mass float64, dir *Vector, anim *Ani
 	return
 }
 func GetParticleWithRandomDirAndForce(frame, frameTime, fps int, mass float64, anim *Animation, X, Y, W, H float64) (p *Particle) {
-	p = GetParticle(frame, frameTime, fps, mass, GetRandomVector(0, 0.01), anim, X, Y, W, H)
-	p.Forces = append(p.Forces, GetNewRandomForce(0, 0.001))
+	p = GetParticle(frame, frameTime, fps, mass, GetRandomVector(0, 0.0000001), anim, X, Y, W, H)
+	p.Forces = append(p.Forces, GetNewRandomForce(0, 0))
 	return
 }
 
@@ -37,6 +37,9 @@ type ParticleFactory struct {
 
 func (pf *ParticleFactory) GetNewRandom(frame int, mass float64, X, Y, W, H float64) *Particle {
 	return GetParticleWithRandomDirAndForce(frame, pf.frameTime, pf.FPS, mass, pf.anim.Clone(), X, Y, W, H)
+}
+func (pf *ParticleFactory) GetNew(frame int, mass float64, dir *Vector, X, Y, W, H float64) *Particle {
+	return GetParticle(frame, pf.frameTime, pf.FPS, mass, dir, pf.anim.Clone(), X, Y, W, H)
 }
 
 type Particle struct {

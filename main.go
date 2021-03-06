@@ -31,12 +31,11 @@ func main() {
 	wrld.SetMiddleSmooth(TEST_MIDDLE, TEST_MIDDLE)
 	wrld.UpdateLIdxMat()
 
-	ps := GE.GetNewParticleSystem(10)
 	sprites, err := GE.LoadEbitenImg("./res/anims/arrow.png")
 	GE.ShitImDying(err)
 	psAnim := GE.GetAnimation(0, 0, 1, 1, 16, 6, sprites)
 	pf := GE.GetNewParticleFactory(100, 30, psAnim)
-	ps.Add(pf.GetNewRandom(0, 1.0, 50, 50, 1, 1))
+	ps := GE.GetNewParticleSystem(10, pf)
 
 	wrld.Add_Drawables = wrld.Add_Drawables.Add(ps)
 	wrld.UpdateObjMat()

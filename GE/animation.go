@@ -29,7 +29,7 @@ type Animation struct {
 }
 
 func (a *Animation) Clone() *Animation {
-	return &Animation{a.ImageObj, a.sprites, a.current, a.spriteWidth, a.spriteHeight, a.UpdatePeriod, a.lastFrame, a.spriteSheet}
+	return &Animation{*a.ImageObj.Copy(), a.sprites, a.current, a.spriteWidth, a.spriteHeight, a.UpdatePeriod, a.lastFrame, a.spriteSheet}
 }
 func (a *Animation) Init(screen *ebiten.Image, data interface{}) (UpdateFunc, DrawFunc) {
 	return a.Update, a.DrawImageObj

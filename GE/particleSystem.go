@@ -2,11 +2,12 @@ package GE
 
 import "github.com/hajimehoshi/ebiten"
 
-func GetNewParticleSystem(layer uint8) (ps *ParticleSystem) {
+func GetNewParticleSystem(layer uint8, pf *ParticleFactory) (ps *ParticleSystem) {
 	ps = &ParticleSystem{
 		Particles: make([]*Particle, 0),
 		layer:     layer,
 		DrawBox:   GetRectangle(0, 0, 1, 1),
+		pf:        pf,
 	}
 	return
 }
@@ -16,8 +17,29 @@ type ParticleSystem struct {
 	layer     uint8
 	DrawBox   *Rectangle
 	x, y      float64
+	pf        *ParticleFactory
 }
 
+func (ps *ParticleSystem) Spawn(count, frame int, mass float64, dir *Vector, deltaA float64, X, Y, W, H float64) {
+	if ps.pf == nil {
+		return
+	}
+
+	angle := -deltaA
+	for i := 0; i < count; i++ {
+		nDir := dir.Copy().RotateZ(angle)
+		angle += deltaA * 2 / float64(count)
+		ps.Add(ps.pf.GetNew(frame, mass, nDir, X, Y, W, H))
+	}
+}
+func (ps *ParticleSystem) SpawnRandom(count, frame int, mass, X, Y, W, H float64) {
+	if ps.pf == nil {
+		return
+	}
+	for i := 0; i < count; i++ {
+		ps.Add(ps.pf.GetNewRandom(frame, mass, X, Y, W, H))
+	}
+}
 func (ps *ParticleSystem) Add(p *Particle) {
 	ps.Particles = append(ps.Particles, p)
 }

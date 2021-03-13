@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"sync"
 
-	"github.com/hajimehoshi/ebiten/v2"
+	ebiten "github.com/hajimehoshi/ebiten/v2"
 )
 
 /**

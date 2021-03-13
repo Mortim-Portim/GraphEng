@@ -6,7 +6,7 @@ import (
 	"math"
 	"time"
 
-	"github.com/hajimehoshi/ebiten/v2"
+	ebiten "github.com/hajimehoshi/ebiten/v2"
 	cmp "github.com/mortim-portim/GraphEng/compression"
 )
 

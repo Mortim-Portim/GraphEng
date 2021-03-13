@@ -1,6 +1,6 @@
 package GE
 
-import "github.com/hajimehoshi/ebiten/v2"
+import ebiten "github.com/hajimehoshi/ebiten/v2"
 
 func GetNewParticleSystem(layer uint8, pf *ParticleFactory) (ps *ParticleSystem) {
 	ps = &ParticleSystem{

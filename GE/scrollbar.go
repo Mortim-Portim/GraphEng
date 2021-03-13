@@ -5,7 +5,7 @@ import (
 	"image/color"
 
 	"github.com/golang/freetype/truetype"
-	"github.com/hajimehoshi/ebiten/v2"
+	ebiten "github.com/hajimehoshi/ebiten/v2"
 )
 
 /**

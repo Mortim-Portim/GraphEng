@@ -1,6 +1,6 @@
 package GE
 
-import "github.com/hajimehoshi/ebiten/v2"
+import ebiten "github.com/hajimehoshi/ebiten/v2"
 
 func GetParticle(frame, frameTime, fps int, mass float64, dir *Vector, anim *Animation, X, Y, W, H float64) (p *Particle) {
 	p = &Particle{

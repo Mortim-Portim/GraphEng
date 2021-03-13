@@ -16,7 +16,7 @@ import (
 	"time"
 
 	"github.com/golang/freetype/truetype"
-	"github.com/hajimehoshi/ebiten/v2"
+	ebiten "github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/mortim-portim/GraphEng/res"

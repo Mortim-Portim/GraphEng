@@ -7,7 +7,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/hajimehoshi/ebiten/v2"
+	ebiten "github.com/hajimehoshi/ebiten/v2"
 	"github.com/icza/mjpeg"
 )
 

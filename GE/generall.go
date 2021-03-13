@@ -316,8 +316,8 @@ func GetAllFiles(root string) ([]string, error) {
 	if err != nil {
 		return files, err
 	}
+	defer f.Close()
 	fileInfo, err := f.Readdir(-1)
-	f.Close()
 	if err != nil {
 		return files, err
 	}
@@ -337,8 +337,8 @@ func AppendAllFilesInAllFolders(files *[]string, root string, folderFs []os.File
 			if err != nil {
 				return err
 			}
+			defer f.Close()
 			fileInfo, err := f.Readdir(-1)
-			f.Close()
 			if err != nil {
 				return err
 			}
@@ -359,8 +359,8 @@ func OSReadDir(root string) ([]string, error) {
 	if err != nil {
 		return files, err
 	}
+	defer f.Close()
 	fileInfo, err := f.Readdir(-1)
-	f.Close()
 	if err != nil {
 		return files, err
 	}

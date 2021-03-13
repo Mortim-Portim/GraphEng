@@ -71,6 +71,7 @@ type List struct {
 func (l *List) LoadFromFile(path string) error {
 	f, err := os.Open(path)
 	CheckErr(err)
+	defer f.Close()
 	scanner := bufio.NewScanner(f)
 	l.strs = make([]string, 0)
 	for scanner.Scan() {
@@ -111,6 +112,7 @@ func (p *Params) LoadFromFile(path string) error {
 	if err != nil {
 		return err
 	}
+	defer f.Close()
 	scanner := bufio.NewScanner(f)
 	p.p = make(map[string]float64)
 	p.strs = make(map[string]string)

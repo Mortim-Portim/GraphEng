@@ -257,6 +257,7 @@ func LoadImg(path string) (*image.Image, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer f.Close()
 	img, format, err2 := image.Decode(f)
 	if err2 != nil {
 		return nil, errors.New(fmt.Sprintf("%v, Format: %s", err2, format))

@@ -8,7 +8,7 @@ import (
 
 	"github.com/go-gl/glfw/v3.3/glfw"
 	"github.com/golang/freetype/truetype"
-	"github.com/hajimehoshi/ebiten"
+	"github.com/hajimehoshi/ebiten/v2"
 )
 
 /**

@@ -1,8 +1,9 @@
 package GE
 
 import (
-	"github.com/hajimehoshi/ebiten"
 	"strings"
+
+	"github.com/hajimehoshi/ebiten/v2"
 	//"image"
 )
 
@@ -17,28 +18,33 @@ TextView implements UpdateAble
 **/
 
 type TextView struct {
-	X,Y,W,H float64
-	text string
-	lineHeight float64
+	X, Y, W, H                     float64
+	text                           string
+	lineHeight                     float64
 	lines, displayLines, scrollIdx int
-	
+
 	lineImages []*ImageObj
 }
+
 //Resets the TextView
 func (v *TextView) Reset() {
 	v.scrollIdx = 0
 }
+
 //Initializes the TextView
 func (v *TextView) Init(screen *ebiten.Image, data interface{}) (UpdateFunc, DrawFunc) {
 	v.Reset()
 	return v.Update, v.Draw
 }
+
 //Starts the TextView
 func (v *TextView) Start(screen *ebiten.Image, data interface{}) {
 	v.Reset()
 }
+
 //Stops the TextView
 func (v *TextView) Stop(screen *ebiten.Image, data interface{}) {}
+
 //Updates the TextView
 func (v *TextView) Update(frame int) {
 	x, y := ebiten.CursorPosition()
@@ -49,26 +55,27 @@ func (v *TextView) Update(frame int) {
 			v.scrollIdx = 0
 		}
 		if v.scrollIdx >= v.lines-v.displayLines {
-			v.scrollIdx = v.lines-v.displayLines
+			v.scrollIdx = v.lines - v.displayLines
 		}
 	}
 }
+
 //Draws the TextView
 func (v *TextView) Draw(screen *ebiten.Image) {
 	for i := 0; i < v.displayLines; i++ {
-		idx := i+v.scrollIdx
-		v.lineImages[idx].Y = v.Y+float64(i)*v.lineHeight
+		idx := i + v.scrollIdx
+		v.lineImages[idx].Y = v.Y + float64(i)*v.lineHeight
 		v.lineImages[idx].DrawImageObj(screen)
 	}
 }
 
 //Returns the number of lines a string has
 func HasLines(text string) int {
-	return strings.Count(text, "\n")+1
+	return strings.Count(text, "\n") + 1
 }
 
 //Formats a string to a specific number of maximum runes per line
-func FormatTextToWidth(text string, maxRunes int, hardBreak bool) (string) {
+func FormatTextToWidth(text string, maxRunes int, hardBreak bool) string {
 	if hardBreak {
 		return formatTextToWidthHardBreak(text, maxRunes)
 	}
@@ -77,23 +84,23 @@ func FormatTextToWidth(text string, maxRunes int, hardBreak bool) (string) {
 
 func formatTextToWidthHardBreak(text string, maxRunes int) (formatet string) {
 	formatet = ""
-	
+
 	currentLength := 0
-	for _,r := range(text) {
+	for _, r := range text {
 		if string(r) != "\n" {
-			currentLength ++
+			currentLength++
 			if currentLength <= maxRunes {
 				formatet += string(r)
-			}else{
-				formatet += "\n"+string(r)
+			} else {
+				formatet += "\n" + string(r)
 				currentLength = 1
 			}
-		}else{
+		} else {
 			formatet += "\n"
 			currentLength = 0
 		}
 	}
-	
+
 	return
 }
 
@@ -101,21 +108,21 @@ func formatTextToWidthByWords(text string, maxRunes int) (formatet string) {
 	text = strings.ReplaceAll(text, "\n", " \n")
 	words := strings.Split(text, " ")
 	newWords := make([]string, 0)
-	
+
 	currentLength := 0
-	for _,word := range(words) {
-		currentLength += len(word)+1
+	for _, word := range words {
+		currentLength += len(word) + 1
 		if currentLength < maxRunes && strings.Index(word, "\n") == -1 {
 			newWords = append(newWords, word)
-		}else{
+		} else {
 			word = strings.ReplaceAll(word, "\n", "")
 			if len(word)+1 > maxRunes {
 				newWords = append(newWords, "\n"+string(word[:maxRunes]))
 				newWords = append(newWords, "\n"+string(word[maxRunes:]))
-				currentLength = len(word[maxRunes:])+1
-			}else{
+				currentLength = len(word[maxRunes:]) + 1
+			} else {
 				newWords = append(newWords, "\n"+word)
-				currentLength = len(word)+1
+				currentLength = len(word) + 1
 			}
 		}
 	}

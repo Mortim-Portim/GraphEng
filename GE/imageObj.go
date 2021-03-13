@@ -12,7 +12,7 @@ import (
 	"image/png"
 	"math"
 
-	"github.com/hajimehoshi/ebiten"
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/nfnt/resize"
 )
 

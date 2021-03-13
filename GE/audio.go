@@ -4,8 +4,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/hajimehoshi/ebiten/audio"
-	"github.com/hajimehoshi/ebiten/audio/mp3"
+	"github.com/hajimehoshi/ebiten/v2/audio"
+	"github.com/hajimehoshi/ebiten/v2/audio/mp3"
 )
 
 //IMPORTANT: Call InitAudioContext() before creating a new Player

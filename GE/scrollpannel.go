@@ -3,7 +3,7 @@ package GE
 import (
 	"image/color"
 
-	"github.com/hajimehoshi/ebiten"
+	"github.com/hajimehoshi/ebiten/v2"
 )
 
 func GetScrollPanelFromStrings(X, Y, W, H, buttonH, space float64, txtcolor, backcolor color.Color, names ...string) (sp *ScrollPanel) {

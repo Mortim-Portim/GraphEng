@@ -3,7 +3,7 @@ package GE
 import (
 	"image"
 
-	"github.com/hajimehoshi/ebiten"
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/nfnt/resize"
 )
 

@@ -7,8 +7,8 @@ require (
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/hajimehoshi/ebiten/v2 v2.0.6
 	github.com/icza/mjpeg v0.0.0-20201020132628-7c1e1838a393
-	github.com/mortim-portim/GraphEng/compression v0.0.0-20210313132001-81ac7c2659b5
-	github.com/mortim-portim/GraphEng/res v0.0.0-20210313132001-81ac7c2659b5
+	github.com/mortim-portim/GraphEng/compression v0.0.0-20210313134449-764e077e69ab
+	github.com/mortim-portim/GraphEng/res v0.0.0-20210313134449-764e077e69ab
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	golang.org/x/image v0.0.0-20210220032944-ac19c3e999fb
 )
